@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AssistantController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CarController as AdminCarController;
@@ -63,6 +64,10 @@ Route::prefix('admin')
         // Analytics & reports
         Route::get('reports', [ReportController::class, 'index'])->name('reports');
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
+
+        // AI business assistant
+        Route::get('assistant', [AssistantController::class, 'index'])->name('assistant');
+        Route::post('assistant', [AssistantController::class, 'ask'])->middleware('throttle:20,1')->name('assistant.ask');
 
         // Cars CRUD
         Route::resource('cars', AdminCarController::class)->except('show');

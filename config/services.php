@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // Claude (Anthropic) — powers the AI business assistant (Phase 6).
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-opus-4-8'),
+        'base_url' => env('ANTHROPIC_BASE_URL', 'https://api.anthropic.com'),
+    ],
+
 ];

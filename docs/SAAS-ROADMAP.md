@@ -108,17 +108,24 @@ memakai status `completed` saja (labelnya memang "booking selesai") — sengaja 
 ### Phase 5 — Customer dashboard + loyalty
 - [ ] Riwayat booking pelanggan, ulangi booking, poin loyalitas.
 
-### Phase 6 — Fitur AI  (paling akhir — butuh fondasi tenant & data)
-Target: Owner tanya "Pendapatan bulan ini berapa?" → AI menjawab dari data.
+### Phase 6 — Fitur AI  ← SELESAI (asisten analitik)
+Target tercapai: Owner tanya "Pendapatan bulan ini berapa?" → AI menjawab dari data.
 
-- **Pola aman = function calling, BUKAN generate SQL bebas.** Definisikan sekumpulan
-  "tool" query yang sudah discope tenant, mis:
-  - `monthly_revenue(month)` → `SUM(total_price) WHERE status IN (confirmed,completed)`
-  - `fleet_utilization(range)`, `top_cars(range)`, `pending_bookings()`.
-- AI (Claude, function calling) memilih tool + parameter; kode kita yang mengeksekusi
-  query dengan `tenant_id` aktif. AI tidak pernah menyentuh SQL mentah → tidak ada
-  risiko prompt-injection `DELETE` atau baca data tenant lain.
-- Tambahan: rekomendasi harga dinamis, chatbot customer.
+- [x] **Pola aman = function calling** di atas `ReportService` (BUKAN SQL bebas).
+  Tools: `business_summary`, `revenue_trend`, `top_cars`, `fleet_status`
+  (`App\AI\AssistantTools`). Semua read-only & tenant-scoped.
+- [x] **Loop tool-use** (`App\AI\AssistantService`) — Claude memilih tool + argumen,
+  kode kita eksekusi query tenant aktif, hasil dikembalikan, ulang sampai jawaban final.
+  AI tidak pernah menyentuh SQL → aman dari prompt-injection / kebocoran antar-tenant.
+- [x] **Halaman `/admin/assistant`** — chat sederhana + contoh pertanyaan. Menu "Asisten AI".
+- [x] Integrasi via **Laravel Http** ke `POST /v1/messages` (tanpa paket Composer baru).
+  Model default `claude-opus-4-8`, override lewat `ANTHROPIC_MODEL`. Config di
+  `config/services.php` (`services.anthropic`), key di `.env` (`ANTHROPIC_API_KEY`).
+  Fitur nonaktif otomatis & aman bila key kosong.
+- [x] Test: `AiAssistantTest` (4, pakai `Http::fake`). Total suite **31 hijau**.
+- [ ] (Nanti) rekomendasi harga dinamis; chatbot customer; adaptive thinking; riwayat percakapan.
+
+**Aktivasi:** isi `ANTHROPIC_API_KEY` di `.env`, lalu `php artisan config:clear`.
 
 ---
 

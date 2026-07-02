@@ -41,6 +41,9 @@
             <a href="{{ route('admin.reports') }}" class="{{ request()->routeIs('admin.reports') ? 'active' : '' }}">
                 <x-icon name="gauge" /> Laporan
             </a>
+            <a href="{{ route('admin.assistant') }}" class="{{ request()->routeIs('admin.assistant') ? 'active' : '' }}">
+                <x-icon name="sparkle" /> Asisten AI
+            </a>
             <a href="{{ route('admin.testimonials.index') }}" class="{{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}">
                 <x-icon name="star" /> Testimoni
             </a>
