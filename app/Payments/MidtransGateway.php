@@ -53,10 +53,17 @@ class MidtransGateway implements PaymentGateway
             ],
         ];
 
-        $response = Http::withBasicAuth($serverKey, '')
-            ->acceptJson()
-            ->timeout(30)
-            ->post($this->snapUrl(), $payload);
+        try {
+            $response = Http::withBasicAuth($serverKey, '')
+                ->acceptJson()
+                ->timeout(30)
+                ->post($this->snapUrl(), $payload);
+        } catch (\Throwable $e) {
+            // Network/SSL failure — degrade to the offline flow instead of 500ing.
+            Log::warning('Midtrans checkout unreachable', ['booking' => $booking->id, 'error' => $e->getMessage()]);
+
+            return null;
+        }
 
         if ($response->failed() || ! $response->json('redirect_url')) {
             Log::warning('Midtrans checkout failed', ['booking' => $booking->id, 'body' => $response->body()]);
