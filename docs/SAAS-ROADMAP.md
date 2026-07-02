@@ -33,22 +33,36 @@ Gabung ke fondasi (bukan fitur terpisah), karena "Owner punya banyak Admin" dan
 
 ## Roadmap bertahap
 
-### Phase 0 — Tenancy + Role Management  ← MULAI DI SINI
-- [ ] Tabel `tenants` (nama rental, slug/subdomain, status langganan, plan).
-- [ ] Kolom `tenant_id` + FK di `cars`, `bookings`, `contact_messages`,
-      `testimonials`, `users`.
-- [ ] Trait `BelongsToTenant` + `TenantScope` (global scope) untuk semua model bisnis.
-- [ ] Resolusi tenant aktif: via subdomain (`rentalA.app.com`) atau kolom pada user.
-- [ ] Kolom `role` pada `users` (owner/admin/driver/customer) + policy/gate.
-- [ ] Middleware `role:owner` dsb. menggantikan `admin` yang sekarang.
-- [ ] Registrasi tenant baru (signup Owner → buat tenant → seed data contoh).
-- [ ] Seeder: pisahkan data demo Lajur menjadi tenant #1.
-- [ ] **Test isolasi**: user tenant A tidak boleh melihat/ubah data tenant B.
+### Phase 0 — Tenancy + Role Management  ← SEDANG DIKERJAKAN (inti selesai)
+- [x] Tabel `tenants` (nama rental, slug/subdomain, status langganan, plan).
+- [x] Kolom `tenant_id` + FK di `cars`, `bookings`, `contact_messages`,
+      `testimonials`, `users` (nullable + di-backfill ke tenant default `lajur`).
+- [x] Trait `BelongsToTenant` + `TenantScope` (global scope, null-safe) untuk model bisnis.
+- [x] Resolusi tenant aktif: `IdentifyTenant` middleware (user → subdomain → default).
+- [x] Kolom `role` pada `users` (owner/admin/driver/customer).
+- [x] Middleware `role:owner,admin` + `admin` diperbarui (owner & admin punya akses back office).
+- [x] Seeder: data demo Lajur menjadi tenant #1; akun admin lama → role `owner`.
+- [x] **Test isolasi**: `tests/Feature/TenancyIsolationTest.php` (hijau).
+- [ ] **Registrasi tenant mandiri** (signup Owner → buat tenant + slug → seed data contoh
+      → login). ← SATU-SATUNYA SISA PHASE 0, butuh keputusan alur signup.
+- [ ] (Nanti) email unik per-tenant (kini masih unik global) saat customer bisa daftar
+      di banyak rental.
 
-### Phase 1 — Booking & kalender ketersediaan
-- [ ] Kalender ketersediaan armada (cegah double-booking rentang tanggal).
-- [ ] Status booking granular + histori perubahan.
-- [ ] QR Code konfirmasi booking.
+**Catatan implementasi:** `User` sengaja TIDAK diberi global scope tenant agar auth/login
+tidak rusak (tenant di-resolve DARI user). Scope model bisnis bersifat null-safe: tanpa
+konteks tenant (console/seed/super-admin) query tidak difilter — perilaku lama tetap utuh.
+
+### Phase 1 — Booking & kalender ketersediaan  ← SEDANG DIKERJAKAN
+- [x] **Cegah double-booking**: `Booking::scopeActive/scopeOverlapping`,
+      `Car::isAvailableForRange()`; ditegakkan di alur booking publik
+      (BookingController). Status pemblokir = pending + confirmed.
+- [x] **Kalender ketersediaan armada** (admin): `/admin/calendar` — grid mobil × hari,
+      sel berwarna per status, navigasi bulan, link ke detail booking. Menu sidebar "Kalender".
+- [x] Test: `tests/Feature/BookingAvailabilityTest.php` (5 test, hijau).
+- [ ] **Live-check di modal booking publik** (tampilkan tanggal terpesan sebelum submit
+      via endpoint JSON) — enhancement UX, belum dikerjakan.
+- [ ] Status booking granular + **histori perubahan status**.
+- [ ] **QR Code** konfirmasi booking.
 
 ### Phase 2 — Manajemen armada & driver
 - [ ] Penugasan driver ke booking.

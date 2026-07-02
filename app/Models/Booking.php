@@ -57,6 +57,12 @@ class Booking extends Model
     ];
 
     /**
+     * Statuses that reserve a car for its date range (i.e. block other bookings).
+     * Cancelled never blocks; completed is historical and does not block future dates.
+     */
+    public const BLOCKING_STATUSES = ['pending', 'confirmed'];
+
+    /**
      * @return BelongsTo<Car, $this>
      */
     public function car(): BelongsTo
@@ -68,6 +74,22 @@ class Booking extends Model
     public function scopeStatus(Builder $query, ?string $status): Builder
     {
         return $query->when($status, fn (Builder $q) => $q->where('status', $status));
+    }
+
+    /** Scope: only bookings that currently reserve a car (block availability). */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereIn('status', self::BLOCKING_STATUSES);
+    }
+
+    /**
+     * Scope: bookings whose date range overlaps [$start, $end] (inclusive).
+     * Two inclusive ranges overlap when start_a <= end_b AND end_a >= start_b.
+     */
+    public function scopeOverlapping(Builder $query, string $start, string $end): Builder
+    {
+        return $query->where('start_date', '<=', $end)
+            ->where('end_date', '>=', $start);
     }
 
     /** Human-readable status label. */

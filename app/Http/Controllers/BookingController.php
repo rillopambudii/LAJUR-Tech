@@ -33,6 +33,15 @@ class BookingController extends Controller
         $end = Carbon::parse($data['end_date'])->startOfDay();
         $days = max(1, $start->diffInDays($end)); // minimum 1 day (BR-04)
 
+        // Reject overlapping dates — a car can't be double-booked (Phase 1).
+        if (! $car->isAvailableForRange($start->toDateString(), $end->toDateString())) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'start_date' => 'Maaf, '.$car->name.' sudah dipesan pada rentang tanggal tersebut. Silakan pilih tanggal lain.',
+                ], 'booking');
+        }
+
         $booking = Booking::create([
             'car_id' => $car->id,
             'car_name' => $car->name,            // snapshot (NFR-13 / BR-07)

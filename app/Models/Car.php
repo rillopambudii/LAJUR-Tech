@@ -72,6 +72,25 @@ class Car extends Model
         return $query->where('is_available', true);
     }
 
+    /**
+     * Whether this car can be booked for the given inclusive date range.
+     * A car is bookable when it is marked available AND has no active
+     * (pending/confirmed) booking overlapping the range. Pass $ignoreBookingId
+     * to exclude a booking being edited from the conflict check.
+     */
+    public function isAvailableForRange(string $start, string $end, ?int $ignoreBookingId = null): bool
+    {
+        if (! $this->is_available) {
+            return false;
+        }
+
+        return ! $this->bookings()
+            ->active()
+            ->overlapping($start, $end)
+            ->when($ignoreBookingId, fn (Builder $q) => $q->where('id', '!=', $ignoreBookingId))
+            ->exists();
+    }
+
     /** Scope: only featured cars. */
     public function scopeFeatured(Builder $query): Builder
     {

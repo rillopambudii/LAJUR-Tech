@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
+use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CarController as AdminCarController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MessageController;
@@ -52,6 +53,9 @@ Route::prefix('admin')
     ->middleware(['auth', 'admin'])
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Fleet availability calendar
+        Route::get('calendar', [CalendarController::class, 'index'])->name('calendar');
 
         // Cars CRUD
         Route::resource('cars', AdminCarController::class)->except('show');
