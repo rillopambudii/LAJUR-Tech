@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Tenancy\BelongsToTenant;
 
 class Testimonial extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     /**
      * The attributes that are mass assignable.
@@ -18,6 +19,7 @@ class Testimonial extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'tenant_id',
         'name',
         'role',
         'rating',

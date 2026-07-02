@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Tenancy\TenantManager;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Holds the active tenant for the current request/process; read by the
+        // BelongsToTenant global scope. One instance per request lifecycle.
+        $this->app->singleton(TenantManager::class);
     }
 
     /**

@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Tenancy\BelongsToTenant;
 
 class Booking extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     /**
      * The attributes that are mass assignable.
@@ -17,6 +18,7 @@ class Booking extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'tenant_id',
         'car_id',
         'car_name',
         'customer_name',

@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Tenancy\BelongsToTenant;
 
 class Car extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     /**
      * The attributes that are mass assignable.
@@ -19,6 +20,7 @@ class Car extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'tenant_id',
         'name',
         'brand',
         'type',
