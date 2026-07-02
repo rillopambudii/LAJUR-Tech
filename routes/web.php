@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CarController as AdminCarController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\TestimonialController;
@@ -58,6 +59,10 @@ Route::prefix('admin')
 
         // Fleet availability calendar
         Route::get('calendar', [CalendarController::class, 'index'])->name('calendar');
+
+        // Analytics & reports
+        Route::get('reports', [ReportController::class, 'index'])->name('reports');
+        Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
 
         // Cars CRUD
         Route::resource('cars', AdminCarController::class)->except('show');

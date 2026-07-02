@@ -64,6 +64,12 @@ class Booking extends Model
     public const BLOCKING_STATUSES = ['pending', 'confirmed'];
 
     /**
+     * Statuses that count as realised/committed revenue. Single source of truth
+     * for every revenue figure (analytics, reports, and the future AI queries).
+     */
+    public const REVENUE_STATUSES = ['confirmed', 'completed'];
+
+    /**
      * @return BelongsTo<Car, $this>
      */
     public function car(): BelongsTo
@@ -89,6 +95,19 @@ class Booking extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->whereIn('status', self::BLOCKING_STATUSES);
+    }
+
+    /** Scope: bookings that count towards revenue (confirmed + completed). */
+    public function scopeRevenue(Builder $query): Builder
+    {
+        return $query->whereIn('status', self::REVENUE_STATUSES);
+    }
+
+    /** Scope: bookings created within an inclusive date range. */
+    public function scopeCreatedBetween(Builder $query, string $from, string $to): Builder
+    {
+        return $query->whereDate('created_at', '>=', $from)
+            ->whereDate('created_at', '<=', $to);
     }
 
     /**

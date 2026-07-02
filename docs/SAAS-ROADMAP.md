@@ -89,9 +89,21 @@ konteks tenant (console/seed/super-admin) query tidak difilter — perilaku lama
 - [ ] (Nanti) PDF server-side (dompdf) untuk lampiran email; WA API otomatis
       (Fonnte/Twilio) via driver; implementasi gateway sungguhan.
 
-### Phase 4 — Dashboard analitik & laporan
-- [ ] Ringkasan pendapatan, okupansi armada, booking per status.
-- [ ] Ekspor laporan (PDF/Excel).
+### Phase 4 — Dashboard analitik & laporan  ← SELESAI
+- [x] **`ReportService`** — sumber tunggal metrik tenant-scoped (dipakai ulang oleh AI nanti):
+      `summary`, `revenueByMonth`, `utilization`, `topCars`, `statusBreakdown`.
+- [x] Definisi pendapatan terpusat: `Booking::REVENUE_STATUSES` = confirmed + completed;
+      scope `revenue()` & `createdBetween()`.
+- [x] **Halaman `/admin/reports`** — filter rentang tanggal, KPI (pendapatan, total booking,
+      rata-rata nilai, **okupansi armada**), grafik pendapatan 12 bulan, booking per status,
+      mobil terlaris. Menu sidebar "Laporan".
+- [x] **Ekspor CSV** (streamed, BOM UTF-8 utk Excel) di `/admin/reports/export`.
+      PDF laporan bisa lewat print browser seperti invoice bila diperlukan.
+- [x] Test: `ReportAnalyticsTest` (4). Total suite **27 hijau**.
+
+**Catatan:** Pendapatan diukur per tanggal booking dibuat (`created_at`); okupansi armada
+diukur per tanggal sewa aktual (start/end). Widget "Total Pendapatan" di dashboard lama tetap
+memakai status `completed` saja (labelnya memang "booking selesai") — sengaja tidak diubah.
 
 ### Phase 5 — Customer dashboard + loyalty
 - [ ] Riwayat booking pelanggan, ulangi booking, poin loyalitas.

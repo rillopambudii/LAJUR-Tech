@@ -38,6 +38,9 @@
             <a href="{{ route('admin.calendar') }}" class="{{ request()->routeIs('admin.calendar') ? 'active' : '' }}">
                 <x-icon name="calendar" /> Kalender
             </a>
+            <a href="{{ route('admin.reports') }}" class="{{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+                <x-icon name="gauge" /> Laporan
+            </a>
             <a href="{{ route('admin.testimonials.index') }}" class="{{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}">
                 <x-icon name="star" /> Testimoni
             </a>
