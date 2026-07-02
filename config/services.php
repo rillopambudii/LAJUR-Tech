@@ -42,6 +42,10 @@ return [
         'base_url' => env('ANTHROPIC_BASE_URL', 'https://api.anthropic.com'),
     ],
 
+    // Optional CA bundle path for outbound HTTPS (Guzzle "verify"). Null = use the
+    // system/PHP default. Set on dev machines where PHP has no CA bundle configured.
+    'ca_bundle' => env('CURL_CA_BUNDLE') ?: null,
+
     // Which PaymentGateway driver to use: 'midtrans' or 'manual' (offline).
     'payment' => [
         'gateway' => env('PAYMENT_GATEWAY', 'manual'),
