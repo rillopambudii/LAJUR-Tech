@@ -43,6 +43,7 @@
                     <div class="detail-item"><div class="k">Driver</div><div class="v">{{ $booking->driver?->name ?? '—' }}</div></div>
                     <div class="detail-item"><div class="k">Harga / Hari</div><div class="v mono">Rp {{ number_format($booking->price_per_day, 0, ',', '.') }}</div></div>
                     <div class="detail-item"><div class="k">Total</div><div class="v mono" style="color:var(--petrol);font-size:1.25rem">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div></div>
+                    <div class="detail-item"><div class="k">Pembayaran</div><div class="v">{{ $booking->payment_status_label }}@if($booking->paid_at) <span class="tag">{{ $booking->paid_at->format('d M Y H:i') }}</span>@endif</div></div>
                 </div>
             </div>
         </div>

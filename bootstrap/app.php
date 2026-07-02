@@ -22,6 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
+
+        // Payment gateway posts server-to-server without a CSRF token.
+        $middleware->validateCsrfTokens(except: [
+            'payment/midtrans/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

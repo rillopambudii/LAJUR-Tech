@@ -42,4 +42,15 @@ return [
         'base_url' => env('ANTHROPIC_BASE_URL', 'https://api.anthropic.com'),
     ],
 
+    // Which PaymentGateway driver to use: 'midtrans' or 'manual' (offline).
+    'payment' => [
+        'gateway' => env('PAYMENT_GATEWAY', 'manual'),
+    ],
+
+    'midtrans' => [
+        'server_key' => env('MIDTRANS_SERVER_KEY'),
+        'client_key' => env('MIDTRANS_CLIENT_KEY'),
+        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
+    ],
+
 ];

@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,6 +31,14 @@ Route::post('/booking', [BookingController::class, 'store'])
 Route::post('/kontak', [ContactController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('contact.store');
+
+/*
+|--------------------------------------------------------------------------
+| Payment (gateway callback + customer return page)
+|--------------------------------------------------------------------------
+*/
+Route::post('/payment/midtrans/webhook', [PaymentController::class, 'webhook'])->name('payment.webhook');
+Route::get('/payment/finish', [PaymentController::class, 'finish'])->name('payment.finish');
 
 /*
 |--------------------------------------------------------------------------

@@ -31,6 +31,9 @@ class Booking extends Model
         'price_per_day',
         'total_price',
         'status',
+        'payment_status',
+        'payment_ref',
+        'paid_at',
         'notes',
     ];
 
@@ -45,7 +48,26 @@ class Booking extends Model
             'days' => 'integer',
             'price_per_day' => 'integer',
             'total_price' => 'integer',
+            'paid_at' => 'datetime',
         ];
+    }
+
+    public const PAYMENT_STATUS_LABELS = [
+        'unpaid' => 'Belum Bayar',
+        'pending' => 'Menunggu Pembayaran',
+        'paid' => 'Lunas',
+        'failed' => 'Gagal',
+        'expired' => 'Kedaluwarsa',
+    ];
+
+    public function isPaid(): bool
+    {
+        return $this->payment_status === 'paid';
+    }
+
+    public function getPaymentStatusLabelAttribute(): string
+    {
+        return self::PAYMENT_STATUS_LABELS[$this->payment_status] ?? ucfirst((string) $this->payment_status);
     }
 
     public const STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];

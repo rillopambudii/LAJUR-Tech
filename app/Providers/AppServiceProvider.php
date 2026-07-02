@@ -19,12 +19,13 @@ class AppServiceProvider extends ServiceProvider
         // BelongsToTenant global scope. One instance per request lifecycle.
         $this->app->singleton(TenantManager::class);
 
-        // Default payment driver is manual/offline until a real gateway
-        // (Midtrans/Xendit/Tripay) is implemented and bound here.
-        $this->app->bind(
-            \App\Payments\PaymentGateway::class,
-            \App\Payments\ManualPaymentGateway::class,
-        );
+        // Select the payment driver from config. Defaults to manual/offline.
+        $this->app->bind(\App\Payments\PaymentGateway::class, function ($app) {
+            return match (config('services.payment.gateway')) {
+                'midtrans' => $app->make(\App\Payments\MidtransGateway::class),
+                default => $app->make(\App\Payments\ManualPaymentGateway::class),
+            };
+        });
     }
 
     /**

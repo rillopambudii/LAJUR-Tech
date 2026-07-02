@@ -5,11 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BookingRequest;
 use App\Models\Booking;
 use App\Models\Car;
+use App\Payments\PaymentGateway;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 
 class BookingController extends Controller
 {
+    public function __construct(private PaymentGateway $gateway)
+    {
+    }
+
     public function store(BookingRequest $request): RedirectResponse
     {
         // Honeypot anti-bot: silently accept but discard if the trap is filled.
@@ -57,6 +62,13 @@ class BookingController extends Controller
             'notes' => $data['notes'] ?? null,
         ]);
 
+        // If an online gateway is active, send the customer straight to payment.
+        $paymentUrl = $this->gateway->createCheckout($booking);
+        if ($paymentUrl !== null) {
+            return redirect()->away($paymentUrl);
+        }
+
+        // Offline/manual: keep the original confirmation flow.
         return back()->with(
             'booking_success',
             'Permintaan sewa untuk '.$booking->car_name.' berhasil dikirim! Tim kami akan segera menghubungi Anda untuk konfirmasi.'

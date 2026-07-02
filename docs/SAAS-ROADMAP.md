@@ -77,8 +77,15 @@ konteks tenant (console/seed/super-admin) query tidak difilter — perilaku lama
 - [x] Test: `DriverManagementTest` (6) + `FleetReminderTest` (3). Total suite 19 hijau.
 
 ### Phase 3 — Invoice + notifikasi  (payment gateway = MASIH DITUNDA)
-- [x] Abstraksi `PaymentGateway` (interface) + `ManualPaymentGateway` (offline)
-      di-bind sebagai default. Midtrans/Xendit/Tripay tinggal implement + bind.
+- [x] Abstraksi `PaymentGateway` (interface) + `ManualPaymentGateway` (offline).
+- [x] **Midtrans Snap TERPASANG** (`App\Payments\MidtransGateway`): pelanggan diarahkan
+      ke halaman pembayaran setelah booking; webhook `/payment/midtrans/webhook`
+      (verifikasi signature sha512, cross-tenant via `payment_ref` unik) → booking
+      `paid` + `confirmed`; halaman `/payment/finish`. Driver dipilih via
+      `PAYMENT_GATEWAY` env (manual|midtrans); sandbox/production via
+      `MIDTRANS_IS_PRODUCTION`. Kolom `payment_status/payment_ref/paid_at` di bookings.
+      Test: `PaymentMidtransTest` (5). **Aktivasi:** isi `MIDTRANS_SERVER_KEY`/`CLIENT_KEY`
+      + `PAYMENT_GATEWAY=midtrans` di `.env`, set Notification URL di dashboard Midtrans.
 - [x] **Invoice** — halaman cetak `/admin/bookings/{id}/invoice` (CSS print →
       "Simpan sebagai PDF" dari browser) + nomor `INV/{SLUG}/{tahun}/{id}`.
 - [x] **Email invoice** — `BookingInvoiceMail` + tombol kirim di detail booking
