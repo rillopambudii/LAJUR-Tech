@@ -106,4 +106,36 @@ class Booking extends Model
     {
         return self::STATUS_LABELS[$this->status] ?? ucfirst((string) $this->status);
     }
+
+    /** Invoice number, e.g. INV/LAJUR/2026/0007. */
+    public function invoiceNumber(): string
+    {
+        $slug = strtoupper($this->tenant?->slug ?? 'INV');
+        $year = ($this->created_at ?? now())->format('Y');
+
+        return sprintf('INV/%s/%s/%04d', $slug, $year, $this->id);
+    }
+
+    /**
+     * Normalise the customer's phone to an international number for wa.me
+     * (Indonesian default: a leading 0 becomes 62).
+     */
+    public function whatsappNumber(): string
+    {
+        $digits = preg_replace('/\D/', '', (string) $this->customer_phone);
+
+        if (str_starts_with($digits, '0')) {
+            return '62'.substr($digits, 1);
+        }
+
+        return $digits;
+    }
+
+    /** Build a click-to-chat WhatsApp URL with an optional prefilled message. */
+    public function whatsappUrl(?string $message = null): string
+    {
+        $url = 'https://wa.me/'.$this->whatsappNumber();
+
+        return $message ? $url.'?text='.rawurlencode($message) : $url;
+    }
 }

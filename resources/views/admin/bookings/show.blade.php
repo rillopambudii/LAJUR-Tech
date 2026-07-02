@@ -85,6 +85,22 @@
 
             <hr style="border:0;border-top:1px solid var(--ivory-200);margin:20px 0">
 
+            @php
+                $waMessage = "Halo {$booking->customer_name}, berikut invoice {$booking->invoiceNumber()} untuk sewa {$booking->car_name} "
+                    . $booking->start_date->translatedFormat('d M') . '–' . $booking->end_date->translatedFormat('d M Y')
+                    . ' (' . $booking->days . ' hari). Total: Rp ' . number_format($booking->total_price, 0, ',', '.') . '. Terima kasih.';
+            @endphp
+            <div style="display:grid;gap:10px">
+                <a href="{{ route('admin.bookings.invoice', $booking) }}" target="_blank" class="btn btn-ghost btn-block"><x-icon name="list" /> Lihat / Cetak Invoice</a>
+                <a href="{{ $booking->whatsappUrl($waMessage) }}" target="_blank" rel="noopener" class="btn btn-ghost btn-block" style="color:#128c7e;border-color:rgba(18,140,126,.3)"><x-icon name="whatsapp" /> Kirim via WhatsApp</a>
+                <form action="{{ route('admin.bookings.email', $booking) }}" method="POST" data-confirm="Kirim invoice ke {{ $booking->customer_email }}?">
+                    @csrf
+                    <button type="submit" class="btn btn-ghost btn-block"><x-icon name="mail" /> Kirim Invoice via Email</button>
+                </form>
+            </div>
+
+            <hr style="border:0;border-top:1px solid var(--ivory-200);margin:20px 0">
+
             <form action="{{ route('admin.bookings.destroy', $booking) }}" method="POST" data-confirm="Hapus booking ini secara permanen?">
                 @csrf @method('DELETE')
                 <button type="submit" class="btn btn-ghost btn-block" style="color:var(--danger);border-color:rgba(200,69,59,.3)">

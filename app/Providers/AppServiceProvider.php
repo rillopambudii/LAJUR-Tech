@@ -18,6 +18,13 @@ class AppServiceProvider extends ServiceProvider
         // Holds the active tenant for the current request/process; read by the
         // BelongsToTenant global scope. One instance per request lifecycle.
         $this->app->singleton(TenantManager::class);
+
+        // Default payment driver is manual/offline until a real gateway
+        // (Midtrans/Xendit/Tripay) is implemented and bound here.
+        $this->app->bind(
+            \App\Payments\PaymentGateway::class,
+            \App\Payments\ManualPaymentGateway::class,
+        );
     }
 
     /**

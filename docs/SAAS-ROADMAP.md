@@ -76,11 +76,18 @@ konteks tenant (console/seed/super-admin) query tidak difilter — perilaku lama
       (jendela {{REMINDER_WINDOW_DAYS}}=30 hari). Notifikasi otomatis (WA/email) → Phase 3.
 - [x] Test: `DriverManagementTest` (6) + `FleetReminderTest` (3). Total suite 19 hijau.
 
-### Phase 3 — Pembayaran online + invoice  (payment gateway = DITUNDA)
-- [ ] Abstraksi `PaymentGateway` (adapter: Midtrans / Xendit / Tripay) — buat
-      interface dulu, implementasi belakangan.
-- [ ] Invoice PDF + kirim via Email.
-- [ ] Notifikasi WhatsApp API (booking dibuat, pembayaran, pengingat).
+### Phase 3 — Invoice + notifikasi  (payment gateway = MASIH DITUNDA)
+- [x] Abstraksi `PaymentGateway` (interface) + `ManualPaymentGateway` (offline)
+      di-bind sebagai default. Midtrans/Xendit/Tripay tinggal implement + bind.
+- [x] **Invoice** — halaman cetak `/admin/bookings/{id}/invoice` (CSS print →
+      "Simpan sebagai PDF" dari browser) + nomor `INV/{SLUG}/{tahun}/{id}`.
+- [x] **Email invoice** — `BookingInvoiceMail` + tombol kirim di detail booking
+      (dev: MAIL_MAILER=log). 
+- [x] **WhatsApp** — link `wa.me` dengan pesan invoice terisi otomatis
+      (`Booking::whatsappUrl`, normalisasi 08→62). Dependency-free.
+- [x] Test: `InvoiceNotificationTest` (4). Total suite **23 hijau**.
+- [ ] (Nanti) PDF server-side (dompdf) untuk lampiran email; WA API otomatis
+      (Fonnte/Twilio) via driver; implementasi gateway sungguhan.
 
 ### Phase 4 — Dashboard analitik & laporan
 - [ ] Ringkasan pendapatan, okupansi armada, booking per status.

@@ -73,6 +73,8 @@ Route::prefix('admin')
         Route::get('bookings/{booking}', [AdminBookingController::class, 'show'])->name('bookings.show');
         Route::patch('bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.status');
         Route::patch('bookings/{booking}/driver', [AdminBookingController::class, 'assignDriver'])->name('bookings.driver');
+        Route::get('bookings/{booking}/invoice', [AdminBookingController::class, 'invoice'])->name('bookings.invoice');
+        Route::post('bookings/{booking}/email', [AdminBookingController::class, 'emailInvoice'])->name('bookings.email');
         Route::delete('bookings/{booking}', [AdminBookingController::class, 'destroy'])->name('bookings.destroy');
 
         // Messages

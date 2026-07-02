@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateBookingStatusRequest;
+use App\Mail\BookingInvoiceMail;
 use App\Models\Booking;
 use App\Models\User;
 use App\Tenancy\TenantManager;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class BookingController extends Controller
@@ -81,6 +83,22 @@ class BookingController extends Controller
         $booking->update(['status' => $request->validated()['status']]);
 
         return back()->with('success', 'Status booking berhasil diperbarui.');
+    }
+
+    public function invoice(Booking $booking): View
+    {
+        $booking->load('car', 'driver', 'tenant');
+
+        return view('admin.bookings.invoice', compact('booking'));
+    }
+
+    public function emailInvoice(Booking $booking): RedirectResponse
+    {
+        $booking->loadMissing('tenant');
+
+        Mail::to($booking->customer_email)->send(new BookingInvoiceMail($booking));
+
+        return back()->with('success', 'Invoice telah dikirim ke '.$booking->customer_email.'.');
     }
 
     public function destroy(Booking $booking): RedirectResponse
