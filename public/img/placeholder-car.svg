@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" role="img" aria-label="Gambar mobil Lajur">
+  <rect width="400" height="250" fill="#0C2624"/>
+  <circle cx="320" cy="40" r="120" fill="#F2A93B" opacity="0.12"/>
+  <g fill="none" stroke="#56615E" stroke-width="2" opacity="0.5">
+    <path d="M70 160 l24 -46 a18 18 0 0 1 16 -10 h120 a18 18 0 0 1 15 8 l28 48"
+          stroke="#F2A93B" stroke-width="3"/>
+    <path d="M58 160 h284" stroke="#F2A93B" stroke-width="3"/>
+  </g>
+  <circle cx="118" cy="162" r="20" fill="#16201F" stroke="#F2A93B" stroke-width="3"/>
+  <circle cx="282" cy="162" r="20" fill="#16201F" stroke="#F2A93B" stroke-width="3"/>
+  <circle cx="118" cy="162" r="7" fill="#56615E"/>
+  <circle cx="282" cy="162" r="7" fill="#56615E"/>
+  <text x="200" y="210" font-family="'JetBrains Mono', monospace" font-size="15"
+        fill="#56615E" text-anchor="middle" letter-spacing="3">LAJUR</text>
+</svg>

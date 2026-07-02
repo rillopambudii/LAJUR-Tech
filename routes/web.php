@@ -1,0 +1,73 @@
+<?php
+
+use App\Http\Controllers\Admin\BookingController as AdminBookingController;
+use App\Http\Controllers\Admin\CarController as AdminCarController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MessageController;
+use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\HomeController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Public routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::post('/booking', [BookingController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('booking.store');
+
+Route::post('/kontak', [ContactController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('contact.store');
+
+/*
+|--------------------------------------------------------------------------
+| Guest (auth) routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'show'])->name('login');
+    Route::post('/login', [LoginController::class, 'login'])
+        ->middleware('throttle:5,1')
+        ->name('login.attempt');
+});
+
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Admin dashboard (auth + admin)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'admin'])
+    ->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Cars CRUD
+        Route::resource('cars', AdminCarController::class)->except('show');
+
+        // Testimonials CRUD
+        Route::resource('testimonials', TestimonialController::class)->except('show');
+
+        // Bookings
+        Route::get('bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
+        Route::get('bookings/{booking}', [AdminBookingController::class, 'show'])->name('bookings.show');
+        Route::patch('bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.status');
+        Route::delete('bookings/{booking}', [AdminBookingController::class, 'destroy'])->name('bookings.destroy');
+
+        // Messages
+        Route::get('messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('messages/{message}', [MessageController::class, 'show'])->name('messages.show');
+        Route::patch('messages/{message}/toggle', [MessageController::class, 'toggle'])->name('messages.toggle');
+        Route::delete('messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+    });
