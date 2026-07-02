@@ -22,6 +22,7 @@ class Car extends Model
     protected $fillable = [
         'tenant_id',
         'name',
+        'plate_number',
         'brand',
         'type',
         'transmission',
@@ -30,6 +31,8 @@ class Car extends Model
         'price_per_day',
         'image',
         'description',
+        'tax_due_date',
+        'service_due_date',
         'is_available',
         'is_featured',
         'sort_order',
@@ -46,8 +49,13 @@ class Car extends Model
             'sort_order' => 'integer',
             'is_available' => 'boolean',
             'is_featured' => 'boolean',
+            'tax_due_date' => 'date',
+            'service_due_date' => 'date',
         ];
     }
+
+    /** Days before a due date within which we flag it as "due soon". */
+    public const REMINDER_WINDOW_DAYS = 30;
 
     /** Allowed car types. */
     public const TYPES = ['SUV', 'MPV', 'Sedan', 'Hatchback', 'Luxury', 'Pickup'];
@@ -95,6 +103,58 @@ class Car extends Model
     public function scopeFeatured(Builder $query): Builder
     {
         return $query->where('is_featured', true);
+    }
+
+    /**
+     * Scope: cars with a tax or service date already due or due within the
+     * reminder window, nearest date first.
+     */
+    public function scopeWithDueReminders(Builder $query): Builder
+    {
+        $limit = now()->addDays(self::REMINDER_WINDOW_DAYS)->toDateString();
+
+        return $query->where(function (Builder $q) use ($limit) {
+            $q->whereNotNull('tax_due_date')->where('tax_due_date', '<=', $limit)
+                ->orWhere(function (Builder $w) use ($limit) {
+                    $w->whereNotNull('service_due_date')->where('service_due_date', '<=', $limit);
+                });
+        });
+    }
+
+    /**
+     * Reminder state for a due date: 'overdue', 'soon' (within the window),
+     * 'ok', or null when no date is set.
+     */
+    private function reminderState(?\Illuminate\Support\Carbon $due): ?string
+    {
+        if ($due === null) {
+            return null;
+        }
+
+        $today = now()->startOfDay();
+
+        if ($due->lt($today)) {
+            return 'overdue';
+        }
+
+        return $due->lte($today->copy()->addDays(self::REMINDER_WINDOW_DAYS)) ? 'soon' : 'ok';
+    }
+
+    public function taxStatus(): ?string
+    {
+        return $this->reminderState($this->tax_due_date);
+    }
+
+    public function serviceStatus(): ?string
+    {
+        return $this->reminderState($this->service_due_date);
+    }
+
+    /** Whether any reminder is overdue or due soon. */
+    public function hasDueReminder(): bool
+    {
+        return in_array($this->taxStatus(), ['overdue', 'soon'], true)
+            || in_array($this->serviceStatus(), ['overdue', 'soon'], true);
     }
 
     /** Scope: apply the default display ordering. */

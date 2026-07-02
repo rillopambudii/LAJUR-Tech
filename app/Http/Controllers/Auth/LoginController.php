@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,9 +15,9 @@ class LoginController extends Controller
 {
     public function show(): View|RedirectResponse
     {
-        // Already-authenticated admins go straight to the dashboard (FR-27).
-        if (Auth::check() && Auth::user()->is_admin) {
-            return redirect()->route('admin.dashboard');
+        // Already-authenticated users go straight to their home (FR-27).
+        if (Auth::check()) {
+            return redirect($this->homeFor(Auth::user()));
         }
 
         return view('auth.login');
@@ -34,8 +35,10 @@ class LoginController extends Controller
             throw ValidationException::withMessages($generic);
         }
 
-        // Only administrators may proceed (FR-24).
-        if (! Auth::user()->is_admin) {
+        $user = Auth::user();
+
+        // Only staff (owner/admin/driver) may log in. Customers have no portal yet.
+        if (! ($user->isManager() || $user->hasRole(User::ROLE_DRIVER) || $user->is_admin)) {
             // Log out, but keep the session so the validation error redirects
             // back to the login form (invalidating it would drop the previous URL).
             Auth::guard('web')->logout();
@@ -46,7 +49,15 @@ class LoginController extends Controller
         // Prevent session fixation (NFR-12).
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.dashboard'));
+        return redirect()->intended($this->homeFor($user));
+    }
+
+    /** The landing route for a user based on their role. */
+    private function homeFor(User $user): string
+    {
+        return $user->hasRole(User::ROLE_DRIVER)
+            ? route('driver.dashboard')
+            : route('admin.dashboard');
     }
 
     public function logout(Request $request): RedirectResponse

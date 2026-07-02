@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CarController as AdminCarController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Auth\LoginController;
@@ -60,6 +62,9 @@ Route::prefix('admin')
         // Cars CRUD
         Route::resource('cars', AdminCarController::class)->except('show');
 
+        // Drivers CRUD
+        Route::resource('drivers', DriverController::class)->except('show');
+
         // Testimonials CRUD
         Route::resource('testimonials', TestimonialController::class)->except('show');
 
@@ -67,6 +72,7 @@ Route::prefix('admin')
         Route::get('bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
         Route::get('bookings/{booking}', [AdminBookingController::class, 'show'])->name('bookings.show');
         Route::patch('bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.status');
+        Route::patch('bookings/{booking}/driver', [AdminBookingController::class, 'assignDriver'])->name('bookings.driver');
         Route::delete('bookings/{booking}', [AdminBookingController::class, 'destroy'])->name('bookings.destroy');
 
         // Messages
@@ -74,4 +80,16 @@ Route::prefix('admin')
         Route::get('messages/{message}', [MessageController::class, 'show'])->name('messages.show');
         Route::patch('messages/{message}/toggle', [MessageController::class, 'toggle'])->name('messages.toggle');
         Route::delete('messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Driver area (auth + role:driver)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('driver')
+    ->name('driver.')
+    ->middleware(['auth', 'role:driver'])
+    ->group(function () {
+        Route::get('/', [DriverDashboardController::class, 'index'])->name('dashboard');
     });

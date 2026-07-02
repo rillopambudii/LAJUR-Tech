@@ -64,10 +64,17 @@ konteks tenant (console/seed/super-admin) query tidak difilter — perilaku lama
 - [ ] Status booking granular + **histori perubahan status**.
 - [ ] **QR Code** konfirmasi booking.
 
-### Phase 2 — Manajemen armada & driver
-- [ ] Penugasan driver ke booking.
-- [ ] Dashboard driver (jadwal tugas).
-- [ ] Pengingat servis & pajak kendaraan (jadwal + notifikasi).
+### Phase 2 — Manajemen armada & driver  ← SELESAI (inti)
+- [x] **Akun driver (CRUD)** — `/admin/drivers`, users role=driver, tenant-scoped manual
+      (User tanpa global scope), guard 404 lintas-tenant. Menu sidebar "Driver".
+- [x] **Penugasan driver ke booking** — `bookings.driver_id`, dropdown di detail booking,
+      validasi driver harus milik tenant yang sama.
+- [x] **Dashboard driver** — `/driver` (role:driver), layout terpisah, jadwal tugas
+      mendatang + riwayat. Login kini berbasis peran (owner/admin→/admin, driver→/driver).
+- [x] **Pengingat servis & pajak** — kolom `plate_number`, `tax_due_date`,
+      `service_due_date` di cars; helper status (overdue/soon/ok); widget di dashboard
+      (jendela {{REMINDER_WINDOW_DAYS}}=30 hari). Notifikasi otomatis (WA/email) → Phase 3.
+- [x] Test: `DriverManagementTest` (6) + `FleetReminderTest` (3). Total suite 19 hijau.
 
 ### Phase 3 — Pembayaran online + invoice  (payment gateway = DITUNDA)
 - [ ] Abstraksi `PaymentGateway` (adapter: Midtrans / Xendit / Tripay) — buat

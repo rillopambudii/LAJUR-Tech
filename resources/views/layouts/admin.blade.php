@@ -29,6 +29,9 @@
             <a href="{{ route('admin.cars.index') }}" class="{{ request()->routeIs('admin.cars.*') ? 'active' : '' }}">
                 <x-icon name="car" /> Mobil
             </a>
+            <a href="{{ route('admin.drivers.index') }}" class="{{ request()->routeIs('admin.drivers.*') ? 'active' : '' }}">
+                <x-icon name="users" /> Driver
+            </a>
             <a href="{{ route('admin.bookings.index') }}" class="{{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
                 <x-icon name="list" /> Booking
             </a>

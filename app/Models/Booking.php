@@ -20,6 +20,7 @@ class Booking extends Model
     protected $fillable = [
         'tenant_id',
         'car_id',
+        'driver_id',
         'car_name',
         'customer_name',
         'customer_email',
@@ -68,6 +69,14 @@ class Booking extends Model
     public function car(): BelongsTo
     {
         return $this->belongsTo(Car::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'driver_id');
     }
 
     /** Scope: filter by status. */

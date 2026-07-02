@@ -3,8 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -30,6 +32,7 @@ class User extends Authenticatable
         'tenant_id',
         'name',
         'email',
+        'phone',
         'password',
         'role',
         'is_admin',
@@ -81,5 +84,27 @@ class User extends Authenticatable
     public function isOwner(): bool
     {
         return $this->role === self::ROLE_OWNER;
+    }
+
+    /** Scope: users of a given role, ordered by name. */
+    public function scopeRole(Builder $query, string $role): Builder
+    {
+        return $query->where('role', $role)->orderBy('name');
+    }
+
+    /** Scope: constrain to a tenant (User has no global tenant scope). */
+    public function scopeForTenant(Builder $query, ?int $tenantId): Builder
+    {
+        return $query->where('tenant_id', $tenantId);
+    }
+
+    /**
+     * Bookings this driver is assigned to.
+     *
+     * @return HasMany<Booking, $this>
+     */
+    public function driverBookings(): HasMany
+    {
+        return $this->hasMany(Booking::class, 'driver_id');
     }
 }

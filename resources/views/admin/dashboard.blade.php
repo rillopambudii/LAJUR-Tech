@@ -91,4 +91,50 @@
             </div>
         </div>
     </div>
+
+    <div class="panel">
+        <div class="panel-head">
+            <h2>Pengingat Servis &amp; Pajak</h2>
+            <span class="tag">{{ $reminders->count() }} perlu perhatian</span>
+        </div>
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>Mobil</th><th>Pajak (STNK)</th><th>Servis</th><th style="text-align:right">Aksi</th></tr>
+                </thead>
+                <tbody>
+                @php
+                    $badge = fn ($status) => match ($status) {
+                        'overdue' => '<span class="pill pill-cancelled">Terlewat</span>',
+                        'soon' => '<span class="pill pill-pending">Segera</span>',
+                        default => '',
+                    };
+                @endphp
+                @forelse ($reminders as $car)
+                    <tr>
+                        <td>
+                            <div class="nm">{{ $car->name }}</div>
+                            <div class="br">{{ $car->plate_number ?: $car->brand }}</div>
+                        </td>
+                        <td>
+                            @if ($car->tax_due_date)
+                                {{ $car->tax_due_date->translatedFormat('d M Y') }} {!! $badge($car->taxStatus()) !!}
+                            @else <span class="tag">—</span> @endif
+                        </td>
+                        <td>
+                            @if ($car->service_due_date)
+                                {{ $car->service_due_date->translatedFormat('d M Y') }} {!! $badge($car->serviceStatus()) !!}
+                            @else <span class="tag">—</span> @endif
+                        </td>
+                        <td style="text-align:right">
+                            <a href="{{ route('admin.cars.edit', $car) }}" class="icon-btn" aria-label="Edit"><x-icon name="edit" /></a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="4" class="empty-row">Tidak ada pengingat servis atau pajak dalam {{ \App\Models\Car::REMINDER_WINDOW_DAYS }} hari ke depan. 🎉</td></tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection

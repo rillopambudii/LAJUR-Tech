@@ -40,6 +40,7 @@
                     <div class="detail-item"><div class="k">Tanggal Mulai</div><div class="v">{{ $booking->start_date->format('d M Y') }}</div></div>
                     <div class="detail-item"><div class="k">Tanggal Selesai</div><div class="v">{{ $booking->end_date->format('d M Y') }}</div></div>
                     <div class="detail-item"><div class="k">Lama Sewa</div><div class="v">{{ $booking->days }} hari</div></div>
+                    <div class="detail-item"><div class="k">Driver</div><div class="v">{{ $booking->driver?->name ?? '—' }}</div></div>
                     <div class="detail-item"><div class="k">Harga / Hari</div><div class="v mono">Rp {{ number_format($booking->price_per_day, 0, ',', '.') }}</div></div>
                     <div class="detail-item"><div class="k">Total</div><div class="v mono" style="color:var(--petrol);font-size:1.25rem">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div></div>
                 </div>
@@ -61,6 +62,25 @@
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block"><x-icon name="check" /> Perbarui Status</button>
+            </form>
+
+            <hr style="border:0;border-top:1px solid var(--ivory-200);margin:20px 0">
+
+            <form action="{{ route('admin.bookings.driver', $booking) }}" method="POST">
+                @csrf @method('PATCH')
+                <div class="field">
+                    <label for="driver_id">Tugaskan Driver</label>
+                    <select class="select" id="driver_id" name="driver_id">
+                        <option value="">— Tanpa driver —</option>
+                        @foreach ($drivers as $driver)
+                            <option value="{{ $driver->id }}" @selected($booking->driver_id === $driver->id)>{{ $driver->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @if ($drivers->isEmpty())
+                    <p style="font-size:.82rem;color:rgba(0,0,0,.5);margin:0 0 12px">Belum ada driver. <a href="{{ route('admin.drivers.create') }}">Tambah driver</a> dulu.</p>
+                @endif
+                <button type="submit" class="btn btn-ghost btn-block"><x-icon name="users" /> Simpan Driver</button>
             </form>
 
             <hr style="border:0;border-top:1px solid var(--ivory-200);margin:20px 0">

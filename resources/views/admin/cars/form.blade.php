@@ -90,6 +90,27 @@
                     <textarea class="textarea" id="description" name="description">{{ old('description', $car->description) }}</textarea>
                     @error('description')<span class="field-error">{{ $message }}</span>@enderror
                 </div>
+
+                <div class="form-row">
+                    <div class="field">
+                        <label for="plate_number">Nomor Polisi</label>
+                        <input class="input @error('plate_number') has-error @enderror" id="plate_number" name="plate_number" value="{{ old('plate_number', $car->plate_number) }}" placeholder="KT 1234 AB">
+                        @error('plate_number')<span class="field-error">{{ $message }}</span>@enderror
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="field">
+                        <label for="tax_due_date">Jatuh Tempo Pajak (STNK)</label>
+                        <input class="input @error('tax_due_date') has-error @enderror" type="date" id="tax_due_date" name="tax_due_date" value="{{ old('tax_due_date', optional($car->tax_due_date)->toDateString()) }}">
+                        @error('tax_due_date')<span class="field-error">{{ $message }}</span>@enderror
+                    </div>
+                    <div class="field">
+                        <label for="service_due_date">Jadwal Servis Berikutnya</label>
+                        <input class="input @error('service_due_date') has-error @enderror" type="date" id="service_due_date" name="service_due_date" value="{{ old('service_due_date', optional($car->service_due_date)->toDateString()) }}">
+                        @error('service_due_date')<span class="field-error">{{ $message }}</span>@enderror
+                    </div>
+                </div>
             </div>
         </div>
 
