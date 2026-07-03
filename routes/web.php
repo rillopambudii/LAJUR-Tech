@@ -42,15 +42,16 @@ Route::get('/payment/finish', [PaymentController::class, 'finish'])->name('payme
 
 /*
 |--------------------------------------------------------------------------
-| Guest (auth) routes
+| Login
 |--------------------------------------------------------------------------
+| No `guest` middleware: it would bounce an already-authenticated user to `/`
+| (landing). LoginController::show() instead redirects them to their own
+| dashboard based on role (see homeFor()).
 */
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'show'])->name('login');
-    Route::post('/login', [LoginController::class, 'login'])
-        ->middleware('throttle:5,1')
-        ->name('login.attempt');
-});
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])
+    ->middleware('throttle:5,1')
+    ->name('login.attempt');
 
 Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
