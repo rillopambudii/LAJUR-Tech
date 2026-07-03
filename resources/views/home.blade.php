@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @php
-    $heroImage = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=70';
+    $heroImage = 'https://th.bing.com/th/id/R.5429252568e2275b3deae15d4286fe3a?rik=0o4n9ygJ1DZaOg&riu=http%3a%2f%2f3.bp.blogspot.com%2f-8s5uZdsiPFw%2fVAIB3GYeJNI%2fAAAAAAAATU8%2fP2Ujedhro7k%2fs1600%2fFoto%252BMobil%252BSport%252BTerbaru%252B2014.jpg&ehk=6gt5OnqncLpZUFmNtJukAmNs8WupBse1r2cU7aA99cA%3d&risl=&pid=ImgRaw&r=0';
 @endphp
 
 @section('content')
