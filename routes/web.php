@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CarController as AdminCarController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DriverController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\TrackingController;
 use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\TestimonialController;
@@ -70,6 +71,11 @@ Route::prefix('admin')
 
         // Fleet availability calendar
         Route::get('calendar', [CalendarController::class, 'index'])->name('calendar');
+
+        // Unit tracking (GPS + map)
+        Route::get('tracking', [TrackingController::class, 'index'])->name('tracking');
+        Route::get('tracking/live', [TrackingController::class, 'live'])->middleware('throttle:60,1')->name('tracking.live');
+        Route::get('tracking/history', [TrackingController::class, 'history'])->middleware('throttle:60,1')->name('tracking.history');
 
         // Analytics & reports
         Route::get('reports', [ReportController::class, 'index'])->name('reports');

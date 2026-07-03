@@ -55,6 +55,17 @@ return [
         'model' => env('OPENAI_MODEL', 'llama-3.3-70b-versatile'),
     ],
 
+    // Google Maps (unit tracking page).
+    'google' => [
+        'maps_key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
+    // Unit tracking. Demo mode fabricates positions (near Samarinda) so the map is
+    // usable before the Traccar integration feeds real data into vehicle_positions.
+    'tracking' => [
+        'demo' => env('TRACKING_DEMO', false),
+    ],
+
     // Optional CA bundle path for outbound HTTPS (Guzzle "verify"). Null = use the
     // system/PHP default. Set on dev machines where PHP has no CA bundle configured.
     'ca_bundle' => env('CURL_CA_BUNDLE') ?: null,

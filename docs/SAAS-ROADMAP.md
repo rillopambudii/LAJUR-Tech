@@ -136,6 +136,23 @@ Target tercapai: Owner tanya "Pendapatan bulan ini berapa?" → AI menjawab dari
 
 ---
 
+### Phase 7 — Pelacakan Unit (GPS) + Peta  ← SEDANG DIKERJAKAN (UI dulu, integrasi belakangan)
+Owner memutuskan (2026-07-03): **tracker GPS fisik (IoT)** + **Google Maps** + gateway **Traccar**.
+Alur: `tracker → Traccar → Lajur (tarik via API) → Google Maps di /admin/tracking`.
+
+- [x] Keputusan arsitektur + **panduan install Traccar** (`docs/TRACCAR-SETUP.md`).
+- [~] **UI dulu, sebelum integrasi**: halaman `/admin/tracking` (Google Maps, tenant-scoped) —
+      marker posisi live semua unit + rute histori per mobil; menu sidebar "Pelacakan".
+      Model data: kolom `cars.traccar_device_id`, tabel `vehicle_positions`
+      (tenant_id, car_id, lat, lng, speed, course, device_time). Endpoint live/history JSON.
+      **Mode demo** (`TRACKING_DEMO=true`) menampilkan posisi simulasi sebelum ada tracker.
+      Butuh `GOOGLE_MAPS_API_KEY` di `.env` (nonaktif rapi bila kosong).
+- [ ] **Integrasi Traccar** (belakangan): `TraccarClient` (Laravel Http) baca `/api/positions`
+      & `/api/reports/route`; job sync mengisi `vehicle_positions`; pemetaan device→mobil→tenant.
+- [ ] (Nanti) mini-map di detail Mobil; geofence/alert; riwayat perjalanan per booking.
+
+---
+
 ## Lintas-fase (SaaS plumbing)
 - Billing langganan (plan Free/Pro/Enterprise, batas armada per plan) — sebelum jual.
 - Custom domain / subdomain per tenant.

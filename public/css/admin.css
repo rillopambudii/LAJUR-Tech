@@ -90,6 +90,26 @@ body.admin { background: var(--ivory); }
 .ai-insight.loading .ai-insight-body { opacity: .55; }
 .ai-insight.loading .ai-insight-refresh { animation: aiSpin .9s linear infinite; }
 @keyframes aiSpin { to { transform: rotate(360deg); } }
+
+/* ---------- Unit tracking (map) ---------- */
+.track-wrap { display: grid; grid-template-columns: 290px 1fr; gap: 16px; height: calc(100vh - 150px); min-height: 480px; }
+.track-panel { display: flex; flex-direction: column; background: var(--white); border: 1px solid var(--ivory-200); border-radius: var(--radius-lg); padding: 16px; overflow-y: auto; }
+.track-map { border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--ivory-200); background: var(--ivory-200); }
+.track-mode { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; margin-bottom: 14px; }
+.track-mode svg { width: 18px; height: 18px; color: var(--amber-600); }
+.track-demo { margin-left: auto; background: var(--amber-glow); color: var(--amber-600); font-size: .68rem; font-weight: 700; padding: 3px 9px; border-radius: var(--radius-pill); text-transform: uppercase; letter-spacing: .05em; }
+.track-units { display: flex; flex-direction: column; gap: 6px; }
+.track-unit { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; cursor: pointer; background: transparent; border: 1px solid var(--ivory-200); border-radius: 10px; padding: 9px 11px; font-size: .9rem; font-weight: 600; color: var(--ink); transition: border-color .15s ease, background .15s ease; }
+.track-unit:hover { border-color: var(--amber); background: var(--ivory); }
+.track-unit small { margin-left: auto; color: var(--graphite); font-weight: 500; font-size: .74rem; }
+.track-unit .dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--graphite-300); }
+.track-unit .dot.moving { background: var(--ok); box-shadow: 0 0 0 3px rgba(31,138,99,.18); }
+.track-empty { color: var(--graphite); font-size: .88rem; line-height: 1.5; }
+.track-history { margin-top: auto; padding-top: 16px; }
+.track-history h4 { margin: 0 0 10px; font-size: .9rem; }
+.track-history select, .track-history input { width: 100%; box-sizing: border-box; margin-bottom: 8px; padding: 8px 10px; border: 1px solid var(--ivory-200); border-radius: 8px; font: inherit; }
+.track-history .btn { width: 100%; margin-bottom: 6px; }
+@media (max-width: 760px) { .track-wrap { grid-template-columns: 1fr; height: auto; } .track-map { height: 60vh; } }
 .stat-card.accent .ico { background: rgba(231,178,76,.16); }
 .stat-card.accent .lbl { color: rgba(247,248,251,.7); }
 

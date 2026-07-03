@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Tenancy\BelongsToTenant;
@@ -23,6 +24,7 @@ class Car extends Model
         'tenant_id',
         'name',
         'plate_number',
+        'traccar_device_id',
         'brand',
         'type',
         'transmission',
@@ -72,6 +74,22 @@ class Car extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * @return HasMany<VehiclePosition, $this>
+     */
+    public function positions(): HasMany
+    {
+        return $this->hasMany(VehiclePosition::class);
+    }
+
+    /**
+     * @return HasOne<VehiclePosition, $this>
+     */
+    public function latestPosition(): HasOne
+    {
+        return $this->hasOne(VehiclePosition::class)->latestOfMany('device_time');
     }
 
     /** Scope: only available cars. */
