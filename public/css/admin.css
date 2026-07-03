@@ -25,6 +25,21 @@ body.admin { background: var(--ivory); }
 .sidebar-foot { border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px; margin-top: 8px; }
 .sidebar-user { font-size: .86rem; color: rgba(247,248,251,.7); padding: 4px 8px 12px; }
 .sidebar-user strong { color: var(--ivory); display: block; }
+.sidebar-actions { display: flex; gap: 8px; margin-top: 8px; }
+.sidebar-actions form { flex: 1; display: flex; }
+.sidebar-btn {
+    flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 9px 10px; border-radius: var(--radius-sm); box-sizing: border-box;
+    font-family: var(--font-body); font-size: .82rem; font-weight: 600; line-height: 1;
+    color: rgba(247,248,251,.82); background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.10); cursor: pointer; text-decoration: none;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.sidebar-btn svg { width: 16px; height: 16px; }
+.sidebar-btn:hover { background: rgba(255,255,255,.12); color: var(--ivory); border-color: rgba(255,255,255,.22); }
+.sidebar-btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.sidebar-btn.danger { color: #F1A9A2; }
+.sidebar-btn.danger:hover { background: rgba(212,72,61,.16); border-color: rgba(212,72,61,.42); color: #F6C7C2; }
 
 /* ---------- Main ---------- */
 .admin-main { padding: 0; min-width: 0; }

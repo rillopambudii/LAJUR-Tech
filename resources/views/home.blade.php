@@ -32,14 +32,42 @@
         </div>
 
         <div class="hero-visual reveal">
-            <div class="hero-card">
-                <img src="{{ $heroCar?->image_url ?? asset('img/placeholder-car.svg') }}"
-                     alt="{{ $heroCar ? $heroCar->brand.' '.$heroCar->name : 'Armada Lajur' }}" data-fallback>
-                <div class="readout">
-                    <div><span class="k">Unit</span><span class="v">{{ $heroCar?->name ?? 'Premium' }}</span></div>
-                    <div><span class="k">Kursi</span><span class="v">{{ $heroCar?->seats ?? '—' }}</span></div>
-                    <div><span class="k">Mulai</span><span class="v">Rp {{ $heroCar ? number_format($heroCar->price_per_day, 0, ',', '.') : '—' }}</span></div>
+            <div class="hero-card" data-carousel>
+                <span class="hero-badge"><x-icon name="star" /> Mobil Unggulan</span>
+                <div class="hero-viewport">
+                    <div class="hero-track" data-track>
+                        @forelse ($featured as $car)
+                            <div class="hero-slide" role="group" aria-roledescription="slide" aria-label="{{ $car->brand }} {{ $car->name }}">
+                                <img src="{{ $car->image_url ?? asset('img/placeholder-car.svg') }}"
+                                     alt="{{ $car->brand }} {{ $car->name }}" data-fallback>
+                                <div class="readout">
+                                    <div><span class="k">Unit</span><span class="v">{{ $car->name }}</span></div>
+                                    <div><span class="k">Kursi</span><span class="v">{{ $car->seats }}</span></div>
+                                    <div><span class="k">Mulai</span><span class="v">Rp {{ number_format($car->price_per_day, 0, ',', '.') }}</span></div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="hero-slide">
+                                <img src="{{ asset('img/placeholder-car.svg') }}" alt="Armada Lajur" data-fallback>
+                                <div class="readout">
+                                    <div><span class="k">Unit</span><span class="v">Premium</span></div>
+                                    <div><span class="k">Kursi</span><span class="v">—</span></div>
+                                    <div><span class="k">Mulai</span><span class="v">—</span></div>
+                                </div>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
+                @if ($featured->count() > 1)
+                    <div class="hero-dots" role="tablist" aria-label="Pilih mobil unggulan">
+                        @foreach ($featured as $i => $car)
+                            <button type="button" class="hero-dot{{ $i === 0 ? ' is-active' : '' }}"
+                                    data-dot="{{ $i }}" role="tab"
+                                    aria-selected="{{ $i === 0 ? 'true' : 'false' }}"
+                                    aria-label="Tampilkan {{ $car->name }}"></button>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </div>

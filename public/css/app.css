@@ -191,6 +191,33 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
 .hero-card .readout .k { font-size: .72rem; color: rgba(247,248,251,.6); text-transform: uppercase; letter-spacing: .08em; }
 .hero-card .readout .v { font-family: var(--font-mono); font-weight: 600; color: var(--amber); margin-top: 3px; }
 
+/* Featured cars carousel */
+.hero-card { position: relative; }
+.hero-badge {
+    position: absolute; top: 24px; left: 24px; z-index: 2;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 11px; border-radius: var(--radius-pill);
+    background: rgba(15,27,51,.72); color: var(--amber);
+    font-family: var(--font-mono); font-size: .68rem; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase; backdrop-filter: blur(4px);
+}
+.hero-badge svg { width: 13px; height: 13px; }
+.hero-viewport { overflow: hidden; border-radius: var(--radius); }
+.hero-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
+.hero-slide { flex: 0 0 100%; min-width: 0; }
+.hero-slide img { display: block; }
+.hero-dots { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
+.hero-dot {
+    position: relative; width: 8px; height: 8px; padding: 0; border: 0;
+    border-radius: var(--radius-pill); background: rgba(255,255,255,.28);
+    cursor: pointer; transition: background .2s ease, width .2s ease;
+}
+.hero-dot::before { content: ''; position: absolute; inset: -10px; } /* larger touch target */
+.hero-dot:hover { background: rgba(255,255,255,.5); }
+.hero-dot.is-active { width: 22px; background: var(--amber); }
+.hero-dot:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .hero-track { transition: none; } }
+
 /* ---------- Car cards (spec-sheet) ---------- */
 .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
 .chip {

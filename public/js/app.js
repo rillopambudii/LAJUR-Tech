@@ -152,4 +152,30 @@
     } else {
         reveals.forEach(function (el) { el.classList.add('in'); });
     }
+
+    /* ---------- Hero featured carousel (auto-slide) ---------- */
+    var carousel = document.querySelector('[data-carousel]');
+    if (carousel) {
+        var track = carousel.querySelector('[data-track]');
+        var dots = Array.prototype.slice.call(carousel.querySelectorAll('.hero-dot'));
+        var slideCount = track ? track.children.length : 0;
+        if (track && slideCount > 1) {
+            var idx = 0, timer = null;
+            var go = function (n) {
+                idx = (n + slideCount) % slideCount;
+                track.style.transform = 'translateX(' + (-idx * 100) + '%)';
+                dots.forEach(function (d, i) {
+                    var on = i === idx;
+                    d.classList.toggle('is-active', on);
+                    d.setAttribute('aria-selected', on ? 'true' : 'false');
+                });
+            };
+            var stop = function () { if (timer) { clearInterval(timer); timer = null; } };
+            var start = function () { if (!reduce) { stop(); timer = setInterval(function () { go(idx + 1); }, 4500); } };
+            dots.forEach(function (d, i) { d.addEventListener('click', function () { go(i); start(); }); });
+            carousel.addEventListener('mouseenter', stop);
+            carousel.addEventListener('mouseleave', start);
+            start();
+        }
+    }
 })();
