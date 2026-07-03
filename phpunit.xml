@@ -31,6 +31,7 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PAYMENT_GATEWAY" value="manual"/>
         <env name="CURL_CA_BUNDLE" value=""/>
+        <env name="AI_PROVIDER" value="anthropic"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

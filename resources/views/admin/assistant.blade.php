@@ -24,7 +24,7 @@
     @unless ($configured)
         <div class="alert alert-error" role="alert" style="margin-bottom:18px">
             <x-icon name="alert" />
-            <span>Asisten AI belum aktif. Setel <code>ANTHROPIC_API_KEY</code> di file <code>.env</code>, lalu jalankan <code>php artisan config:clear</code>.</span>
+            <span>Asisten AI belum aktif. Setel kredensial AI di <code>.env</code> (mis. <code>AI_PROVIDER=openai</code> + <code>OPENAI_API_KEY</code> untuk Groq), lalu jalankan <code>php artisan config:clear</code>.</span>
         </div>
     @endunless
 
