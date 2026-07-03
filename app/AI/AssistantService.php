@@ -49,6 +49,21 @@ class AssistantService
         );
     }
 
+    /**
+     * One-shot narration with no tools — turn a pre-computed data blob into
+     * prose. Used by the dashboard AI summary.
+     */
+    public function narrate(string $system, string $prompt): string
+    {
+        $client = $this->client();
+
+        if (! $client->isConfigured()) {
+            throw new RuntimeException('Asisten AI belum aktif.');
+        }
+
+        return $client->ask($system, $prompt, [], static fn (): array => [])['answer'];
+    }
+
     /** Resolve the active LLM driver from config('services.ai.provider'). */
     private function client(): LlmClient
     {

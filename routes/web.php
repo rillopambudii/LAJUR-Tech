@@ -78,6 +78,7 @@ Route::prefix('admin')
         // AI business assistant
         Route::get('assistant', [AssistantController::class, 'index'])->name('assistant');
         Route::post('assistant', [AssistantController::class, 'ask'])->middleware('throttle:20,1')->name('assistant.ask');
+        Route::get('assistant/insight', [AssistantController::class, 'insight'])->middleware('throttle:30,1')->name('assistant.insight');
 
         // Cars CRUD
         Route::resource('cars', AdminCarController::class)->except('show');

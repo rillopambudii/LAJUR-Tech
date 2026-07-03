@@ -62,6 +62,34 @@ body.admin { background: var(--ivory); }
 .stat-card .lbl { color: var(--graphite); font-size: .9rem; margin-top: 2px; }
 .stat-card.accent { background: var(--petrol); border-color: var(--petrol); }
 .stat-card.accent .num, .stat-card.accent .ico { color: var(--amber); }
+
+/* ---------- Dashboard AI summary card ---------- */
+.ai-insight {
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, var(--petrol) 0%, var(--petrol-600) 100%);
+    color: var(--ivory); border-radius: var(--radius-lg); padding: 20px 24px;
+    margin-bottom: 24px; box-shadow: var(--shadow-sm);
+}
+.ai-insight::after {
+    content: ''; position: absolute; right: -40px; top: -50px; width: 190px; height: 190px;
+    background: radial-gradient(circle, var(--amber-glow) 0%, transparent 65%); pointer-events: none;
+}
+.ai-insight-head { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.ai-insight-title { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: .95rem; letter-spacing: .02em; color: var(--amber); }
+.ai-insight-title svg { width: 18px; height: 18px; }
+.ai-insight-tools { display: flex; align-items: center; gap: 12px; }
+.ai-insight-refresh {
+    width: 30px; height: 30px; border-radius: 8px; cursor: pointer; line-height: 1; font-size: 1.05rem;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); color: var(--ivory);
+    transition: background .2s ease;
+}
+.ai-insight-refresh:hover { background: rgba(255,255,255,.18); }
+.ai-insight-ask { color: var(--amber); font-size: .85rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.ai-insight-ask:hover { text-decoration: underline; }
+.ai-insight-body { position: relative; z-index: 1; margin: 0; line-height: 1.65; font-size: 1rem; color: rgba(247,248,251,.92); }
+.ai-insight.loading .ai-insight-body { opacity: .55; }
+.ai-insight.loading .ai-insight-refresh { animation: aiSpin .9s linear infinite; }
+@keyframes aiSpin { to { transform: rotate(360deg); } }
 .stat-card.accent .ico { background: rgba(231,178,76,.16); }
 .stat-card.accent .lbl { color: rgba(247,248,251,.7); }
 

@@ -70,13 +70,13 @@ class AnthropicClient implements LlmClient
             'content-type' => 'application/json',
         ])
             ->timeout(60)
-            ->post(rtrim(config('services.anthropic.base_url'), '/').'/v1/messages', [
+            ->post(rtrim(config('services.anthropic.base_url'), '/').'/v1/messages', array_filter([
                 'model' => config('services.anthropic.model'),
                 'max_tokens' => 1024,
                 'system' => $system,
-                'tools' => $toolDefs,
+                'tools' => $toolDefs ?: null,
                 'messages' => $messages,
-            ]);
+            ], fn ($v) => $v !== null));
 
         if ($response->failed()) {
             throw new RuntimeException('AI error: '.($response->json('error.message') ?? 'Gagal menghubungi layanan AI.'));

@@ -5,6 +5,17 @@
 @section('heading', 'Dashboard')
 
 @section('content')
+    <div class="ai-insight" data-ai-insight>
+        <div class="ai-insight-head">
+            <span class="ai-insight-title"><x-icon name="sparkle" /> Ringkasan AI</span>
+            <div class="ai-insight-tools">
+                <button type="button" class="ai-insight-refresh" data-refresh title="Perbarui ringkasan" aria-label="Perbarui ringkasan">↻</button>
+                <a href="{{ route('admin.assistant') }}" class="ai-insight-ask">Tanya Asisten →</a>
+            </div>
+        </div>
+        <p class="ai-insight-body" data-body>Menyusun ringkasan…</p>
+    </div>
+
     <div class="stat-grid">
         <div class="stat-card">
             <div class="ico"><x-icon name="car" /></div>
@@ -138,3 +149,26 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    var card = document.querySelector('[data-ai-insight]');
+    if (!card) return;
+    var body = card.querySelector('[data-body]');
+    var refresh = card.querySelector('[data-refresh]');
+    var url = @json(route('admin.assistant.insight'));
+    function load(fresh) {
+        card.classList.add('loading');
+        body.textContent = 'Menyusun ringkasan…';
+        fetch(url + (fresh ? '?fresh=1' : ''), { headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { body.textContent = (d && d.text) ? d.text : 'Ringkasan belum tersedia.'; })
+            .catch(function () { body.textContent = 'Ringkasan belum tersedia.'; })
+            .finally(function () { card.classList.remove('loading'); });
+    }
+    if (refresh) refresh.addEventListener('click', function () { load(true); });
+    load(false);
+})();
+</script>
+@endpush

@@ -94,11 +94,13 @@ class OpenAiClient implements LlmClient
         $payload = [
             'model' => config('services.openai.model'),
             'messages' => $messages,
-            'tools' => $tools,
-            'tool_choice' => 'auto',
             'temperature' => 0.2,
             'max_tokens' => 1024,
         ];
+        if (! empty($tools)) {
+            $payload['tools'] = $tools;
+            $payload['tool_choice'] = 'auto';
+        }
 
         for ($attempt = 0; ; $attempt++) {
             $response = Http::withToken(config('services.openai.api_key'))

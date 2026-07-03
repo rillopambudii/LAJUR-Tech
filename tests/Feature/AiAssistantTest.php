@@ -182,6 +182,39 @@ class AiAssistantTest extends TestCase
         $service->ask('halo');
     }
 
+    public function test_dashboard_insight_endpoint_uses_ai(): void
+    {
+        $this->seedRevenue();
+        config()->set('services.ai.provider', 'openai');
+        config()->set('services.openai.api_key', 'gsk-test');
+        config()->set('services.openai.base_url', 'https://api.groq.com/openai/v1');
+        config()->set('services.openai.model', 'llama-3.3-70b-versatile');
+
+        Http::fake(['api.groq.com/*' => Http::response([
+            'choices' => [['message' => ['content' => 'Pendapatan bulan ini Rp 800.000. Semua lancar.']]],
+        ])]);
+
+        $owner = User::create([
+            'tenant_id' => $this->tenant->id, 'name' => 'Owner', 'email' => 'o@lajur.id',
+            'password' => 'password', 'role' => User::ROLE_OWNER, 'is_admin' => true,
+        ]);
+
+        $res = $this->actingAs($owner)->getJson('/admin/assistant/insight');
+        $res->assertOk()->assertJson(['source' => 'ai']);
+        $this->assertStringContainsString('Pendapatan', $res->json('text'));
+    }
+
+    public function test_dashboard_insight_falls_back_without_ai(): void
+    {
+        $this->seedRevenue();
+        config()->set('services.anthropic.api_key', null); // provider defaults to anthropic in tests
+
+        $r = app(\App\AI\DashboardInsightService::class)->get();
+
+        $this->assertSame('fallback', $r['source']);
+        $this->assertStringContainsString('Pendapatan bulan ini', $r['text']);
+    }
+
     public function test_assistant_page_loads(): void
     {
         $owner = User::create([

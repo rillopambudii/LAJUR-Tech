@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\AI\AssistantService;
+use App\AI\DashboardInsightService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -41,4 +43,15 @@ class AssistantController extends Controller
             'assistant_answer' => $answer,
         ]);
     }
+
+    /** Async JSON endpoint for the dashboard AI summary card. */
+    public function insight(Request $request, DashboardInsightService $insight): JsonResponse
+    {
+        try {
+            return response()->json($insight->get($request->boolean('fresh')));
+        } catch (\Throwable) {
+            return response()->json(['text' => 'Ringkasan belum tersedia saat ini.', 'source' => 'error']);
+        }
+    }
 }
+
