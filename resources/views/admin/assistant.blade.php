@@ -33,10 +33,11 @@
     <div class="ai-chips">
         @foreach ([
             'Pendapatan bulan ini berapa?',
-            'Berapa booking bulan ini dan berapa yang masih pending?',
+            'Pendapatan bulan ini dibanding bulan lalu, naik berapa persen?',
             'Mobil apa yang paling laris bulan ini?',
+            'Booking pending ada berapa dan siapa saja?',
+            'Mobil mana yang pajak atau servisnya jatuh tempo?',
             'Bagaimana tren pendapatan 6 bulan terakhir?',
-            'Berapa okupansi armada bulan ini?',
         ] as $example)
             <button type="button" class="ai-chip" data-fill="{{ $example }}">{{ $example }}</button>
         @endforeach

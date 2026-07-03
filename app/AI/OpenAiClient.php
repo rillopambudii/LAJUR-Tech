@@ -90,17 +90,28 @@ class OpenAiClient implements LlmClient
      */
     private function call(array $messages, array $tools): array
     {
-        $response = Http::withToken(config('services.openai.api_key'))
-            ->acceptJson()
-            ->timeout(60)
-            ->post(rtrim(config('services.openai.base_url'), '/').'/chat/completions', [
-                'model' => config('services.openai.model'),
-                'messages' => $messages,
-                'tools' => $tools,
-                'tool_choice' => 'auto',
-                'temperature' => 0.2,
-                'max_tokens' => 1024,
-            ]);
+        $url = rtrim(config('services.openai.base_url'), '/').'/chat/completions';
+        $payload = [
+            'model' => config('services.openai.model'),
+            'messages' => $messages,
+            'tools' => $tools,
+            'tool_choice' => 'auto',
+            'temperature' => 0.2,
+            'max_tokens' => 1024,
+        ];
+
+        for ($attempt = 0; ; $attempt++) {
+            $response = Http::withToken(config('services.openai.api_key'))
+                ->acceptJson()->timeout(60)->post($url, $payload);
+
+            // Free tiers (e.g. Groq) enforce tokens-per-minute limits — back off and retry.
+            if ($response->status() === 429 && $attempt < 2) {
+                usleep(1_500_000);
+
+                continue;
+            }
+            break;
+        }
 
         if ($response->failed()) {
             throw new RuntimeException('AI error: '.($response->json('error.message') ?? 'Gagal menghubungi layanan AI.'));

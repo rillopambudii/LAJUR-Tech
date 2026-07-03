@@ -41,6 +41,49 @@ class AiAssistantTest extends TestCase
         ]);
     }
 
+    public function test_new_tools_return_tenant_scoped_data(): void
+    {
+        $this->seedRevenue(); // Innova + confirmed booking today..+1 (Rp 800.000 this month)
+        $tools = app(\App\AI\AssistantTools::class);
+
+        // check_availability — overlapping range busy, far range free
+        $busy = $tools->run('check_availability', [
+            'car' => 'Innova', 'start' => now()->toDateString(), 'end' => now()->addDay()->toDateString(),
+        ]);
+        $this->assertFalse($busy['tersedia']);
+        $free = $tools->run('check_availability', [
+            'car' => 'Innova', 'start' => now()->addYear()->toDateString(), 'end' => now()->addYear()->addDay()->toDateString(),
+        ]);
+        $this->assertTrue($free['tersedia']);
+
+        // list_pending_bookings
+        Booking::create([
+            'car_id' => Car::first()->id, 'car_name' => 'Innova', 'customer_name' => 'B', 'customer_email' => 'b@x.id',
+            'customer_phone' => '0812', 'start_date' => now()->addDays(5)->toDateString(), 'end_date' => now()->addDays(6)->toDateString(),
+            'days' => 1, 'price_per_day' => 400000, 'total_price' => 400000, 'status' => 'pending',
+        ]);
+        $pending = $tools->run('list_pending_bookings', []);
+        $this->assertSame(1, $pending['total_pending']);
+        $this->assertCount(1, $pending['daftar']);
+
+        // fleet_reminders — a car with an overdue tax date shows up
+        Car::create([
+            'name' => 'Xenia', 'brand' => 'Daihatsu', 'type' => 'MPV', 'transmission' => 'Manual',
+            'fuel_type' => 'Bensin', 'seats' => 7, 'price_per_day' => 250000,
+            'tax_due_date' => now()->subDay()->toDateString(),
+        ]);
+        $this->assertNotEmpty($tools->run('fleet_reminders', [])['pengingat']);
+
+        // compare_revenue — this month vs previous month
+        $cmp = $tools->run('compare_revenue', [
+            'current_from' => now()->startOfMonth()->toDateString(), 'current_to' => now()->toDateString(),
+            'previous_from' => now()->subMonthNoOverflow()->startOfMonth()->toDateString(),
+            'previous_to' => now()->subMonthNoOverflow()->endOfMonth()->toDateString(),
+        ]);
+        $this->assertSame(800000, $cmp['pendapatan_sekarang']);
+        $this->assertSame(0, $cmp['pendapatan_pembanding']);
+    }
+
     public function test_assistant_runs_tool_loop_and_returns_answer(): void
     {
         $this->seedRevenue();

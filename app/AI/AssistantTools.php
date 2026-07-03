@@ -64,6 +64,37 @@ class AssistantTools
                 'description' => 'Status armada saat ini: jumlah total mobil, mobil tersedia, dan booking yang masih menunggu (pending).',
                 'input_schema' => ['type' => 'object', 'properties' => (object) [], 'required' => []],
             ],
+            [
+                'name' => 'check_availability',
+                'description' => 'Cek apakah sebuah mobil masih tersedia (belum dibooking) untuk rentang tanggal. Gunakan untuk "apakah [mobil] tersedia tanggal ...".',
+                'input_schema' => ['type' => 'object', 'properties' => [
+                    'car' => ['type' => 'string', 'description' => 'Nama atau merek mobil (boleh sebagian, mis. "Avanza").'],
+                    'start' => ['type' => 'string', 'description' => 'Tanggal mulai (YYYY-MM-DD).'],
+                    'end' => ['type' => 'string', 'description' => 'Tanggal selesai (YYYY-MM-DD).'],
+                ], 'required' => ['car', 'start', 'end']],
+            ],
+            [
+                'name' => 'list_pending_bookings',
+                'description' => 'Daftar booking yang masih menunggu konfirmasi (status pending), terbaru dulu. Gunakan untuk "booking pending siapa saja / ada berapa".',
+                'input_schema' => ['type' => 'object', 'properties' => [
+                    'limit' => ['type' => 'integer', 'description' => 'Maks jumlah baris (1-20). Default 10.'],
+                ], 'required' => []],
+            ],
+            [
+                'name' => 'fleet_reminders',
+                'description' => 'Mobil yang pajak (STNK) atau servisnya sudah lewat atau jatuh tempo dalam 30 hari ke depan.',
+                'input_schema' => ['type' => 'object', 'properties' => (object) [], 'required' => []],
+            ],
+            [
+                'name' => 'compare_revenue',
+                'description' => 'Bandingkan pendapatan dua periode dan hitung selisih + persentase. Gunakan untuk "bandingkan bulan ini vs bulan lalu".',
+                'input_schema' => ['type' => 'object', 'properties' => [
+                    'current_from' => ['type' => 'string', 'description' => 'Periode sekarang: tanggal awal (YYYY-MM-DD).'],
+                    'current_to' => ['type' => 'string', 'description' => 'Periode sekarang: tanggal akhir (YYYY-MM-DD).'],
+                    'previous_from' => ['type' => 'string', 'description' => 'Periode pembanding: tanggal awal (YYYY-MM-DD).'],
+                    'previous_to' => ['type' => 'string', 'description' => 'Periode pembanding: tanggal akhir (YYYY-MM-DD).'],
+                ], 'required' => ['current_from', 'current_to', 'previous_from', 'previous_to']],
+            ],
         ];
     }
 
@@ -81,6 +112,10 @@ class AssistantTools
             'revenue_trend' => $this->revenueTrend($input),
             'top_cars' => $this->topCars($input),
             'fleet_status' => $this->fleetStatus(),
+            'check_availability' => $this->checkAvailability($input),
+            'list_pending_bookings' => $this->listPendingBookings($input),
+            'fleet_reminders' => $this->fleetReminders(),
+            'compare_revenue' => $this->compareRevenue($input),
             default => ['error' => "Tool tidak dikenal: {$name}"],
         };
     }
@@ -135,6 +170,95 @@ class AssistantTools
             'total_mobil' => Car::query()->count(),
             'mobil_tersedia' => Car::query()->available()->count(),
             'booking_pending' => Booking::query()->where('status', 'pending')->count(),
+        ];
+    }
+
+    /** @param array<string, mixed> $input */
+    private function checkAvailability(array $input): array
+    {
+        $name = trim((string) ($input['car'] ?? ''));
+        $start = $this->parse($input['start'] ?? null);
+        $end = $this->parse($input['end'] ?? null);
+
+        if ($name === '' || ! $start || ! $end) {
+            return ['error' => 'Butuh nama mobil serta tanggal mulai & selesai (format YYYY-MM-DD).'];
+        }
+        if ($start->gt($end)) {
+            [$start, $end] = [$end, $start];
+        }
+
+        // Grouped where keeps the tenant global scope intact.
+        $car = Car::query()
+            ->where(fn ($q) => $q->where('name', 'like', "%{$name}%")->orWhere('brand', 'like', "%{$name}%"))
+            ->first();
+
+        if (! $car) {
+            return ['error' => "Mobil \"{$name}\" tidak ditemukan."];
+        }
+
+        return [
+            'mobil' => $car->name,
+            'periode' => $start->toDateString().' s/d '.$end->toDateString(),
+            'tersedia' => $car->isAvailableForRange($start->toDateString(), $end->toDateString()),
+            'aktif_untuk_disewa' => (bool) $car->is_available,
+        ];
+    }
+
+    /** @param array<string, mixed> $input */
+    private function listPendingBookings(array $input): array
+    {
+        $limit = max(1, min(20, (int) ($input['limit'] ?? 10)));
+
+        $bookings = Booking::query()->where('status', 'pending')->latest()->take($limit)->get();
+
+        return [
+            'total_pending' => Booking::query()->where('status', 'pending')->count(),
+            'daftar' => $bookings->map(fn (Booking $b) => [
+                'penyewa' => $b->customer_name,
+                'mobil' => $b->car_name,
+                'periode' => $b->start_date->toDateString().' s/d '.$b->end_date->toDateString(),
+                'total' => (int) $b->total_price,
+            ])->all(),
+        ];
+    }
+
+    private function fleetReminders(): array
+    {
+        return [
+            'pengingat' => Car::query()->withDueReminders()->get()->map(fn (Car $c) => [
+                'mobil' => $c->name,
+                'plat' => $c->plate_number,
+                'pajak_jatuh_tempo' => optional($c->tax_due_date)->toDateString(),
+                'status_pajak' => $c->taxStatus(),      // overdue / soon / ok
+                'servis_jatuh_tempo' => optional($c->service_due_date)->toDateString(),
+                'status_servis' => $c->serviceStatus(),
+            ])->all(),
+        ];
+    }
+
+    /** @param array<string, mixed> $input */
+    private function compareRevenue(array $input): array
+    {
+        $cf = $this->parse($input['current_from'] ?? null);
+        $ct = $this->parse($input['current_to'] ?? null);
+        $pf = $this->parse($input['previous_from'] ?? null);
+        $pt = $this->parse($input['previous_to'] ?? null);
+
+        if (! $cf || ! $ct || ! $pf || ! $pt) {
+            return ['error' => 'Butuh empat tanggal (YYYY-MM-DD): current_from, current_to, previous_from, previous_to.'];
+        }
+
+        $current = $this->reports->summary($cf->startOfDay(), $ct->startOfDay())['revenue'];
+        $previous = $this->reports->summary($pf->startOfDay(), $pt->startOfDay())['revenue'];
+        $delta = $current - $previous;
+
+        return [
+            'periode_sekarang' => $cf->toDateString().' s/d '.$ct->toDateString(),
+            'pendapatan_sekarang' => $current,
+            'periode_pembanding' => $pf->toDateString().' s/d '.$pt->toDateString(),
+            'pendapatan_pembanding' => $previous,
+            'selisih' => $delta,
+            'persen_perubahan' => $previous > 0 ? round($delta / $previous * 100, 1) : null,
         ];
     }
 
