@@ -23,19 +23,19 @@
                 Lajur
             </a>
             <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
-                <a href="#sewa">Sewa Mobil</a>
-                <a href="#cara">Cara Sewa</a>
-                <a href="#kenapa">Kenapa Lajur</a>
-                <a href="#testimoni">Testimoni</a>
-                <a href="#tentang">Tentang</a>
-                <a href="#kontak">Kontak</a>
+                <a href="{{ route('home') }}#sewa">Sewa Mobil</a>
+                <a href="{{ route('home') }}#cara">Cara Sewa</a>
+                <a href="{{ route('home') }}#kenapa">Kenapa Lajur</a>
+                <a href="{{ route('home') }}#testimoni">Testimoni</a>
+                <a href="{{ route('home') }}#tentang">Tentang</a>
+                <a href="{{ route('home') }}#kontak">Kontak</a>
                 <a href="{{ route('login') }}" class="nav-login-mobile">Masuk</a>
             </nav>
             <div class="nav-cta">
                 <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">
                     <x-icon name="key" /> Masuk
                 </a>
-                <a href="#sewa" class="btn btn-primary btn-sm">Sewa Sekarang</a>
+                <a href="{{ route('home') }}#sewa" class="btn btn-primary btn-sm">Sewa Sekarang</a>
                 <button class="nav-toggle" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
                     <x-icon name="menu" />
                 </button>
@@ -58,10 +58,10 @@
                 </div>
                 <div>
                     <h4>Navigasi</h4>
-                    <a href="#sewa">Sewa Mobil</a>
-                    <a href="#cara">Cara Sewa</a>
-                    <a href="#kenapa">Kenapa Lajur</a>
-                    <a href="#testimoni">Testimoni</a>
+                    <a href="{{ route('home') }}#sewa">Sewa Mobil</a>
+                    <a href="{{ route('home') }}#cara">Cara Sewa</a>
+                    <a href="{{ route('home') }}#kenapa">Kenapa Lajur</a>
+                    <a href="{{ route('home') }}#testimoni">Testimoni</a>
                 </div>
                 <div>
                     <h4>Kontak</h4>

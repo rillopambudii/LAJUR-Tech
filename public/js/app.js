@@ -72,11 +72,9 @@
         var pricePerDay = 0;
 
         var today = new Date().toISOString().split('T')[0];
-        if (startInput) startInput.min = today;
 
         var recalc = function () {
             var s = startInput.value, e = endInput.value;
-            if (e) endInput.min = s || today;
             if (!s || !e) { estAmount.textContent = rupiah(0); estDays.textContent = '0 hari'; return; }
             var sd = new Date(s), ed = new Date(e);
             var diff = Math.round((ed - sd) / 86400000);
@@ -84,8 +82,18 @@
             estDays.textContent = diff + ' hari × ' + rupiah(pricePerDay);
             estAmount.textContent = rupiah(diff * pricePerDay);
         };
-        if (startInput) startInput.addEventListener('change', recalc);
-        if (endInput) endInput.addEventListener('change', recalc);
+
+        // Validate on `change` (fires only with a complete value) instead of via a
+        // runtime `min` attribute — setting `min` makes the browser clamp the year
+        // to 0000 while the user is still typing it. ISO date strings compare
+        // lexicographically. Server-side rules in BookingRequest remain the backstop.
+        var onDateChange = function () {
+            if (startInput.value && startInput.value < today) startInput.value = today;
+            if (endInput.value && startInput.value && endInput.value < startInput.value) endInput.value = '';
+            recalc();
+        };
+        if (startInput) startInput.addEventListener('change', onDateChange);
+        if (endInput) endInput.addEventListener('change', onDateChange);
 
         var openModal = function (data) {
             if (data) {
