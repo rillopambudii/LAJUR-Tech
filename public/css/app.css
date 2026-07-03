@@ -205,8 +205,8 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
 .hero-viewport { overflow: hidden; border-radius: var(--radius); }
 .hero-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
 .hero-slide { flex: 0 0 100%; min-width: 0; }
-/* Show the whole car (no cropping); navy fills any letterbox space. */
-.hero-slide img { display: block; object-fit: contain; background: var(--petrol-700); }
+/* Square frame; the whole car fits (contain) and navy fills the letterbox. */
+.hero-slide img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: contain; background: var(--petrol-700); }
 .hero-dots { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
 .hero-dot {
     position: relative; width: 8px; height: 8px; padding: 0; border: 0;
