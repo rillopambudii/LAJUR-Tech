@@ -71,8 +71,6 @@
         var cpriceInput = modal.querySelector('[data-cprice]');
         var pricePerDay = 0;
 
-        var today = new Date().toISOString().split('T')[0];
-
         var recalc = function () {
             var s = startInput.value, e = endInput.value;
             if (!s || !e) { estAmount.textContent = rupiah(0); estDays.textContent = '0 hari'; return; }
@@ -83,17 +81,13 @@
             estAmount.textContent = rupiah(diff * pricePerDay);
         };
 
-        // Validate on `change` (fires only with a complete value) instead of via a
-        // runtime `min` attribute — setting `min` makes the browser clamp the year
-        // to 0000 while the user is still typing it. ISO date strings compare
-        // lexicographically. Server-side rules in BookingRequest remain the backstop.
-        var onDateChange = function () {
-            if (startInput.value && startInput.value < today) startInput.value = today;
-            if (endInput.value && startInput.value && endInput.value < startInput.value) endInput.value = '';
-            recalc();
-        };
-        if (startInput) startInput.addEventListener('change', onDateChange);
-        if (endInput) endInput.addEventListener('change', onDateChange);
+        // Do NOT set `min` or otherwise mutate the date fields on the client:
+        // setting `min` makes the browser clamp the year to 0000 mid-typing, and
+        // snapping the value on `change` rewrites the day/month the user already
+        // entered. Only recompute the estimate here; past-date and
+        // end-before-start are enforced server-side in BookingRequest.
+        if (startInput) startInput.addEventListener('change', recalc);
+        if (endInput) endInput.addEventListener('change', recalc);
 
         var openModal = function (data) {
             if (data) {
