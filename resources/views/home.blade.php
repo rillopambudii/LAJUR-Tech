@@ -1,45 +1,21 @@
 @extends('layouts.public')
 
-@php $heroCar = $featured->first(); @endphp
+@php
+    $heroImage = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=70';
+@endphp
 
 @section('content')
 
 {{-- ============ HERO ============ --}}
-<section class="hero" id="home">
+<section class="hero" id="home" style="--hero-image: url('{{ $heroImage }}')">
     <div class="container">
-        <div class="hero-copy">
+        <div class="hero-content">
             <span class="eyebrow hero-eyebrow">Rental Mobil Premium · Kalimantan Timur</span>
             <h1>Perjalanan Anda, <span class="accent">dalam kendali penuh.</span></h1>
             <p>Sewa mobil premium yang terawat dengan harga transparan dan proses yang cepat. Dari dinas hingga liburan keluarga — Lajur siap mengantar.</p>
             <div class="hero-actions">
                 <a href="#sewa" class="btn btn-primary">Lihat Armada <x-icon name="arrow-right" /></a>
                 <a href="#cara" class="btn btn-light">Cara Sewa</a>
-            </div>
-            <div class="hero-stats">
-                <div class="stat">
-                    <span class="stat-num">{{ $stats['cars'] }}+</span>
-                    <span class="stat-label">Unit Siap Sewa</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-num">{{ max($stats['types'], 1) }}</span>
-                    <span class="stat-label">Tipe Mobil</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-num">24/7</span>
-                    <span class="stat-label">Dukungan</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="hero-visual reveal">
-            <div class="hero-card">
-                <img src="{{ $heroCar?->image_url ?? asset('img/placeholder-car.svg') }}"
-                     alt="{{ $heroCar ? $heroCar->brand.' '.$heroCar->name : 'Armada Lajur' }}" data-fallback>
-                <div class="readout">
-                    <div><span class="k">Unit</span><span class="v">{{ $heroCar?->name ?? 'Premium' }}</span></div>
-                    <div><span class="k">Kursi</span><span class="v">{{ $heroCar?->seats ?? '—' }}</span></div>
-                    <div><span class="k">Mulai</span><span class="v">Rp {{ $heroCar ? number_format($heroCar->price_per_day, 0, ',', '.') : '—' }}</span></div>
-                </div>
             </div>
         </div>
     </div>

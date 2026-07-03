@@ -29,8 +29,20 @@
             <a href="{{ route('admin.cars.index') }}" class="{{ request()->routeIs('admin.cars.*') ? 'active' : '' }}">
                 <x-icon name="car" /> Mobil
             </a>
+            <a href="{{ route('admin.drivers.index') }}" class="{{ request()->routeIs('admin.drivers.*') ? 'active' : '' }}">
+                <x-icon name="users" /> Driver
+            </a>
             <a href="{{ route('admin.bookings.index') }}" class="{{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
                 <x-icon name="list" /> Booking
+            </a>
+            <a href="{{ route('admin.calendar') }}" class="{{ request()->routeIs('admin.calendar') ? 'active' : '' }}">
+                <x-icon name="calendar" /> Kalender
+            </a>
+            <a href="{{ route('admin.reports') }}" class="{{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+                <x-icon name="gauge" /> Laporan
+            </a>
+            <a href="{{ route('admin.assistant') }}" class="{{ request()->routeIs('admin.assistant') ? 'active' : '' }}">
+                <x-icon name="sparkle" /> Asisten AI
             </a>
             <a href="{{ route('admin.testimonials.index') }}" class="{{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}">
                 <x-icon name="star" /> Testimoni
@@ -45,15 +57,17 @@
                 Masuk sebagai
                 <strong>{{ auth()->user()->name }}</strong>
             </div>
-            <a href="{{ route('home') }}" class="admin-nav" style="padding:0">
-                <span style="display:flex;align-items:center;gap:12px;padding:11px 14px;color:rgba(244,245,243,.74)"><x-icon name="eye" /> Lihat Situs</span>
-            </a>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" style="all:unset;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius);color:rgba(244,245,243,.74);cursor:pointer;width:100%;box-sizing:border-box">
-                    <x-icon name="logout" /> Keluar
-                </button>
-            </form>
+            <div class="sidebar-actions">
+                <a href="{{ route('home') }}" class="sidebar-btn" target="_blank" rel="noopener">
+                    <x-icon name="eye" /> <span>Lihat Situs</span>
+                </a>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="sidebar-btn danger">
+                        <x-icon name="logout" /> <span>Keluar</span>
+                    </button>
+                </form>
+            </div>
         </div>
     </aside>
 

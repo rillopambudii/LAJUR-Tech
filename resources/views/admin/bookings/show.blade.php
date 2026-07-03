@@ -40,8 +40,10 @@
                     <div class="detail-item"><div class="k">Tanggal Mulai</div><div class="v">{{ $booking->start_date->format('d M Y') }}</div></div>
                     <div class="detail-item"><div class="k">Tanggal Selesai</div><div class="v">{{ $booking->end_date->format('d M Y') }}</div></div>
                     <div class="detail-item"><div class="k">Lama Sewa</div><div class="v">{{ $booking->days }} hari</div></div>
+                    <div class="detail-item"><div class="k">Driver</div><div class="v">{{ $booking->driver?->name ?? '—' }}</div></div>
                     <div class="detail-item"><div class="k">Harga / Hari</div><div class="v mono">Rp {{ number_format($booking->price_per_day, 0, ',', '.') }}</div></div>
                     <div class="detail-item"><div class="k">Total</div><div class="v mono" style="color:var(--petrol);font-size:1.25rem">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div></div>
+                    <div class="detail-item"><div class="k">Pembayaran</div><div class="v">{{ $booking->payment_status_label }}@if($booking->paid_at) <span class="tag">{{ $booking->paid_at->format('d M Y H:i') }}</span>@endif</div></div>
                 </div>
             </div>
         </div>
@@ -62,6 +64,41 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-block"><x-icon name="check" /> Perbarui Status</button>
             </form>
+
+            <hr style="border:0;border-top:1px solid var(--ivory-200);margin:20px 0">
+
+            <form action="{{ route('admin.bookings.driver', $booking) }}" method="POST">
+                @csrf @method('PATCH')
+                <div class="field">
+                    <label for="driver_id">Tugaskan Driver</label>
+                    <select class="select" id="driver_id" name="driver_id">
+                        <option value="">— Tanpa driver —</option>
+                        @foreach ($drivers as $driver)
+                            <option value="{{ $driver->id }}" @selected($booking->driver_id === $driver->id)>{{ $driver->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @if ($drivers->isEmpty())
+                    <p style="font-size:.82rem;color:rgba(0,0,0,.5);margin:0 0 12px">Belum ada driver. <a href="{{ route('admin.drivers.create') }}">Tambah driver</a> dulu.</p>
+                @endif
+                <button type="submit" class="btn btn-ghost btn-block"><x-icon name="users" /> Simpan Driver</button>
+            </form>
+
+            <hr style="border:0;border-top:1px solid var(--ivory-200);margin:20px 0">
+
+            @php
+                $waMessage = "Halo {$booking->customer_name}, berikut invoice {$booking->invoiceNumber()} untuk sewa {$booking->car_name} "
+                    . $booking->start_date->translatedFormat('d M') . '–' . $booking->end_date->translatedFormat('d M Y')
+                    . ' (' . $booking->days . ' hari). Total: Rp ' . number_format($booking->total_price, 0, ',', '.') . '. Terima kasih.';
+            @endphp
+            <div style="display:grid;gap:10px">
+                <a href="{{ route('admin.bookings.invoice', $booking) }}" target="_blank" class="btn btn-ghost btn-block"><x-icon name="list" /> Lihat / Cetak Invoice</a>
+                <a href="{{ $booking->whatsappUrl($waMessage) }}" target="_blank" rel="noopener" class="btn btn-ghost btn-block" style="color:#128c7e;border-color:rgba(18,140,126,.3)"><x-icon name="whatsapp" /> Kirim via WhatsApp</a>
+                <form action="{{ route('admin.bookings.email', $booking) }}" method="POST" data-confirm="Kirim invoice ke {{ $booking->customer_email }}?">
+                    @csrf
+                    <button type="submit" class="btn btn-ghost btn-block"><x-icon name="mail" /> Kirim Invoice via Email</button>
+                </form>
+            </div>
 
             <hr style="border:0;border-top:1px solid var(--ivory-200);margin:20px 0">
 

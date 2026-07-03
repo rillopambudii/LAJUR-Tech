@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateBookingStatusRequest;
+use App\Mail\BookingInvoiceMail;
 use App\Models\Booking;
+use App\Models\User;
+use App\Tenancy\TenantManager;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class BookingController extends Controller
 {
@@ -38,9 +43,39 @@ class BookingController extends Controller
 
     public function show(Booking $booking): View
     {
-        $booking->load('car');
+        $booking->load('car', 'driver');
 
-        return view('admin.bookings.show', compact('booking'));
+        // Drivers of this tenant, for the assignment dropdown.
+        $drivers = User::query()
+            ->forTenant(app(TenantManager::class)->id())
+            ->where('role', User::ROLE_DRIVER)
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.bookings.show', compact('booking', 'drivers'));
+    }
+
+    public function assignDriver(Request $request, Booking $booking): RedirectResponse
+    {
+        $tenantId = app(TenantManager::class)->id();
+
+        $validated = $request->validate([
+            'driver_id' => [
+                'nullable',
+                // The driver must be a driver within this tenant.
+                Rule::exists('users', 'id')
+                    ->where('role', User::ROLE_DRIVER)
+                    ->where('tenant_id', $tenantId),
+            ],
+        ], [
+            'driver_id.exists' => 'Driver yang dipilih tidak valid.',
+        ]);
+
+        $booking->update(['driver_id' => $validated['driver_id'] ?: null]);
+
+        return back()->with('success', $validated['driver_id']
+            ? 'Driver berhasil ditugaskan.'
+            : 'Penugasan driver dihapus.');
     }
 
     public function updateStatus(UpdateBookingStatusRequest $request, Booking $booking): RedirectResponse
@@ -48,6 +83,22 @@ class BookingController extends Controller
         $booking->update(['status' => $request->validated()['status']]);
 
         return back()->with('success', 'Status booking berhasil diperbarui.');
+    }
+
+    public function invoice(Booking $booking): View
+    {
+        $booking->load('car', 'driver', 'tenant');
+
+        return view('admin.bookings.invoice', compact('booking'));
+    }
+
+    public function emailInvoice(Booking $booking): RedirectResponse
+    {
+        $booking->loadMissing('tenant');
+
+        Mail::to($booking->customer_email)->send(new BookingInvoiceMail($booking));
+
+        return back()->with('success', 'Invoice telah dikirim ke '.$booking->customer_email.'.');
     }
 
     public function destroy(Booking $booking): RedirectResponse

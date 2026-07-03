@@ -44,6 +44,16 @@ class DashboardController extends Controller
 
         $recentBookings = Booking::query()->latest()->take(8)->get();
 
-        return view('admin.dashboard', compact('stats', 'chart', 'maxChart', 'recentBookings'));
+        // Fleet reminders: cars with tax/service due (or overdue) within the window,
+        // nearest due date first (sorted in PHP for DB portability).
+        $reminders = Car::query()
+            ->withDueReminders()
+            ->get()
+            ->sortBy(fn (Car $car) => collect([$car->tax_due_date, $car->service_due_date])
+                ->filter()->min())
+            ->take(8)
+            ->values();
+
+        return view('admin.dashboard', compact('stats', 'chart', 'maxChart', 'recentBookings', 'reminders'));
     }
 }

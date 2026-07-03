@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Tenancy\BelongsToTenant;
 
 class ContactMessage extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     /**
      * The attributes that are mass assignable.
@@ -15,6 +16,7 @@ class ContactMessage extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'tenant_id',
         'name',
         'email',
         'phone',

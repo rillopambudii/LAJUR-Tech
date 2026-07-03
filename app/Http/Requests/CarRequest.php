@@ -39,6 +39,7 @@ class CarRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'plate_number' => ['nullable', 'string', 'max:20'],
             'brand' => ['required', 'string', 'max:255'],
             'type' => ['required', Rule::in(Car::TYPES)],
             'transmission' => ['required', Rule::in(Car::TRANSMISSIONS)],
@@ -48,6 +49,8 @@ class CarRequest extends FormRequest
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'image_url' => ['nullable', 'url', 'max:2048'],
             'description' => ['nullable', 'string', 'max:5000'],
+            'tax_due_date' => ['nullable', 'date'],
+            'service_due_date' => ['nullable', 'date'],
             'is_available' => ['boolean'],
             'is_featured' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:100000'],

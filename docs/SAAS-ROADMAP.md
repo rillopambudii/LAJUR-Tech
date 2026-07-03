@@ -33,52 +33,106 @@ Gabung ke fondasi (bukan fitur terpisah), karena "Owner punya banyak Admin" dan
 
 ## Roadmap bertahap
 
-### Phase 0 — Tenancy + Role Management  ← MULAI DI SINI
-- [ ] Tabel `tenants` (nama rental, slug/subdomain, status langganan, plan).
-- [ ] Kolom `tenant_id` + FK di `cars`, `bookings`, `contact_messages`,
-      `testimonials`, `users`.
-- [ ] Trait `BelongsToTenant` + `TenantScope` (global scope) untuk semua model bisnis.
-- [ ] Resolusi tenant aktif: via subdomain (`rentalA.app.com`) atau kolom pada user.
-- [ ] Kolom `role` pada `users` (owner/admin/driver/customer) + policy/gate.
-- [ ] Middleware `role:owner` dsb. menggantikan `admin` yang sekarang.
-- [ ] Registrasi tenant baru (signup Owner → buat tenant → seed data contoh).
-- [ ] Seeder: pisahkan data demo Lajur menjadi tenant #1.
-- [ ] **Test isolasi**: user tenant A tidak boleh melihat/ubah data tenant B.
+### Phase 0 — Tenancy + Role Management  ← SEDANG DIKERJAKAN (inti selesai)
+- [x] Tabel `tenants` (nama rental, slug/subdomain, status langganan, plan).
+- [x] Kolom `tenant_id` + FK di `cars`, `bookings`, `contact_messages`,
+      `testimonials`, `users` (nullable + di-backfill ke tenant default `lajur`).
+- [x] Trait `BelongsToTenant` + `TenantScope` (global scope, null-safe) untuk model bisnis.
+- [x] Resolusi tenant aktif: `IdentifyTenant` middleware (user → subdomain → default).
+- [x] Kolom `role` pada `users` (owner/admin/driver/customer).
+- [x] Middleware `role:owner,admin` + `admin` diperbarui (owner & admin punya akses back office).
+- [x] Seeder: data demo Lajur menjadi tenant #1; akun admin lama → role `owner`.
+- [x] **Test isolasi**: `tests/Feature/TenancyIsolationTest.php` (hijau).
+- [ ] **Registrasi tenant mandiri** (signup Owner → buat tenant + slug → seed data contoh
+      → login). ← SATU-SATUNYA SISA PHASE 0, butuh keputusan alur signup.
+- [ ] (Nanti) email unik per-tenant (kini masih unik global) saat customer bisa daftar
+      di banyak rental.
 
-### Phase 1 — Booking & kalender ketersediaan
-- [ ] Kalender ketersediaan armada (cegah double-booking rentang tanggal).
-- [ ] Status booking granular + histori perubahan.
-- [ ] QR Code konfirmasi booking.
+**Catatan implementasi:** `User` sengaja TIDAK diberi global scope tenant agar auth/login
+tidak rusak (tenant di-resolve DARI user). Scope model bisnis bersifat null-safe: tanpa
+konteks tenant (console/seed/super-admin) query tidak difilter — perilaku lama tetap utuh.
 
-### Phase 2 — Manajemen armada & driver
-- [ ] Penugasan driver ke booking.
-- [ ] Dashboard driver (jadwal tugas).
-- [ ] Pengingat servis & pajak kendaraan (jadwal + notifikasi).
+### Phase 1 — Booking & kalender ketersediaan  ← SEDANG DIKERJAKAN
+- [x] **Cegah double-booking**: `Booking::scopeActive/scopeOverlapping`,
+      `Car::isAvailableForRange()`; ditegakkan di alur booking publik
+      (BookingController). Status pemblokir = pending + confirmed.
+- [x] **Kalender ketersediaan armada** (admin): `/admin/calendar` — grid mobil × hari,
+      sel berwarna per status, navigasi bulan, link ke detail booking. Menu sidebar "Kalender".
+- [x] Test: `tests/Feature/BookingAvailabilityTest.php` (5 test, hijau).
+- [ ] **Live-check di modal booking publik** (tampilkan tanggal terpesan sebelum submit
+      via endpoint JSON) — enhancement UX, belum dikerjakan.
+- [ ] Status booking granular + **histori perubahan status**.
+- [ ] **QR Code** konfirmasi booking.
 
-### Phase 3 — Pembayaran online + invoice  (payment gateway = DITUNDA)
-- [ ] Abstraksi `PaymentGateway` (adapter: Midtrans / Xendit / Tripay) — buat
-      interface dulu, implementasi belakangan.
-- [ ] Invoice PDF + kirim via Email.
-- [ ] Notifikasi WhatsApp API (booking dibuat, pembayaran, pengingat).
+### Phase 2 — Manajemen armada & driver  ← SELESAI (inti)
+- [x] **Akun driver (CRUD)** — `/admin/drivers`, users role=driver, tenant-scoped manual
+      (User tanpa global scope), guard 404 lintas-tenant. Menu sidebar "Driver".
+- [x] **Penugasan driver ke booking** — `bookings.driver_id`, dropdown di detail booking,
+      validasi driver harus milik tenant yang sama.
+- [x] **Dashboard driver** — `/driver` (role:driver), layout terpisah, jadwal tugas
+      mendatang + riwayat. Login kini berbasis peran (owner/admin→/admin, driver→/driver).
+- [x] **Pengingat servis & pajak** — kolom `plate_number`, `tax_due_date`,
+      `service_due_date` di cars; helper status (overdue/soon/ok); widget di dashboard
+      (jendela {{REMINDER_WINDOW_DAYS}}=30 hari). Notifikasi otomatis (WA/email) → Phase 3.
+- [x] Test: `DriverManagementTest` (6) + `FleetReminderTest` (3). Total suite 19 hijau.
 
-### Phase 4 — Dashboard analitik & laporan
-- [ ] Ringkasan pendapatan, okupansi armada, booking per status.
-- [ ] Ekspor laporan (PDF/Excel).
+### Phase 3 — Invoice + notifikasi  (payment gateway = MASIH DITUNDA)
+- [x] Abstraksi `PaymentGateway` (interface) + `ManualPaymentGateway` (offline).
+- [x] **Midtrans Snap TERPASANG** (`App\Payments\MidtransGateway`): pelanggan diarahkan
+      ke halaman pembayaran setelah booking; webhook `/payment/midtrans/webhook`
+      (verifikasi signature sha512, cross-tenant via `payment_ref` unik) → booking
+      `paid` + `confirmed`; halaman `/payment/finish`. Driver dipilih via
+      `PAYMENT_GATEWAY` env (manual|midtrans); sandbox/production via
+      `MIDTRANS_IS_PRODUCTION`. Kolom `payment_status/payment_ref/paid_at` di bookings.
+      Test: `PaymentMidtransTest` (5). **Aktivasi:** isi `MIDTRANS_SERVER_KEY`/`CLIENT_KEY`
+      + `PAYMENT_GATEWAY=midtrans` di `.env`, set Notification URL di dashboard Midtrans.
+- [x] **Invoice** — halaman cetak `/admin/bookings/{id}/invoice` (CSS print →
+      "Simpan sebagai PDF" dari browser) + nomor `INV/{SLUG}/{tahun}/{id}`.
+- [x] **Email invoice** — `BookingInvoiceMail` + tombol kirim di detail booking
+      (dev: MAIL_MAILER=log). 
+- [x] **WhatsApp** — link `wa.me` dengan pesan invoice terisi otomatis
+      (`Booking::whatsappUrl`, normalisasi 08→62). Dependency-free.
+- [x] Test: `InvoiceNotificationTest` (4). Total suite **23 hijau**.
+- [ ] (Nanti) PDF server-side (dompdf) untuk lampiran email; WA API otomatis
+      (Fonnte/Twilio) via driver; implementasi gateway sungguhan.
+
+### Phase 4 — Dashboard analitik & laporan  ← SELESAI
+- [x] **`ReportService`** — sumber tunggal metrik tenant-scoped (dipakai ulang oleh AI nanti):
+      `summary`, `revenueByMonth`, `utilization`, `topCars`, `statusBreakdown`.
+- [x] Definisi pendapatan terpusat: `Booking::REVENUE_STATUSES` = confirmed + completed;
+      scope `revenue()` & `createdBetween()`.
+- [x] **Halaman `/admin/reports`** — filter rentang tanggal, KPI (pendapatan, total booking,
+      rata-rata nilai, **okupansi armada**), grafik pendapatan 12 bulan, booking per status,
+      mobil terlaris. Menu sidebar "Laporan".
+- [x] **Ekspor CSV** (streamed, BOM UTF-8 utk Excel) di `/admin/reports/export`.
+      PDF laporan bisa lewat print browser seperti invoice bila diperlukan.
+- [x] Test: `ReportAnalyticsTest` (4). Total suite **27 hijau**.
+
+**Catatan:** Pendapatan diukur per tanggal booking dibuat (`created_at`); okupansi armada
+diukur per tanggal sewa aktual (start/end). Widget "Total Pendapatan" di dashboard lama tetap
+memakai status `completed` saja (labelnya memang "booking selesai") — sengaja tidak diubah.
 
 ### Phase 5 — Customer dashboard + loyalty
 - [ ] Riwayat booking pelanggan, ulangi booking, poin loyalitas.
 
-### Phase 6 — Fitur AI  (paling akhir — butuh fondasi tenant & data)
-Target: Owner tanya "Pendapatan bulan ini berapa?" → AI menjawab dari data.
+### Phase 6 — Fitur AI  ← SELESAI (asisten analitik)
+Target tercapai: Owner tanya "Pendapatan bulan ini berapa?" → AI menjawab dari data.
 
-- **Pola aman = function calling, BUKAN generate SQL bebas.** Definisikan sekumpulan
-  "tool" query yang sudah discope tenant, mis:
-  - `monthly_revenue(month)` → `SUM(total_price) WHERE status IN (confirmed,completed)`
-  - `fleet_utilization(range)`, `top_cars(range)`, `pending_bookings()`.
-- AI (Claude, function calling) memilih tool + parameter; kode kita yang mengeksekusi
-  query dengan `tenant_id` aktif. AI tidak pernah menyentuh SQL mentah → tidak ada
-  risiko prompt-injection `DELETE` atau baca data tenant lain.
-- Tambahan: rekomendasi harga dinamis, chatbot customer.
+- [x] **Pola aman = function calling** di atas `ReportService` (BUKAN SQL bebas).
+  Tools: `business_summary`, `revenue_trend`, `top_cars`, `fleet_status`
+  (`App\AI\AssistantTools`). Semua read-only & tenant-scoped.
+- [x] **Loop tool-use** (`App\AI\AssistantService`) — Claude memilih tool + argumen,
+  kode kita eksekusi query tenant aktif, hasil dikembalikan, ulang sampai jawaban final.
+  AI tidak pernah menyentuh SQL → aman dari prompt-injection / kebocoran antar-tenant.
+- [x] **Halaman `/admin/assistant`** — chat sederhana + contoh pertanyaan. Menu "Asisten AI".
+- [x] Integrasi via **Laravel Http** ke `POST /v1/messages` (tanpa paket Composer baru).
+  Model default `claude-opus-4-8`, override lewat `ANTHROPIC_MODEL`. Config di
+  `config/services.php` (`services.anthropic`), key di `.env` (`ANTHROPIC_API_KEY`).
+  Fitur nonaktif otomatis & aman bila key kosong.
+- [x] Test: `AiAssistantTest` (4, pakai `Http::fake`). Total suite **31 hijau**.
+- [ ] (Nanti) rekomendasi harga dinamis; chatbot customer; adaptive thinking; riwayat percakapan.
+
+**Aktivasi:** isi `ANTHROPIC_API_KEY` di `.env`, lalu `php artisan config:clear`.
 
 ---
 

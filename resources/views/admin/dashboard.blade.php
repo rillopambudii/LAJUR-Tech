@@ -5,6 +5,17 @@
 @section('heading', 'Dashboard')
 
 @section('content')
+    <div class="ai-insight" data-ai-insight>
+        <div class="ai-insight-head">
+            <span class="ai-insight-title"><x-icon name="sparkle" /> Ringkasan AI</span>
+            <div class="ai-insight-tools">
+                <button type="button" class="ai-insight-refresh" data-refresh title="Perbarui ringkasan" aria-label="Perbarui ringkasan">↻</button>
+                <a href="{{ route('admin.assistant') }}" class="ai-insight-ask">Tanya Asisten →</a>
+            </div>
+        </div>
+        <p class="ai-insight-body" data-body>Menyusun ringkasan…</p>
+    </div>
+
     <div class="stat-grid">
         <div class="stat-card">
             <div class="ico"><x-icon name="car" /></div>
@@ -91,4 +102,73 @@
             </div>
         </div>
     </div>
+
+    <div class="panel">
+        <div class="panel-head">
+            <h2>Pengingat Servis &amp; Pajak</h2>
+            <span class="tag">{{ $reminders->count() }} perlu perhatian</span>
+        </div>
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>Mobil</th><th>Pajak (STNK)</th><th>Servis</th><th style="text-align:right">Aksi</th></tr>
+                </thead>
+                <tbody>
+                @php
+                    $badge = fn ($status) => match ($status) {
+                        'overdue' => '<span class="pill pill-cancelled">Terlewat</span>',
+                        'soon' => '<span class="pill pill-pending">Segera</span>',
+                        default => '',
+                    };
+                @endphp
+                @forelse ($reminders as $car)
+                    <tr>
+                        <td>
+                            <div class="nm">{{ $car->name }}</div>
+                            <div class="br">{{ $car->plate_number ?: $car->brand }}</div>
+                        </td>
+                        <td>
+                            @if ($car->tax_due_date)
+                                {{ $car->tax_due_date->translatedFormat('d M Y') }} {!! $badge($car->taxStatus()) !!}
+                            @else <span class="tag">—</span> @endif
+                        </td>
+                        <td>
+                            @if ($car->service_due_date)
+                                {{ $car->service_due_date->translatedFormat('d M Y') }} {!! $badge($car->serviceStatus()) !!}
+                            @else <span class="tag">—</span> @endif
+                        </td>
+                        <td style="text-align:right">
+                            <a href="{{ route('admin.cars.edit', $car) }}" class="icon-btn" aria-label="Edit"><x-icon name="edit" /></a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="4" class="empty-row">Tidak ada pengingat servis atau pajak dalam {{ \App\Models\Car::REMINDER_WINDOW_DAYS }} hari ke depan. 🎉</td></tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    var card = document.querySelector('[data-ai-insight]');
+    if (!card) return;
+    var body = card.querySelector('[data-body]');
+    var refresh = card.querySelector('[data-refresh]');
+    var url = @json(route('admin.assistant.insight'));
+    function load(fresh) {
+        card.classList.add('loading');
+        body.textContent = 'Menyusun ringkasan…';
+        fetch(url + (fresh ? '?fresh=1' : ''), { headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { body.textContent = (d && d.text) ? d.text : 'Ringkasan belum tersedia.'; })
+            .catch(function () { body.textContent = 'Ringkasan belum tersedia.'; })
+            .finally(function () { card.classList.remove('loading'); });
+    }
+    if (refresh) refresh.addEventListener('click', function () { load(true); });
+    load(false);
+})();
+</script>
+@endpush

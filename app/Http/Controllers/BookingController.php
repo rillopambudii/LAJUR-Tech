@@ -5,11 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BookingRequest;
 use App\Models\Booking;
 use App\Models\Car;
+use App\Payments\PaymentGateway;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 
 class BookingController extends Controller
 {
+    public function __construct(private PaymentGateway $gateway)
+    {
+    }
+
     public function store(BookingRequest $request): RedirectResponse
     {
         // Honeypot anti-bot: silently accept but discard if the trap is filled.
@@ -33,6 +38,15 @@ class BookingController extends Controller
         $end = Carbon::parse($data['end_date'])->startOfDay();
         $days = max(1, $start->diffInDays($end)); // minimum 1 day (BR-04)
 
+        // Reject overlapping dates — a car can't be double-booked (Phase 1).
+        if (! $car->isAvailableForRange($start->toDateString(), $end->toDateString())) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'start_date' => 'Maaf, '.$car->name.' sudah dipesan pada rentang tanggal tersebut. Silakan pilih tanggal lain.',
+                ], 'booking');
+        }
+
         $booking = Booking::create([
             'car_id' => $car->id,
             'car_name' => $car->name,            // snapshot (NFR-13 / BR-07)
@@ -48,6 +62,13 @@ class BookingController extends Controller
             'notes' => $data['notes'] ?? null,
         ]);
 
+        // If an online gateway is active, send the customer straight to payment.
+        $paymentUrl = $this->gateway->createCheckout($booking);
+        if ($paymentUrl !== null) {
+            return redirect()->away($paymentUrl);
+        }
+
+        // Offline/manual: keep the original confirmation flow.
         return back()->with(
             'booking_success',
             'Permintaan sewa untuk '.$booking->car_name.' berhasil dikirim! Tim kami akan segera menghubungi Anda untuk konfirmasi.'

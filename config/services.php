@@ -35,4 +35,39 @@ return [
         ],
     ],
 
+    // AI business assistant provider: 'anthropic' or 'openai' (OpenAI-compatible:
+    // Groq, Ollama, OpenRouter, LM Studio, OpenAI, …).
+    'ai' => [
+        'provider' => env('AI_PROVIDER', 'anthropic'),
+    ],
+
+    // Claude (Anthropic) driver.
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-opus-4-8'),
+        'base_url' => env('ANTHROPIC_BASE_URL', 'https://api.anthropic.com'),
+    ],
+
+    // OpenAI-compatible driver (default values target Groq's free API).
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'base_url' => env('OPENAI_BASE_URL', 'https://api.groq.com/openai/v1'),
+        'model' => env('OPENAI_MODEL', 'llama-3.3-70b-versatile'),
+    ],
+
+    // Optional CA bundle path for outbound HTTPS (Guzzle "verify"). Null = use the
+    // system/PHP default. Set on dev machines where PHP has no CA bundle configured.
+    'ca_bundle' => env('CURL_CA_BUNDLE') ?: null,
+
+    // Which PaymentGateway driver to use: 'midtrans' or 'manual' (offline).
+    'payment' => [
+        'gateway' => env('PAYMENT_GATEWAY', 'manual'),
+    ],
+
+    'midtrans' => [
+        'server_key' => env('MIDTRANS_SERVER_KEY'),
+        'client_key' => env('MIDTRANS_CLIENT_KEY'),
+        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
+    ],
+
 ];

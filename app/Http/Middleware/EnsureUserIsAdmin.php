@@ -15,7 +15,9 @@ class EnsureUserIsAdmin
     {
         $user = $request->user();
 
-        if (! $user || ! $user->is_admin) {
+        // Back-office access = tenant owner or admin. `is_admin` is retained for
+        // backward compatibility with accounts created before role management.
+        if (! $user || ! ($user->isManager() || $user->is_admin)) {
             abort(403, 'Akses ditolak. Halaman ini hanya untuk administrator.');
         }
 
