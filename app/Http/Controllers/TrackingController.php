@@ -33,6 +33,30 @@ class TrackingController extends Controller
         ]);
     }
 
+    /**
+     * Family view ("Pantau Perjalanan"). Same unguessable code as /lacak, but a
+     * stripped read-only page a customer shares with family: live map + status +
+     * ETA + car/driver, and deliberately NO price/financial detail.
+     */
+    public function watch(string $bookingCode): View|RedirectResponse
+    {
+        $booking = Booking::query()
+            ->with('car.latestPosition', 'driver')
+            ->where('booking_code', strtoupper($bookingCode))
+            ->first();
+
+        if ($booking === null) {
+            return redirect()
+                ->route('tracking.search')
+                ->with('tracking_error', 'Kode booking tidak ditemukan. Coba cek kembali kodenya.');
+        }
+
+        return view('tracking.watch', [
+            'booking' => $booking,
+            'demo' => (bool) config('services.tracking.demo'),
+        ]);
+    }
+
     public function search(): View
     {
         return view('tracking.search');

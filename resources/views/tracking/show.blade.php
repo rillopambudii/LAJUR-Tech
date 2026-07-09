@@ -106,6 +106,15 @@
             </div>
         </div>
 
+        {{-- ===== Bagikan ke keluarga ===== --}}
+        <div style="text-align:center;margin-bottom:10px">
+            <button type="button" class="btn btn-primary" data-share
+                data-url="{{ route('tracking.watch', $booking->booking_code) }}"
+                data-text="Pantau perjalanan saya ({{ $booking->car_name }}) secara langsung:">
+                <x-icon name="pin" /> Bagikan ke keluarga
+            </button>
+        </div>
+
         {{-- ===== Bantuan ===== --}}
         <div style="text-align:center">
             <a href="{{ $waUrl }}" target="_blank" rel="noopener" class="btn btn-ghost" style="color:#128c7e;border-color:rgba(18,140,126,.3)">
@@ -134,3 +143,20 @@
 </script>
 @endpush
 @endif
+
+@push('scripts')
+<script>
+    (function () {
+        var btn = document.querySelector('[data-share]');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            var url = btn.getAttribute('data-url'), text = btn.getAttribute('data-text');
+            if (navigator.share) {
+                navigator.share({ title: 'Pantau Perjalanan', text: text, url: url }).catch(function () {});
+            } else {
+                window.open('https://wa.me/?text=' + encodeURIComponent(text + ' ' + url), '_blank');
+            }
+        });
+    })();
+</script>
+@endpush

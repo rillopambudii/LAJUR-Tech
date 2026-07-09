@@ -44,6 +44,7 @@ Route::post('/lacak', [PublicTrackingController::class, 'find'])
     ->middleware('throttle:10,1') // slow down brute-forcing booking codes
     ->name('tracking.find');
 Route::get('/lacak/{bookingCode}', [PublicTrackingController::class, 'show'])->name('tracking.show');
+Route::get('/pantau/{bookingCode}', [PublicTrackingController::class, 'watch'])->name('tracking.watch');
 
 /*
 |--------------------------------------------------------------------------
