@@ -29,6 +29,7 @@ class TrackingController extends Controller
 
         return view('tracking.show', [
             'booking' => $booking,
+            'demo' => (bool) config('services.tracking.demo'),
         ]);
     }
 

@@ -68,7 +68,13 @@
         {{-- ===== Slot peta (disiapkan untuk Fase 2 — GPS live via Traccar) ===== --}}
         <div class="panel reveal" style="margin-bottom:20px">
             <div class="panel-body">
-                @if ($booking->has_live_gps)
+                @if ($demo)
+                    <div data-eta style="text-align:center;margin-bottom:12px;font-weight:600;color:var(--petrol)">
+                        <x-icon name="clock" style="width:16px;height:16px;vertical-align:-2px" />
+                        Estimasi tiba: <span data-eta-min>—</span> menit
+                    </div>
+                    <div id="tracking-map" style="height:280px;border-radius:var(--radius);overflow:hidden;background:var(--ivory-200)"></div>
+                @elseif ($booking->has_live_gps)
                     {{-- Fase 2: render peta live di sini via public/js/tracking.js,
                          memakai posisi terakhir dari $booking->car->latestPosition
                          (vehicle_positions / Traccar). --}}
@@ -110,3 +116,21 @@
     </div>
 </section>
 @endsection
+
+@if ($demo)
+@push('head')
+<link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}">
+@endpush
+@push('scripts')
+<script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
+<script src="{{ asset('js/tracking-demo.js') }}"></script>
+<script>
+    window.TrackingDemo.trip('tracking-map', {
+        routesUrl: @json(asset('js/demo-routes.json')),
+        onEta: function (e) {
+            document.querySelector('[data-eta-min]').textContent = e.arrived ? '0 — Tiba' : e.minutes;
+        }
+    });
+</script>
+@endpush
+@endif

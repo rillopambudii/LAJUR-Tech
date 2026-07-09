@@ -5,10 +5,10 @@
 @section('heading', 'Pelacakan Unit')
 
 @section('content')
-@if (! $mapsKey)
+@if (! $mapsKey && ! $demo)
     <div class="alert alert-error" role="alert">
         <x-icon name="alert" />
-        <span>Peta belum aktif. Setel <code>GOOGLE_MAPS_API_KEY</code> di <code>.env</code> (Google Maps JavaScript API), lalu <code>php artisan config:clear</code>.</span>
+        <span>Peta belum aktif. Setel <code>GOOGLE_MAPS_API_KEY</code> di <code>.env</code> (Google Maps JavaScript API), atau nyalakan <code>TRACKING_DEMO=true</code> untuk mode demo. Lalu <code>php artisan config:clear</code>.</span>
     </div>
 @else
     <div class="track-wrap">
@@ -19,6 +19,7 @@
             </div>
             <div class="track-units" data-units><p class="track-empty">Memuat…</p></div>
 
+            @unless ($demo)
             <div class="track-history">
                 <h4>Rute Histori</h4>
                 <select data-hist-car aria-label="Pilih mobil">
@@ -31,6 +32,7 @@
                 <button type="button" class="btn btn-primary btn-sm" data-hist-show><x-icon name="route" /> Tampilkan Rute</button>
                 <button type="button" class="btn btn-ghost btn-sm" data-hist-clear>Kembali ke Live</button>
             </div>
+            @endunless
         </aside>
 
         <div class="track-map" id="track-map"></div>
@@ -38,7 +40,27 @@
 @endif
 @endsection
 
-@if ($mapsKey)
+@if ($demo)
+@push('head')
+<link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}">
+@endpush
+@push('scripts')
+<script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
+<script src="{{ asset('js/tracking-demo.js') }}"></script>
+<script>
+    window.TrackingDemo.fleet('track-map', {
+        routesUrl: @json(asset('js/demo-routes.json')),
+        onUnits: function (units) {
+            var list = document.querySelector('[data-units]');
+            list.innerHTML = units.map(function (u) {
+                return '<button type="button" class="track-unit"><span class="dot moving"></span>'
+                    + u.name + '<small>' + u.speed + ' km/j</small></button>';
+            }).join('');
+        }
+    });
+</script>
+@endpush
+@elseif ($mapsKey)
 @push('scripts')
 <script>
     window.TRACK = {
