@@ -31,6 +31,9 @@ class Booking extends Model
         'price_per_day',
         'total_price',
         'status',
+        'trip_status',
+        'eta_manual_note',
+        'booking_code',
         'payment_status',
         'payment_ref',
         'paid_at',
@@ -77,6 +80,30 @@ class Booking extends Model
         'confirmed' => 'Dikonfirmasi',
         'completed' => 'Selesai',
         'cancelled' => 'Dibatalkan',
+    ];
+
+    // Physical delivery stage of the car (independent of the transaction `status`).
+    public const TRIP_NOT_STARTED = 'not_started';
+    public const TRIP_PREPARING   = 'preparing';
+    public const TRIP_ON_THE_WAY  = 'on_the_way';
+    public const TRIP_ARRIVED     = 'arrived';
+    public const TRIP_COMPLETED   = 'completed';
+
+    /** @var list<string> */
+    public const TRIP_STATUSES = [
+        self::TRIP_NOT_STARTED,
+        self::TRIP_PREPARING,
+        self::TRIP_ON_THE_WAY,
+        self::TRIP_ARRIVED,
+        self::TRIP_COMPLETED,
+    ];
+
+    public const TRIP_STATUS_LABELS = [
+        self::TRIP_NOT_STARTED => 'Belum Diproses',
+        self::TRIP_PREPARING   => 'Sedang Disiapkan',
+        self::TRIP_ON_THE_WAY  => 'Dalam Perjalanan',
+        self::TRIP_ARRIVED     => 'Sudah Tiba',
+        self::TRIP_COMPLETED   => 'Selesai',
     ];
 
     /**
@@ -146,6 +173,60 @@ class Booking extends Model
     public function getStatusLabelAttribute(): string
     {
         return self::STATUS_LABELS[$this->status] ?? ucfirst((string) $this->status);
+    }
+
+    /** Human-readable delivery (trip) status label. */
+    public function getTripStatusLabelAttribute(): string
+    {
+        return self::TRIP_STATUS_LABELS[$this->trip_status] ?? self::TRIP_STATUS_LABELS[self::TRIP_NOT_STARTED];
+    }
+
+    /** Progress 0-100 for the tracking page progress bar. */
+    public function getTripProgressAttribute(): int
+    {
+        return match ($this->trip_status) {
+            self::TRIP_NOT_STARTED => 10,
+            self::TRIP_PREPARING   => 35,
+            self::TRIP_ON_THE_WAY  => 70,
+            self::TRIP_ARRIVED, self::TRIP_COMPLETED => 100,
+            default                => 10,
+        };
+    }
+
+    /**
+     * True when this booking's car has a fresh GPS position (< 5 min old).
+     *
+     * The tracking page uses this to decide between the live map (Phase 2) and the
+     * text fallback. GPS lives per-car in `vehicle_positions` (Traccar), so we read
+     * the car's latest ping rather than duplicating coordinates onto the booking.
+     */
+    public function getHasLiveGpsAttribute(): bool
+    {
+        $position = $this->car?->latestPosition;
+
+        if ($position === null || $position->device_time === null) {
+            return false;
+        }
+
+        return $position->device_time->diffInMinutes(now()) < 5;
+    }
+
+    /**
+     * Generate a unique public booking code, format LJR-XXXXXX (6 chars, no
+     * ambiguous 0/O/1/I). Called when a booking is created. The uniqueness check
+     * ignores the tenant scope because the `booking_code` unique index is global.
+     */
+    public static function generateBookingCode(): string
+    {
+        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+        do {
+            $code = 'LJR-'.collect(range(1, 6))
+                ->map(fn () => $alphabet[random_int(0, strlen($alphabet) - 1)])
+                ->implode('');
+        } while (self::withoutGlobalScope(\App\Tenancy\TenantScope::class)->where('booking_code', $code)->exists());
+
+        return $code;
     }
 
     /** Invoice number, e.g. INV/LAJUR/2026/0007. */

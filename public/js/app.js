@@ -25,6 +25,41 @@
         });
     }
 
+    /* ---------- Navbar dropdowns (Sewa Mobil / Tentang) ---------- */
+    var dropItems = document.querySelectorAll('.nav-item.has-dropdown');
+    if (dropItems.length) {
+        var closeDrops = function (except) {
+            dropItems.forEach(function (item) {
+                if (item !== except) {
+                    item.classList.remove('open');
+                    var t = item.querySelector('.nav-trigger');
+                    if (t) t.setAttribute('aria-expanded', 'false');
+                }
+            });
+        };
+        dropItems.forEach(function (item) {
+            var trigger = item.querySelector('.nav-trigger');
+            if (!trigger) return;
+            trigger.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var open = item.classList.toggle('open');
+                trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+                closeDrops(item);
+            });
+        });
+        // pilih tautan di dalam dropdown → tutup semua
+        document.querySelectorAll('.nav-dropdown a').forEach(function (a) {
+            a.addEventListener('click', function () { closeDrops(null); });
+        });
+        // klik di luar / Escape → tutup
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.nav-item.has-dropdown')) closeDrops(null);
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeDrops(null);
+        });
+    }
+
     /* ---------- Image fallback (branded placeholder) ---------- */
     var PLACEHOLDER = '/img/placeholder-car.svg';
     document.querySelectorAll('img[data-fallback]').forEach(function (img) {
@@ -141,7 +176,7 @@
 
     /* ---------- Reveal on scroll (respects reduced motion) ---------- */
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var reveals = document.querySelectorAll('.reveal');
+    var reveals = document.querySelectorAll('.reveal, .car-card');
     if (reveals.length && !reduce && 'IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
@@ -151,5 +186,15 @@
         reveals.forEach(function (el) { io.observe(el); });
     } else {
         reveals.forEach(function (el) { el.classList.add('in'); });
+    }
+
+    /* ---------- Header refine on scroll ---------- */
+    var header = document.querySelector('.site-header');
+    if (header) {
+        var onScroll = function () {
+            header.classList.toggle('scrolled', window.scrollY > 8);
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
     }
 })();

@@ -43,7 +43,7 @@ class BookingController extends Controller
 
     public function show(Booking $booking): View
     {
-        $booking->load('car', 'driver');
+        $booking->load('car.latestPosition', 'driver');
 
         // Drivers of this tenant, for the assignment dropdown.
         $drivers = User::query()
@@ -83,6 +83,22 @@ class BookingController extends Controller
         $booking->update(['status' => $request->validated()['status']]);
 
         return back()->with('success', 'Status booking berhasil diperbarui.');
+    }
+
+    public function updateTripStatus(Request $request, Booking $booking): RedirectResponse
+    {
+        $validated = $request->validate([
+            'trip_status'     => ['required', Rule::in(Booking::TRIP_STATUSES)],
+            'eta_manual_note' => ['nullable', 'string', 'max:100'],
+        ], [
+            'trip_status.required' => 'Status perjalanan wajib dipilih.',
+            'trip_status.in'       => 'Status perjalanan tidak valid.',
+            'eta_manual_note.max'  => 'Catatan ETA maksimal 100 karakter.',
+        ]);
+
+        $booking->update($validated);
+
+        return back()->with('success', 'Status perjalanan diperbarui menjadi "'.$booking->trip_status_label.'".');
     }
 
     public function invoice(Booking $booking): View

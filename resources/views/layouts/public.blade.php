@@ -23,12 +23,28 @@
                 Lajur
             </a>
             <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
-                <a href="{{ route('home') }}#sewa">Sewa Mobil</a>
-                <a href="{{ route('home') }}#cara">Cara Sewa</a>
-                <a href="{{ route('home') }}#kenapa">Kenapa Lajur</a>
-                <a href="{{ route('home') }}#testimoni">Testimoni</a>
-                <a href="{{ route('home') }}#tentang">Tentang</a>
+                <a href="{{ route('home') }}" class="nav-home"><x-icon name="home" /> Beranda</a>
+                <div class="nav-item has-dropdown">
+                    <button type="button" class="nav-trigger" aria-haspopup="true" aria-expanded="false">
+                        Sewa Mobil <x-icon name="chevron-down" class="nav-chevron" />
+                    </button>
+                    <div class="nav-dropdown" role="menu">
+                        <a href="{{ route('home') }}#sewa" role="menuitem">Sewa Mobil</a>
+                        <a href="{{ route('home') }}#cara" role="menuitem">Cara Sewa</a>
+                    </div>
+                </div>
+                <div class="nav-item has-dropdown">
+                    <button type="button" class="nav-trigger" aria-haspopup="true" aria-expanded="false">
+                        Tentang <x-icon name="chevron-down" class="nav-chevron" />
+                    </button>
+                    <div class="nav-dropdown" role="menu">
+                        <a href="{{ route('home') }}#tentang" role="menuitem">Tentang</a>
+                        <a href="{{ route('home') }}#kenapa" role="menuitem">Kenapa Lajur</a>
+                        <a href="{{ route('home') }}#testimoni" role="menuitem">Testimoni</a>
+                    </div>
+                </div>
                 <a href="{{ route('home') }}#kontak">Kontak</a>
+                <a href="{{ route('tracking.search') }}">Lacak Pesanan</a>
                 <a href="{{ route('login') }}" class="nav-login-mobile">Masuk</a>
             </nav>
             <div class="nav-cta">
@@ -62,6 +78,7 @@
                     <a href="{{ route('home') }}#cara">Cara Sewa</a>
                     <a href="{{ route('home') }}#kenapa">Kenapa Lajur</a>
                     <a href="{{ route('home') }}#testimoni">Testimoni</a>
+                    <a href="{{ route('tracking.search') }}">Lacak Pesanan</a>
                 </div>
                 <div>
                     <h4>Kontak</h4>

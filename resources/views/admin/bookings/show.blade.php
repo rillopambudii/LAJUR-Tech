@@ -67,6 +67,36 @@
 
             <hr style="border:0;border-top:1px solid var(--ivory-200);margin:20px 0">
 
+            <form action="{{ route('admin.bookings.trip-status', $booking) }}" method="POST">
+                @csrf @method('PATCH')
+                <div class="field">
+                    <label for="trip_status">Status Perjalanan</label>
+                    <select class="select" id="trip_status" name="trip_status">
+                        @foreach (\App\Models\Booking::TRIP_STATUSES as $ts)
+                            <option value="{{ $ts }}" @selected($booking->trip_status === $ts)>{{ \App\Models\Booking::TRIP_STATUS_LABELS[$ts] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="eta_manual_note">Estimasi Tiba (opsional)</label>
+                    <input type="text" class="input" id="eta_manual_note" name="eta_manual_note" maxlength="100"
+                           value="{{ old('eta_manual_note', $booking->eta_manual_note) }}"
+                           placeholder="cth: ±45 menit lagi / sekitar pukul 14.30">
+                </div>
+                @php $pos = $booking->car?->latestPosition; @endphp
+                <p style="font-size:.82rem;color:rgba(0,0,0,.5);margin:0 0 12px">
+                    Data GPS:
+                    @if ($pos && $pos->device_time)
+                        posisi terakhir {{ $pos->device_time->diffForHumans() }}
+                    @else
+                        belum terhubung
+                    @endif
+                </p>
+                <button type="submit" class="btn btn-primary btn-block"><x-icon name="pin" /> Perbarui Perjalanan</button>
+            </form>
+
+            <hr style="border:0;border-top:1px solid var(--ivory-200);margin:20px 0">
+
             <form action="{{ route('admin.bookings.driver', $booking) }}" method="POST">
                 @csrf @method('PATCH')
                 <div class="field">

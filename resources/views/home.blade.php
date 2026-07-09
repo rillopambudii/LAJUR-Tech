@@ -11,7 +11,10 @@
     <div class="container">
         <div class="hero-content">
             <span class="eyebrow hero-eyebrow">Rental Mobil Premium · Kalimantan Timur</span>
-            <h1>Perjalanan Anda, <span class="accent">dalam kendali penuh.</span></h1>
+            <h1 class="hero-title">
+                <span class="hero-title__lead">Perjalanan Anda,</span>
+                <span class="hero-title__reveal">dalam kendali penuh.</span>
+            </h1>
             <p>Sewa mobil premium yang terawat dengan harga transparan dan proses yang cepat. Dari dinas hingga liburan keluarga — Lajur siap mengantar.</p>
             <div class="hero-actions">
                 <a href="#sewa" class="btn btn-primary">Lihat Armada <x-icon name="arrow-right" /></a>
@@ -32,7 +35,16 @@
 
         @if (session('booking_success'))
             <div class="alert alert-success" role="status">
-                <x-icon name="check" /> <span>{{ session('booking_success') }}</span>
+                <x-icon name="check" />
+                <div>
+                    <span>{{ session('booking_success') }}</span>
+                    @if (session('booking_code'))
+                        <div style="margin-top:8px">
+                            Kode booking kamu: <strong class="mono">{{ session('booking_code') }}</strong>
+                            — <a href="{{ route('tracking.show', session('booking_code')) }}">Lacak status pesanan</a>
+                        </div>
+                    @endif
+                </div>
             </div>
         @endif
 

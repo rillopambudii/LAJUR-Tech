@@ -59,6 +59,8 @@ class BookingController extends Controller
             'price_per_day' => $car->price_per_day, // snapshot
             'total_price' => $days * $car->price_per_day,
             'status' => 'pending',
+            'trip_status' => Booking::TRIP_NOT_STARTED,
+            'booking_code' => Booking::generateBookingCode(),
             'notes' => $data['notes'] ?? null,
         ]);
 
@@ -68,10 +70,12 @@ class BookingController extends Controller
             return redirect()->away($paymentUrl);
         }
 
-        // Offline/manual: keep the original confirmation flow.
-        return back()->with(
-            'booking_success',
-            'Permintaan sewa untuk '.$booking->car_name.' berhasil dikirim! Tim kami akan segera menghubungi Anda untuk konfirmasi.'
-        );
+        // Offline/manual: keep the original confirmation flow, plus the tracking code.
+        return back()
+            ->with(
+                'booking_success',
+                'Permintaan sewa untuk '.$booking->car_name.' berhasil dikirim! Tim kami akan segera menghubungi Anda untuk konfirmasi.'
+            )
+            ->with('booking_code', $booking->booking_code);
     }
 }
