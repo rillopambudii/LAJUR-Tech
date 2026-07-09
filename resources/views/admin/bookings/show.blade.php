@@ -18,6 +18,9 @@
             </div>
             <div class="panel-body">
                 <div class="detail-grid">
+                    @if ($booking->booking_code)
+                        <div class="detail-item"><div class="k">Kode Booking</div><div class="v mono" style="color:var(--petrol);letter-spacing:.04em">{{ $booking->booking_code }}</div></div>
+                    @endif
                     <div class="detail-item"><div class="k">Nama</div><div class="v">{{ $booking->customer_name }}</div></div>
                     <div class="detail-item"><div class="k">Email</div><div class="v"><a href="mailto:{{ $booking->customer_email }}">{{ $booking->customer_email }}</a></div></div>
                     <div class="detail-item"><div class="k">Nomor HP</div><div class="v"><a href="tel:{{ $booking->customer_phone }}">{{ $booking->customer_phone }}</a></div></div>

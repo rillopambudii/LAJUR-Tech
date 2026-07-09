@@ -44,6 +44,9 @@
                         <td>
                             <div class="nm" style="font-weight:600">{{ $b->customer_name }}</div>
                             <div class="br" style="font-size:.82rem;color:var(--graphite)">{{ $b->customer_email }}</div>
+                            @if ($b->booking_code)
+                                <div class="mono" style="font-size:.78rem;color:var(--petrol);letter-spacing:.03em">{{ $b->booking_code }}</div>
+                            @endif
                         </td>
                         <td>{{ $b->car_name }}</td>
                         <td class="mono" style="font-size:.85rem">
