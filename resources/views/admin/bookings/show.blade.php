@@ -141,4 +141,54 @@
         </div>
     </div>
 </div>
+
+@if ($booking->car)
+<div class="panel" style="margin-top:20px" data-replay-panel hidden>
+    <div class="panel-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <h2>Replay Perjalanan</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+            <button type="button" class="btn btn-sm" id="replay-play" aria-label="Play">&#9654;</button>
+            <select id="replay-speed" class="btn btn-sm" aria-label="Kecepatan">
+                <option value="1">1x</option><option value="2">2x</option><option value="4">4x</option><option value="8">8x</option>
+            </select>
+            <span id="replay-clock" class="mono" style="font-size:.85rem;color:var(--petrol-600)"></span>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="replay-map" style="height:320px;border-radius:var(--radius);overflow:hidden;background:var(--ivory-200)"></div>
+        <input type="range" id="replay-scrubber" min="0" max="0" value="0" style="width:100%;margin-top:12px">
+        <p id="replay-summary" style="margin:8px 0 0;font-size:.9rem;color:var(--petrol-600)">Memuat…</p>
+    </div>
+</div>
+<div style="margin-top:12px">
+    <button type="button" class="btn btn-ghost btn-block" id="replay-toggle"><x-icon name="route" /> Replay Perjalanan</button>
+</div>
+@endif
 @endsection
+
+@if ($booking->car)
+@push('head')
+<link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}">
+@endpush
+@push('scripts')
+<script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
+<script src="{{ asset('js/booking-replay.js') }}"></script>
+<script>
+    (function () {
+        var started = false;
+        document.getElementById('replay-toggle').addEventListener('click', function () {
+            var panel = document.querySelector('[data-replay-panel]');
+            panel.hidden = !panel.hidden;
+            if (!panel.hidden && !started) {
+                started = true;
+                window.BookingReplay.init({
+                    mapEl: 'replay-map',
+                    url: @json(route('admin.bookings.replay', $booking)),
+                    controls: { playBtn: 'replay-play', speedSel: 'replay-speed', scrubber: 'replay-scrubber', clock: 'replay-clock', summary: 'replay-summary' }
+                });
+            }
+        });
+    })();
+</script>
+@endpush
+@endif

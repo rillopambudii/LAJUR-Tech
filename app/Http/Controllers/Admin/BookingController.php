@@ -9,8 +9,10 @@ use App\Models\Booking;
 use App\Models\User;
 use App\Tenancy\TenantManager;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
@@ -53,6 +55,63 @@ class BookingController extends Controller
             ->get();
 
         return view('admin.bookings.show', compact('booking', 'drivers'));
+    }
+
+    /** GPS track for a booking's rental window (Trip Replay). */
+    public function replay(Booking $booking): JsonResponse
+    {
+        $from = $booking->start_date->copy()->startOfDay();
+        $to = $booking->end_date->copy()->endOfDay();
+
+        $points = collect();
+        if ($booking->car) {
+            $points = $booking->car->positions()
+                ->whereBetween('device_time', [$from, $to])
+                ->orderBy('device_time')
+                ->get(['latitude', 'longitude', 'speed', 'device_time'])
+                ->map(fn ($p) => [
+                    'lat' => (float) $p->latitude,
+                    'lng' => (float) $p->longitude,
+                    'speed' => (int) $p->speed,
+                    'time' => optional($p->device_time)->toIso8601String(),
+                ]);
+        }
+
+        if ($points->isEmpty() && config('services.tracking.demo')) {
+            $points = $this->fabricateReplay($booking, $from, $to);
+        }
+
+        return response()->json(['car' => $booking->car_name, 'points' => $points->values()]);
+    }
+
+    /**
+     * Fabricate a deterministic demo route for one booking (seeded by id), with
+     * timestamps spread across the rental window. Never persisted.
+     */
+    private function fabricateReplay(Booking $booking, $from, $to): Collection
+    {
+        $centerLat = -0.502106;
+        $centerLng = 117.153709;
+        $n = 40;
+        $seed = (int) $booking->id;
+        $lat = $centerLat + (($seed % 100) / 100 - 0.5) * 0.05;
+        $lng = $centerLng + ((intdiv($seed, 100) % 100) / 100 - 0.5) * 0.05;
+        $span = max(1, $to->getTimestamp() - $from->getTimestamp());
+
+        $points = collect();
+        for ($i = 0; $i < $n; $i++) {
+            $lat += sin($i / 3 + $seed) * 0.0016;
+            $lng += cos($i / 4 + $seed) * 0.0016;
+            $t = $from->copy()->addSeconds((int) ($span * $i / ($n - 1)));
+            $points->push([
+                'lat' => round($lat, 6),
+                'lng' => round($lng, 6),
+                'speed' => 20 + (($seed + $i) % 40),
+                'time' => $t->toIso8601String(),
+            ]);
+        }
+
+        return $points;
     }
 
     public function assignDriver(Request $request, Booking $booking): RedirectResponse

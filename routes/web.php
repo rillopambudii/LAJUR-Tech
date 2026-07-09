@@ -112,6 +112,7 @@ Route::prefix('admin')
         Route::get('bookings/{booking}', [AdminBookingController::class, 'show'])->name('bookings.show');
         Route::patch('bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.status');
         Route::patch('bookings/{booking}/trip-status', [AdminBookingController::class, 'updateTripStatus'])->name('bookings.trip-status');
+        Route::get('bookings/{booking}/replay', [AdminBookingController::class, 'replay'])->name('bookings.replay');
         Route::patch('bookings/{booking}/driver', [AdminBookingController::class, 'assignDriver'])->name('bookings.driver');
         Route::get('bookings/{booking}/invoice', [AdminBookingController::class, 'invoice'])->name('bookings.invoice');
         Route::post('bookings/{booking}/email', [AdminBookingController::class, 'emailInvoice'])->name('bookings.email');
