@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,4 +34,26 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        // A stale/expired session makes CSRF fail with "Page Expired" (419). For a
+        // public no-login form like Lacak Pesanan that dead-ends the customer, so
+        // instead bounce them back with their input and a friendly retry message.
+        // NOTE: the framework converts TokenMismatchException into HttpException(419)
+        // before render callbacks run, so we match on the 419 and its previous.
+        $exceptions->render(function (HttpException $e, Request $request) {
+            if ($e->getStatusCode() !== 419 || ! ($e->getPrevious() instanceof TokenMismatchException)) {
+                return null; // not a CSRF failure — let the default handler render it
+            }
+
+            $message = 'Sesi kamu kedaluwarsa karena halaman terlalu lama dibuka. Silakan coba lagi.';
+
+            $redirect = $request->is('lacak')
+                ? redirect()->route('tracking.search')
+                : redirect()->back();
+
+            return $redirect
+                ->withInput($request->except('_token'))
+                ->with('tracking_error', $message)
+                ->with('error', $message);
+        });
     })->create();
