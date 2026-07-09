@@ -45,6 +45,15 @@
                                 <div>
                                     <div class="nm">{{ $car->name }}</div>
                                     <div class="br">{{ $car->brand }} · {{ $car->seats }} kursi · {{ $car->transmission }}</div>
+                                    <div class="br">
+                                        Odometer: {{ number_format($car->odometerKm(), 0, ',', '.') }} km
+                                        @php $kmStat = $car->serviceKmStatus(); @endphp
+                                        @if ($kmStat === 'overdue')
+                                            · <span style="color:var(--danger)">servis lewat</span>
+                                        @elseif ($kmStat === 'soon')
+                                            · <span style="color:var(--amber-600)">servis dalam {{ number_format($car->kmUntilService(), 0, ',', '.') }} km</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </td>

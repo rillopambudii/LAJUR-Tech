@@ -40,6 +40,7 @@
                     <div class="detail-item"><div class="k">Tanggal Mulai</div><div class="v">{{ $booking->start_date->format('d M Y') }}</div></div>
                     <div class="detail-item"><div class="k">Tanggal Selesai</div><div class="v">{{ $booking->end_date->format('d M Y') }}</div></div>
                     <div class="detail-item"><div class="k">Lama Sewa</div><div class="v">{{ $booking->days }} hari</div></div>
+                    <div class="detail-item"><div class="k">Jarak Tempuh</div><div class="v">{{ number_format($booking->distanceKm(), 0, ',', '.') }} km</div></div>
                     <div class="detail-item"><div class="k">Driver</div><div class="v">{{ $booking->driver?->name ?? '—' }}</div></div>
                     <div class="detail-item"><div class="k">Harga / Hari</div><div class="v mono">Rp {{ number_format($booking->price_per_day, 0, ',', '.') }}</div></div>
                     <div class="detail-item"><div class="k">Total</div><div class="v mono" style="color:var(--petrol);font-size:1.25rem">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div></div>

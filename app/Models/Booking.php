@@ -229,6 +229,19 @@ class Booking extends Model
         return $code;
     }
 
+    /** Total km driven during this booking's rental window (from car_mileage_daily). */
+    public function distanceKm(): int
+    {
+        if ($this->car_id === null) {
+            return 0;
+        }
+
+        return (int) CarMileageDaily::query()
+            ->where('car_id', $this->car_id)
+            ->whereBetween('date', [$this->start_date->toDateString(), $this->end_date->toDateString()])
+            ->sum('km');
+    }
+
     /** Invoice number, e.g. INV/LAJUR/2026/0007. */
     public function invoiceNumber(): string
     {

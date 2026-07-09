@@ -101,6 +101,7 @@
                     <div class="detail-item"><div class="k">Tanggal Mulai</div><div class="v">{{ $booking->start_date->translatedFormat('d M Y') }}</div></div>
                     <div class="detail-item"><div class="k">Tanggal Selesai</div><div class="v">{{ $booking->end_date->translatedFormat('d M Y') }}</div></div>
                     <div class="detail-item"><div class="k">Lama Sewa</div><div class="v">{{ $booking->days }} hari</div></div>
+                    <div class="detail-item"><div class="k">Jarak Tempuh</div><div class="v">{{ number_format($booking->distanceKm(), 0, ',', '.') }} km</div></div>
                     <div class="detail-item"><div class="k">Total</div><div class="v mono" style="color:var(--petrol)">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div></div>
                 </div>
             </div>

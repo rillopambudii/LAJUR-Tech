@@ -35,6 +35,11 @@ class Car extends Model
         'description',
         'tax_due_date',
         'service_due_date',
+        'odometer_baseline_km',
+        'baseline_at',
+        'service_interval_km',
+        'service_last_km',
+        'mileage_synced_at',
         'is_available',
         'is_featured',
         'sort_order',
@@ -58,6 +63,9 @@ class Car extends Model
 
     /** Days before a due date within which we flag it as "due soon". */
     public const REMINDER_WINDOW_DAYS = 30;
+
+    /** Service is "due soon" within this many km of the next service odometer. */
+    public const SERVICE_SOON_KM = 500;
 
     /** Allowed car types. */
     public const TYPES = ['SUV', 'MPV', 'Sedan', 'Hatchback', 'Luxury', 'Pickup'];
@@ -90,6 +98,41 @@ class Car extends Model
     public function latestPosition(): HasOne
     {
         return $this->hasOne(VehiclePosition::class)->latestOfMany('device_time');
+    }
+
+    /**
+     * @return HasMany<CarMileageDaily, $this>
+     */
+    public function mileageDaily(): HasMany
+    {
+        return $this->hasMany(CarMileageDaily::class);
+    }
+
+    /** Absolute odometer = manual baseline + sum of GPS-derived daily km. */
+    public function odometerKm(): int
+    {
+        return (int) $this->odometer_baseline_km + (int) $this->mileageDaily()->sum('km');
+    }
+
+    /** Km remaining until the next service (null if service-by-km not configured). */
+    public function kmUntilService(): ?int
+    {
+        if ($this->service_interval_km === null || $this->service_last_km === null) {
+            return null;
+        }
+
+        return ((int) $this->service_last_km + (int) $this->service_interval_km) - $this->odometerKm();
+    }
+
+    /** Service-by-km state: 'overdue' | 'soon' | 'ok' | null (not configured). */
+    public function serviceKmStatus(): ?string
+    {
+        $until = $this->kmUntilService();
+        if ($until === null) {
+            return null;
+        }
+
+        return $until <= 0 ? 'overdue' : ($until <= self::SERVICE_SOON_KM ? 'soon' : 'ok');
     }
 
     /** Scope: only available cars. */
@@ -172,7 +215,8 @@ class Car extends Model
     public function hasDueReminder(): bool
     {
         return in_array($this->taxStatus(), ['overdue', 'soon'], true)
-            || in_array($this->serviceStatus(), ['overdue', 'soon'], true);
+            || in_array($this->serviceStatus(), ['overdue', 'soon'], true)
+            || in_array($this->serviceKmStatus(), ['overdue', 'soon'], true);
     }
 
     /** Scope: apply the default display ordering. */
