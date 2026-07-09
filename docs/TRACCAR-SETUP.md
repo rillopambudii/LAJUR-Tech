@@ -212,3 +212,29 @@ Setelah Traccar jalan, punya ≥1 device online, dan token API siap, kabari — 
 4. Mini-map di detail Mobil.
 
 > Referensi resmi: dokumentasi & API di **https://www.traccar.org** (Documentation & API Reference).
+
+---
+
+## Mode Demo (`TRACKING_DEMO`) — tanpa Traccar & tanpa Google Maps
+
+Untuk **presentasi/demo** sebelum Traccar & GPS asli siap, setel di `.env`:
+
+```
+TRACKING_DEMO=true
+```
+
+Lalu `php artisan config:clear`. Efeknya:
+
+- **`/admin/tracking`** menampilkan **peta Leaflet + OpenStreetMap** (gratis, tanpa
+  API key) dengan ~4 mobil bergerak menyusuri rute Samarinda (simulasi client-side).
+- **`/lacak/{code}`** menampilkan mobil pelanggan **mendekati tujuan** dengan **ETA
+  yang hitung mundur** secara live.
+
+Semua data digerakkan oleh `public/js/tracking-demo.js` + rute precomputed di
+`public/js/demo-routes.json` — **nol tulis DB, nol panggilan API eksternal saat
+runtime** (OSM tiles tetap butuh internet). Mode demo **berprioritas** di atas
+Google Maps: walau `GOOGLE_MAPS_API_KEY` terpasang, saat `TRACKING_DEMO=true`
+peta demo yang tampil.
+
+Untuk **produksi**, setel `TRACKING_DEMO=false` — `/admin/tracking` kembali ke
+Google Maps (butuh `GOOGLE_MAPS_API_KEY`) yang disuapi posisi asli dari Traccar.

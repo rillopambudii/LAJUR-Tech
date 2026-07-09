@@ -48,6 +48,10 @@ class TrackingTest extends TestCase
     public function test_tracking_page_loads(): void
     {
         config()->set('services.google.maps_key', 'test-key');
+        // Pin demo off: the demo (Leaflet) path intentionally takes precedence
+        // over Google Maps, and it omits the history panel. This test exercises
+        // the production Google Maps rendering.
+        config()->set('services.tracking.demo', false);
 
         $this->actingAs($this->owner)->get('/admin/tracking')
             ->assertOk()
