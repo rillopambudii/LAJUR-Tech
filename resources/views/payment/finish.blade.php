@@ -46,10 +46,24 @@
                 <div><span class="k">Periode</span><span>{{ $booking->start_date->format('d M') }} – {{ $booking->end_date->format('d M Y') }}</span></div>
                 <div><span class="k">Total</span><span>Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span></div>
                 <div><span class="k">Status</span><span class="pay-badge {{ $status }}">{{ $booking->payment_status_label }}</span></div>
+                @if ($booking->booking_code)
+                    <div><span class="k">Kode Booking</span><span class="mono" style="font-weight:700;letter-spacing:.04em">{{ $booking->booking_code }}</span></div>
+                @endif
             </div>
+
+            @if ($booking->booking_code)
+                <p class="pay-msg" style="margin:18px 0 0;font-size:.88rem">Simpan kode booking di atas untuk melacak status pesananmu kapan saja.</p>
+            @endif
         @endif
 
-        <p style="margin-top:24px"><a href="{{ route('home') }}" class="btn btn-primary">Kembali ke Beranda</a></p>
+        <p style="margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            @if ($booking && $booking->booking_code)
+                <a href="{{ route('tracking.show', $booking->booking_code) }}" class="btn btn-primary"><x-icon name="pin" /> Lacak Pesanan</a>
+                <a href="{{ route('home') }}" class="btn btn-ghost">Kembali ke Beranda</a>
+            @else
+                <a href="{{ route('home') }}" class="btn btn-primary">Kembali ke Beranda</a>
+            @endif
+        </p>
     </div>
 </div>
 @endsection
