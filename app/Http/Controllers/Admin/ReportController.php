@@ -3,15 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Analytics\ReportService;
+use App\Http\Controllers\Concerns\ParsesDateRange;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
+    use ParsesDateRange;
+
     public function __construct(private ReportService $reports)
     {
     }
@@ -75,34 +77,4 @@ class ReportController extends Controller
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
-    /**
-     * Parse the ?from / ?to range, defaulting to the start of the year → today.
-     *
-     * @return array{0: Carbon, 1: Carbon}
-     */
-    private function range(Request $request): array
-    {
-        $to = $this->parseDate($request->query('to')) ?? Carbon::today();
-        $from = $this->parseDate($request->query('from')) ?? Carbon::today()->startOfYear();
-
-        // Guard against an inverted range.
-        if ($from->gt($to)) {
-            [$from, $to] = [$to->copy()->startOfDay(), $from->copy()->startOfDay()];
-        }
-
-        return [$from->startOfDay(), $to->startOfDay()];
-    }
-
-    private function parseDate(?string $value): ?Carbon
-    {
-        if ($value && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
-            try {
-                return Carbon::createFromFormat('Y-m-d', $value);
-            } catch (\Throwable) {
-                return null;
-            }
-        }
-
-        return null;
-    }
 }

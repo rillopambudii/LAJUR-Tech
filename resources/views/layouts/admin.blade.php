@@ -41,6 +41,9 @@
             <a href="{{ route('admin.tracking') }}" class="{{ request()->routeIs('admin.tracking') ? 'active' : '' }}">
                 <x-icon name="pin" /> Pelacakan
             </a>
+            <a href="{{ route('admin.fuel.index') }}" class="{{ request()->routeIs('admin.fuel.*') ? 'active' : '' }}">
+                <x-icon name="fuel" /> BBM &amp; Solar
+            </a>
             <a href="{{ route('admin.reports') }}" class="{{ request()->routeIs('admin.reports') ? 'active' : '' }}">
                 <x-icon name="gauge" /> Laporan
             </a>

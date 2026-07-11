@@ -29,6 +29,8 @@ class Car extends Model
         'type',
         'transmission',
         'fuel_type',
+        'tank_capacity_liters',
+        'fuel_baseline_km_per_l',
         'seats',
         'price_per_day',
         'image',
@@ -52,6 +54,8 @@ class Car extends Model
     {
         return [
             'seats' => 'integer',
+            'tank_capacity_liters' => 'integer',
+            'fuel_baseline_km_per_l' => 'float',
             'price_per_day' => 'integer',
             'sort_order' => 'integer',
             'is_available' => 'boolean',
@@ -106,6 +110,14 @@ class Car extends Model
     public function mileageDaily(): HasMany
     {
         return $this->hasMany(CarMileageDaily::class);
+    }
+
+    /**
+     * @return HasMany<FuelLog, $this>
+     */
+    public function fuelLogs(): HasMany
+    {
+        return $this->hasMany(FuelLog::class);
     }
 
     /** Absolute odometer = manual baseline + sum of GPS-derived daily km. */

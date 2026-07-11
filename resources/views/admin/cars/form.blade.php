@@ -74,6 +74,19 @@
 
                 <div class="form-row">
                     <div class="field">
+                        <label for="tank_capacity_liters">Kapasitas Tangki (L)</label>
+                        <input class="input mono @error('tank_capacity_liters') has-error @enderror" type="number" min="1" max="1000" id="tank_capacity_liters" name="tank_capacity_liters" value="{{ old('tank_capacity_liters', $car->tank_capacity_liters) }}" placeholder="mis. 55">
+                        @error('tank_capacity_liters')<span class="field-error">{{ $message }}</span>@enderror
+                    </div>
+                    <div class="field">
+                        <label for="fuel_baseline_km_per_l">Konsumsi Normal (km/L)</label>
+                        <input class="input mono @error('fuel_baseline_km_per_l') has-error @enderror" type="number" step="0.1" min="0.1" max="100" id="fuel_baseline_km_per_l" name="fuel_baseline_km_per_l" value="{{ old('fuel_baseline_km_per_l', $car->fuel_baseline_km_per_l) }}" placeholder="mis. 11.5">
+                        @error('fuel_baseline_km_per_l')<span class="field-error">{{ $message }}</span>@enderror
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="field">
                         <label for="price_per_day">Harga / Hari (Rp) <span class="req">*</span></label>
                         <input class="input mono @error('price_per_day') has-error @enderror" id="price_per_day" name="price_per_day" inputmode="numeric" value="{{ old('price_per_day', $car->price_per_day) }}" placeholder="500000" required>
                         @error('price_per_day')<span class="field-error">{{ $message }}</span>@enderror

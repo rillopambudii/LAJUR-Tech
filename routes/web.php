@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CarController as AdminCarController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Admin\FuelController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TrackingController;
 use App\Http\Controllers\Driver\DriverDashboardController;
@@ -89,6 +91,17 @@ Route::prefix('admin')
         Route::get('tracking', [TrackingController::class, 'index'])->name('tracking');
         Route::get('tracking/live', [TrackingController::class, 'live'])->middleware('throttle:60,1')->name('tracking.live');
         Route::get('tracking/history', [TrackingController::class, 'history'])->middleware('throttle:60,1')->name('tracking.history');
+
+        // Fuel (BBM/solar) logs & leak indicators
+        Route::get('fuel', [FuelController::class, 'index'])->name('fuel.index');
+        Route::get('fuel/create', [FuelController::class, 'create'])->name('fuel.create');
+        Route::post('fuel', [FuelController::class, 'store'])->name('fuel.store');
+        Route::delete('fuel/{fuelLog}', [FuelController::class, 'destroy'])->name('fuel.destroy');
+
+        // Operational data export (PDF/Excel)
+        Route::get('export/{dataset}/{format}', [ExportController::class, 'download'])
+            ->where('format', 'xlsx|pdf')
+            ->name('export.download');
 
         // Analytics & reports
         Route::get('reports', [ReportController::class, 'index'])->name('reports');
