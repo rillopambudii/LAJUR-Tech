@@ -201,6 +201,10 @@ table.data .mono { font-size: .9rem; }
 .stars-static { color: var(--amber); display: inline-flex; gap: 2px; }
 .stars-static svg { width: 15px; height: 15px; }
 
+/* Pane internal Leaflet ber-z-index 400–1000; tanpa stacking context sendiri
+   peta menimpa topbar sticky (z-index 50) & sidebar saat di-scroll. */
+.leaflet-container { z-index: 0; isolation: isolate; }
+
 @media (max-width: 980px) {
     .admin-shell { grid-template-columns: 1fr; }
     .admin-sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 264px; z-index: 200; transform: translateX(-100%); transition: transform .22s ease; }

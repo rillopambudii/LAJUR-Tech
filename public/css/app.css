@@ -125,6 +125,11 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
 .btn-sm { min-height: 38px; padding: 8px 16px; font-size: .88rem; }
 .btn-danger { background: var(--danger); color: #fff; }
 
+/* ---------- Peta (Leaflet) ---------- */
+/* Pane internal Leaflet ber-z-index 400–1000; tanpa stacking context sendiri
+   peta menimpa navbar sticky (z-index 100) saat halaman di-scroll. */
+.leaflet-container { z-index: 0; isolation: isolate; }
+
 /* ---------- Header / Nav ---------- */
 .site-header {
     position: sticky; top: 0; z-index: 100;
