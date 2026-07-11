@@ -29,6 +29,9 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm">Terapkan</button>
                 <a href="{{ route('admin.reports.export', ['from' => $from->toDateString(), 'to' => $to->toDateString()]) }}" class="btn btn-ghost btn-sm"><x-icon name="list" /> Ekspor CSV</a>
+                <a href="{{ route('admin.export.download', ['dataset' => 'report', 'format' => 'pdf', 'from' => $from->toDateString(), 'to' => $to->toDateString()]) }}" class="btn btn-ghost btn-sm">PDF</a>
+                <a href="{{ route('admin.export.download', ['dataset' => 'report', 'format' => 'xlsx', 'from' => $from->toDateString(), 'to' => $to->toDateString()]) }}" class="btn btn-ghost btn-sm">Excel</a>
+                <a href="{{ route('admin.export.download', ['dataset' => 'mileage', 'format' => 'xlsx', 'from' => $from->toDateString(), 'to' => $to->toDateString()]) }}" class="btn btn-ghost btn-sm">Km Harian (Excel)</a>
             </form>
         </div>
     </div>

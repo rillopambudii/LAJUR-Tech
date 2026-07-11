@@ -4,6 +4,13 @@
 @section('crumb', 'Manajemen')
 @section('heading', 'Booking')
 
+@section('topbar-action')
+    <div style="display:flex;gap:8px">
+        <a href="{{ route('admin.export.download', ['dataset' => 'bookings', 'format' => 'pdf']) }}" class="btn btn-ghost btn-sm">PDF</a>
+        <a href="{{ route('admin.export.download', ['dataset' => 'bookings', 'format' => 'xlsx']) }}" class="btn btn-ghost btn-sm">Excel</a>
+    </div>
+@endsection
+
 @section('content')
     <div class="panel">
         <div class="panel-head">

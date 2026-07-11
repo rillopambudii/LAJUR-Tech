@@ -5,7 +5,11 @@
 @section('heading', 'Mobil')
 
 @section('topbar-action')
-    <a href="{{ route('admin.cars.create') }}" class="btn btn-primary"><x-icon name="plus" /> Tambah Mobil</a>
+    <div style="display:flex;gap:8px;align-items:center">
+        <a href="{{ route('admin.export.download', ['dataset' => 'cars', 'format' => 'pdf']) }}" class="btn btn-ghost btn-sm">PDF</a>
+        <a href="{{ route('admin.export.download', ['dataset' => 'cars', 'format' => 'xlsx']) }}" class="btn btn-ghost btn-sm">Excel</a>
+        <a href="{{ route('admin.cars.create') }}" class="btn btn-primary"><x-icon name="plus" /> Tambah Mobil</a>
+    </div>
 @endsection
 
 @section('content')
