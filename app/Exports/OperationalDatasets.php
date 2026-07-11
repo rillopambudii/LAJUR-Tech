@@ -23,12 +23,6 @@ class OperationalDatasets
     ) {
     }
 
-    /** @return list<string> */
-    public function keys(): array
-    {
-        return ['bookings', 'cars', 'fuel', 'mileage', 'report'];
-    }
-
     /**
      * @return array{title: string, headings: list<string>, rows: list<array<int, mixed>>, dated: bool}|null
      *         dated=false berarti dataset snapshot (filter tanggal tidak berlaku).

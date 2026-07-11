@@ -7,10 +7,12 @@ use App\Http\Controllers\Concerns\ParsesDateRange;
 use App\Http\Controllers\Controller;
 use App\Models\Car;
 use App\Models\FuelLog;
+use App\Tenancy\TenantManager;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 
 class FuelController extends Controller
 {
@@ -48,7 +50,11 @@ class FuelController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'car_id' => ['required', 'integer', 'exists:cars,id'],
+            'car_id' => [
+                'required', 'integer',
+                // Mobil harus milik tenant aktif (idiom sama dengan assignDriver).
+                Rule::exists('cars', 'id')->where('tenant_id', app(TenantManager::class)->id()),
+            ],
             'filled_at' => ['required', 'date'],
             'liters' => ['required', 'numeric', 'min:0.1', 'max:999'],
             'price_per_liter' => ['required', 'integer', 'min:1'],
@@ -59,11 +65,9 @@ class FuelController extends Controller
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        // exists: di atas tidak tenant-scoped; pastikan mobilnya milik tenant aktif.
-        Car::query()->findOrFail($data['car_id']);
-
+        // Selaras dengan aturan min:1 pada input manual — hasil hitung tak boleh 0.
         $data['total_cost'] = $data['total_cost']
-            ?? (int) round($data['liters'] * $data['price_per_liter']);
+            ?? max(1, (int) round($data['liters'] * $data['price_per_liter']));
         $data['full_tank'] = $request->boolean('full_tank');
         $data['created_by'] = $request->user()->id;
 

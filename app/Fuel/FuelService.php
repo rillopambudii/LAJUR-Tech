@@ -63,14 +63,18 @@ class FuelService
             ->with([
                 // Seluruh riwayat log: segmen & flag butuh log sebelum rentang.
                 'fuelLogs' => fn ($q) => $q->orderBy('filled_at')->orderBy('id'),
+                'fuelLogs.creator:id,name',
                 'mileageDaily:id,car_id,date,km',
                 'bookings' => fn ($q) => $q->where('status', '!=', 'cancelled')
                     ->select('id', 'car_id', 'start_date', 'end_date', 'status'),
             ])
             ->get();
 
-        // Median harga dihitung dari semua log tenant (lintas mobil).
-        $allLogs = $cars->flatMap->fuelLogs;
+        // Median harga dihitung dari semua log tenant (lintas mobil) — pool
+        // pembanding TIDAK boleh ikut menyempit saat analisis difilter satu mobil.
+        $allLogs = $carId
+            ? FuelLog::query()->orderBy('filled_at')->orderBy('id')->get()
+            : $cars->flatMap->fuelLogs;
 
         $summaries = collect();
         $rangeLogs = collect();
@@ -108,6 +112,10 @@ class FuelService
         $prev = null;
 
         foreach ($logs as $log) {
+            // Relasi balik tidak di-backfill Eloquent dari eager load sisi Car;
+            // set manual supaya view/export tidak memicu query per baris (N+1).
+            $log->setRelation('car', $car);
+
             $flags = [];
             $log->segment_km = null;
             $log->segment_km_per_l = null;
@@ -137,7 +145,9 @@ class FuelService
                 }
 
                 // Segmen valid hanya bila pengisian ini penuh (full-to-full).
-                $km = $kmOdo ?? $kmGps;
+                // Delta odometer 0 (macet/salah ketik ulang) tidak dipercaya —
+                // jatuh ke km GPS bila ada.
+                $km = ($kmOdo !== null && $kmOdo > 0) ? $kmOdo : $kmGps;
                 if ($log->full_tank && $km !== null && $km > 0 && $log->liters > 0) {
                     $log->segment_km = $km;
                     $log->segment_km_per_l = round($km / $log->liters, 1);
@@ -227,20 +237,21 @@ class FuelService
     /** Km GPS pada rentang tanggal (prev, now] — null bila tidak ada data GPS. */
     private function gpsKmBetween(Car $car, Carbon $prevAt, Carbon $nowAt): ?int
     {
-        $fromDate = $prevAt->toDateString();
-        $toDate = $nowAt->toDateString();
-
-        $rows = $car->mileageDaily
-            ->filter(fn ($d) => $d->date > $fromDate && $d->date <= $toDate);
-
-        return $rows->isEmpty() ? null : (int) $rows->sum('km');
+        return $this->gpsKmSum($car, $prevAt->toDateString(), $nowAt->toDateString(), excludeFromDate: true);
     }
 
     /** Km GPS total dalam rentang [from, to] — null bila tidak ada data GPS. */
     private function gpsKmInRange(Car $car, Carbon $from, Carbon $to): ?int
     {
-        $rows = $car->mileageDaily
-            ->filter(fn ($d) => $d->date >= $from->toDateString() && $d->date <= $to->toDateString());
+        return $this->gpsKmSum($car, $from->toDateString(), $to->toDateString());
+    }
+
+    /** Satu-satunya implementasi penjumlahan km GPS harian pada jendela tanggal. */
+    private function gpsKmSum(Car $car, string $fromDate, string $toDate, bool $excludeFromDate = false): ?int
+    {
+        $rows = $car->mileageDaily->filter(
+            fn ($d) => ($excludeFromDate ? $d->date > $fromDate : $d->date >= $fromDate) && $d->date <= $toDate
+        );
 
         return $rows->isEmpty() ? null : (int) $rows->sum('km');
     }

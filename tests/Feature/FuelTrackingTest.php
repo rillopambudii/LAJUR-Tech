@@ -153,6 +153,65 @@ class FuelTrackingTest extends TestCase
         $this->assertNotContains('price_outlier', $logs->firstWhere('id', $normal->id)->flags);
     }
 
+    public function test_stale_odometer_delta_zero_falls_back_to_gps(): void
+    {
+        $car = $this->car();
+        $this->log($car, ['filled_at' => '2026-07-01 08:00:00', 'odometer_km' => 10000]);
+        CarMileageDaily::create(['tenant_id' => $this->tenant->id, 'car_id' => $car->id, 'date' => '2026-07-03', 'km' => 440]);
+        // Odometer salah diketik ulang sama persis — delta 0 tidak boleh menekan fallback GPS.
+        $second = $this->log($car, ['filled_at' => '2026-07-05 08:00:00', 'odometer_km' => 10000, 'liters' => 40]);
+
+        $log = $this->analyze()['logs']->firstWhere('id', $second->id);
+        $this->assertSame(11.0, $log->segment_km_per_l); // GPS 440 km / 40 L
+    }
+
+    public function test_price_outlier_pool_stays_tenant_wide_when_filtered_by_car(): void
+    {
+        $carA = $this->car();
+        $carB = $this->car(['name' => 'Avanza Bensin']);
+        foreach (range(1, 5) as $d) {
+            $this->log($carA, ['filled_at' => "2026-07-0{$d} 08:00:00", 'price_per_liter' => 6800]);
+        }
+        $marked = $this->log($carB, ['filled_at' => '2026-07-10 08:00:00', 'price_per_liter' => 10000]);
+
+        // Difilter ke carB saja: median tetap dihitung lintas mobil se-tenant.
+        $logs = $this->analyze($carB->id)['logs'];
+        $this->assertContains('price_outlier', $logs->firstWhere('id', $marked->id)->flags);
+    }
+
+    public function test_cannot_record_fill_for_other_tenants_car(): void
+    {
+        $other = Tenant::create(['name' => 'Other', 'slug' => 'other']);
+        $foreignCar = Car::withoutGlobalScopes()->create([
+            'tenant_id' => $other->id, 'name' => 'Mobil Asing', 'brand' => 'X', 'type' => 'MPV',
+            'transmission' => 'Manual', 'fuel_type' => 'Bensin', 'seats' => 4,
+            'price_per_day' => 100000, 'is_available' => true,
+        ]);
+
+        $this->actingAs($this->admin())
+            ->post('/admin/fuel', [
+                'car_id' => $foreignCar->id, 'filled_at' => '2026-07-08 09:30',
+                'liters' => 40, 'price_per_liter' => 6800,
+            ])
+            ->assertSessionHasErrors('car_id');
+
+        $this->assertDatabaseMissing('fuel_logs', ['car_id' => $foreignCar->id]);
+    }
+
+    public function test_computed_total_cost_never_below_one(): void
+    {
+        $car = $this->car();
+
+        $this->actingAs($this->admin())
+            ->post('/admin/fuel', [
+                'car_id' => $car->id, 'filled_at' => '2026-07-08 09:30',
+                'liters' => 0.1, 'price_per_liter' => 1, // round(0.1) = 0 → dipaksa min 1
+            ])
+            ->assertRedirect(route('admin.fuel.index'));
+
+        $this->assertDatabaseHas('fuel_logs', ['car_id' => $car->id, 'total_cost' => 1]);
+    }
+
     public function test_admin_can_record_fill_even_beyond_tank_capacity(): void
     {
         $car = $this->car();

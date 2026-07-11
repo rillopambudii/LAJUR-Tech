@@ -38,7 +38,7 @@
                 <tr>
                     @foreach ($row as $cell)
                         <td class="{{ is_int($cell) || is_float($cell) ? 'num' : '' }}">
-                            {{ is_int($cell) ? number_format($cell, 0, ',', '.') : $cell }}
+                            {{ is_int($cell) ? number_format($cell, 0, ',', '.') : (is_float($cell) ? number_format($cell, 1, ',', '.') : $cell) }}
                         </td>
                     @endforeach
                 </tr>

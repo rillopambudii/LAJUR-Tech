@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Analytics\ReportService;
+use App\Exports\OperationalDatasets;
 use App\Http\Controllers\Concerns\ParsesDateRange;
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -38,41 +38,24 @@ class ReportController extends Controller
         ]);
     }
 
-    public function export(Request $request): StreamedResponse
+    public function export(Request $request, OperationalDatasets $datasets): StreamedResponse
     {
         [$from, $to] = $this->range($request);
 
+        // Kolom & query sama persis dengan export PDF/Excel (satu sumber
+        // kebenaran di OperationalDatasets) — CSV tak boleh drift sendiri.
+        $data = $datasets->get('bookings', $from, $to);
+
         $filename = 'laporan-booking_'.$from->format('Ymd').'-'.$to->format('Ymd').'.csv';
 
-        return response()->streamDownload(function () use ($from, $to) {
+        return response()->streamDownload(function () use ($data) {
             $out = fopen('php://output', 'w');
             // BOM so Excel reads UTF-8 correctly.
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['Invoice', 'Tanggal', 'Mobil', 'Penyewa', 'Email', 'HP', 'Mulai', 'Selesai', 'Hari', 'Total', 'Status', 'Driver']);
-
-            Booking::query()
-                ->createdBetween($from->toDateString(), $to->toDateString())
-                ->with('driver')
-                ->orderBy('created_at')
-                ->chunk(200, function ($bookings) use ($out) {
-                    foreach ($bookings as $b) {
-                        fputcsv($out, [
-                            $b->invoiceNumber(),
-                            optional($b->created_at)->format('Y-m-d H:i'),
-                            $b->car_name,
-                            $b->customer_name,
-                            $b->customer_email,
-                            $b->customer_phone,
-                            $b->start_date->format('Y-m-d'),
-                            $b->end_date->format('Y-m-d'),
-                            $b->days,
-                            $b->total_price,
-                            $b->status_label,
-                            $b->driver?->name ?? '',
-                        ]);
-                    }
-                });
-
+            fputcsv($out, $data['headings']);
+            foreach ($data['rows'] as $row) {
+                fputcsv($out, $row);
+            }
             fclose($out);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }

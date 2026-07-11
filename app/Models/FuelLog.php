@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Tenancy\BelongsToTenant;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -47,12 +46,5 @@ class FuelLog extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
-    }
-
-    /** Scope: logs whose filled_at date is within the inclusive [from, to] range. */
-    public function scopeFilledBetween(Builder $query, string $from, string $to): Builder
-    {
-        return $query->whereDate('filled_at', '>=', $from)
-            ->whereDate('filled_at', '<=', $to);
     }
 }
