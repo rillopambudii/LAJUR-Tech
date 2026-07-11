@@ -4,11 +4,43 @@ namespace App\Mileage;
 
 use App\Models\Car;
 use App\Models\CarMileageDaily;
+use Illuminate\Support\Carbon;
 
 class MileageService
 {
     public const MIN_SEGMENT_METERS = 15;
     public const MAX_SEGMENT_METERS = 8000;
+
+    /**
+     * Km presisi antara dua waktu dari titik GPS mentah (filter jitter/teleport
+     * sama dengan syncCar). Null bila titiknya kurang dari 2 atau tak bergerak —
+     * pemakai diharapkan fallback ke bucket harian car_mileage_daily.
+     */
+    public function kmBetween(Car $car, Carbon $from, Carbon $to): ?float
+    {
+        $positions = $car->positions()
+            ->whereBetween('device_time', [$from, $to])
+            ->orderBy('device_time')
+            ->get(['latitude', 'longitude', 'device_time']);
+
+        if ($positions->count() < 2) {
+            return null;
+        }
+
+        $meters = 0.0;
+        $prev = null;
+        foreach ($positions as $p) {
+            if ($prev !== null) {
+                $d = $this->haversine((float) $prev->latitude, (float) $prev->longitude, (float) $p->latitude, (float) $p->longitude);
+                if ($d >= self::MIN_SEGMENT_METERS && $d <= self::MAX_SEGMENT_METERS) {
+                    $meters += $d;
+                }
+            }
+            $prev = $p;
+        }
+
+        return $meters > 0 ? $meters / 1000 : null;
+    }
 
     /** Recompute daily mileage buckets for one car from all its positions. */
     public function syncCar(Car $car): void

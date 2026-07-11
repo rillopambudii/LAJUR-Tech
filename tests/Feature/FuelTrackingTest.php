@@ -9,6 +9,7 @@ use App\Models\CarMileageDaily;
 use App\Models\FuelLog;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Models\VehiclePosition;
 use App\Tenancy\TenantManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -151,6 +152,66 @@ class FuelTrackingTest extends TestCase
         $logs = $this->analyze()['logs'];
         $this->assertContains('price_outlier', $logs->firstWhere('id', $marked->id)->flags);
         $this->assertNotContains('price_outlier', $logs->firstWhere('id', $normal->id)->flags);
+    }
+
+    public function test_partial_fills_accumulate_into_full_to_full_segment(): void
+    {
+        $car = $this->car();
+        $this->log($car, ['filled_at' => '2026-07-01 08:00:00', 'odometer_km' => 10000, 'liters' => 40]);
+        // Isi parsial di tengah: bukan segmen sendiri, liternya ikut terbakar.
+        $partial = $this->log($car, ['filled_at' => '2026-07-03 08:00:00', 'liters' => 20, 'full_tank' => false, 'total_cost' => 136000]);
+        $closing = $this->log($car, ['filled_at' => '2026-07-05 08:00:00', 'odometer_km' => 10440, 'liters' => 25, 'total_cost' => 170000]);
+
+        $a = $this->analyze();
+        $logs = $a['logs'];
+
+        $this->assertNull($logs->firstWhere('id', $partial->id)->segment_km);
+
+        $closed = $logs->firstWhere('id', $closing->id);
+        $this->assertSame(440.0, $closed->segment_km);        // odometer anchor → penutup
+        $this->assertSame(45.0, $closed->segment_liters);     // 25 penuh + 20 parsial
+        $this->assertSame(306000, $closed->segment_cost);     // 170rb + 136rb
+        $this->assertSame(9.8, $closed->segment_km_per_l);    // 440 / 45 = 9,78
+        $this->assertNotContains('guzzling', $closed->flags); // 9,78 > 12 × 0,8 = 9,6
+
+        $s = $a['summaries']->first(fn ($s) => $s['car']->id === $car->id);
+        $this->assertSame(9.8, $s['km_per_liter']);
+    }
+
+    public function test_same_day_fills_use_precise_gps_distance(): void
+    {
+        $car = $this->car();
+        $this->log($car, ['filled_at' => '2026-07-01 08:00:00', 'liters' => 40]);
+        // Titik GPS mentah antar dua pengisian di HARI YANG SAMA:
+        // 4 lompatan × 0,01° lintang ≈ 4 × 1,11 km ≈ 4,45 km.
+        foreach ([[-0.50, '09:00'], [-0.49, '09:20'], [-0.48, '09:40'], [-0.47, '10:00'], [-0.46, '10:20']] as [$lat, $t]) {
+            VehiclePosition::create(['car_id' => $car->id, 'latitude' => $lat, 'longitude' => 117.15, 'speed' => 30, 'course' => 0, 'device_time' => "2026-07-01 {$t}:00"]);
+        }
+        $second = $this->log($car, ['filled_at' => '2026-07-01 11:00:00', 'liters' => 0.4]);
+
+        $log = $this->analyze()['logs']->firstWhere('id', $second->id);
+        $this->assertNotNull($log->segment_km); // bucket harian tak bisa; presisi bisa
+        $this->assertEqualsWithDelta(11.1, $log->segment_km_per_l, 0.2); // ≈4,45 / 0,4
+    }
+
+    public function test_idle_fill_has_grace_day_for_preparation_and_return(): void
+    {
+        $car = $this->car();
+        Booking::create([
+            'car_id' => $car->id, 'car_name' => $car->name,
+            'customer_name' => 'Sari', 'customer_email' => 's@x.id', 'customer_phone' => '082',
+            'start_date' => '2026-07-10', 'end_date' => '2026-07-12', 'days' => 3,
+            'price_per_day' => 500000, 'total_price' => 1500000, 'status' => 'confirmed',
+            'booking_code' => Booking::generateBookingCode(),
+        ]);
+        $prep = $this->log($car, ['filled_at' => '2026-07-09 08:00:00']);   // H-1 persiapan
+        $return = $this->log($car, ['filled_at' => '2026-07-13 08:00:00']); // H+1 pengembalian
+        $far = $this->log($car, ['filled_at' => '2026-07-20 08:00:00']);    // jauh di luar
+
+        $logs = $this->analyze()['logs'];
+        $this->assertNotContains('idle_fill', $logs->firstWhere('id', $prep->id)->flags);
+        $this->assertNotContains('idle_fill', $logs->firstWhere('id', $return->id)->flags);
+        $this->assertContains('idle_fill', $logs->firstWhere('id', $far->id)->flags);
     }
 
     public function test_stale_odometer_delta_zero_falls_back_to_gps(): void

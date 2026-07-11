@@ -2,23 +2,33 @@
 
 namespace App\Fuel;
 
+use App\Mileage\MileageService;
 use App\Models\Car;
 use App\Models\FuelLog;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Analisis pengisian BBM per mobil: konsumsi nyata (metode full-to-full),
- * biaya per km, dan flag anomali untuk mendeteksi kebocoran/penyalahgunaan.
+ * Analisis pengisian BBM per mobil: konsumsi nyata (metode full-to-full murni,
+ * pengisian parsial diakumulasikan ke segmen), biaya per km, dan flag anomali
+ * untuk mendeteksi kebocoran/penyalahgunaan.
  *
  * Tiga sumber km saling menyilang-periksa: odometer manual (diisi saat mengisi
- * BBM), km GPS (car_mileage_daily), dan jadwal booking. Lihat
- * docs/superpowers/specs/2026-07-11-fuel-tracking-design.md.
+ * BBM), km GPS (presisi antar-waktu dari titik mentah, fallback bucket harian),
+ * dan jadwal booking. Semua keputusan flag memakai nilai MENTAH — pembulatan
+ * hanya untuk tampilan. Lihat docs/superpowers/specs/2026-07-11-fuel-tracking-design.md.
  */
 class FuelService
 {
+    public function __construct(private MileageService $mileage)
+    {
+    }
+
     /** Segmen lebih boros dari baseline × (1 − toleransi) → guzzling. */
     public const GUZZLING_TOLERANCE = 0.20;
+
+    /** Hari tenggang isi BBM sekitar masa sewa (persiapan H-1 / pengembalian H+1) yang dianggap sah. */
+    public const IDLE_FILL_GRACE_DAYS = 1;
 
     /** Selisih relatif odometer vs GPS yang dianggap mencurigakan. */
     public const GPS_MISMATCH_RATIO = 0.30;
@@ -53,7 +63,9 @@ class FuelService
      * @return array{summaries: Collection<int, array<string, mixed>>, logs: Collection<int, FuelLog>}
      *         summaries: satu baris indikator per mobil;
      *         logs: log dalam rentang (terbaru dulu), masing-masing diberi atribut
-     *         dinamis `flags` (list kode), `segment_km`, `segment_km_per_l`.
+     *         dinamis `flags` (list kode) serta `segment_km`, `segment_liters`,
+     *         `segment_cost`, `segment_km_per_l` (terisi hanya pada log isi-penuh
+     *         yang menutup sebuah segmen full-to-full).
      */
     public function analyze(Carbon $from, Carbon $to, ?int $carId = null): array
     {
@@ -111,6 +123,13 @@ class FuelService
         $logs = $car->fuelLogs->values();
         $prev = null;
 
+        // Full-to-full murni: segmen berjalan dari isi-penuh terakhir ($anchor).
+        // Isi parsial di tengah TIDAK membentuk segmen sendiri — liternya
+        // diakumulasikan, karena BBM itu ikut terbakar sepanjang segmen.
+        $anchor = null;
+        $partialLiters = 0.0;
+        $partialCost = 0;
+
         foreach ($logs as $log) {
             // Relasi balik tidak di-backfill Eloquent dari eager load sisi Car;
             // set manual supaya view/export tidak memicu query per baris (N+1).
@@ -118,6 +137,8 @@ class FuelService
 
             $flags = [];
             $log->segment_km = null;
+            $log->segment_liters = null;
+            $log->segment_cost = null;
             $log->segment_km_per_l = null;
 
             // M1 — struk digelembungkan: liter > kapasitas tangki.
@@ -126,41 +147,67 @@ class FuelService
             }
 
             if ($prev !== null) {
-                $kmOdo = null;
+                // Odometer mundur & silang-periksa GPS dinilai antar log
+                // BERURUTAN (terlepas penuh/parsial) — anomalinya per input.
+                $kmOdoPair = null;
                 if ($log->odometer_km !== null && $prev->odometer_km !== null) {
                     if ($log->odometer_km < $prev->odometer_km) {
                         $flags[] = 'odometer_backwards';
                     } else {
-                        $kmOdo = $log->odometer_km - $prev->odometer_km;
+                        $kmOdoPair = $log->odometer_km - $prev->odometer_km;
                     }
                 }
 
-                $kmGps = $this->gpsKmBetween($car, $prev->filled_at, $log->filled_at);
+                $kmGpsPair = $this->gpsKmBetween($car, $prev->filled_at, $log->filled_at);
 
                 // Odometer vs GPS: keduanya ada & cukup besar tapi jauh beda →
                 // odometer dimainkan ATAU GPS dicabut. Dua-duanya perlu diperiksa.
-                if ($kmOdo !== null && $kmGps !== null && max($kmOdo, $kmGps) >= self::GPS_MISMATCH_MIN_KM
-                    && abs($kmOdo - $kmGps) / max($kmOdo, $kmGps) > self::GPS_MISMATCH_RATIO) {
+                if ($kmOdoPair !== null && $kmGpsPair !== null && max($kmOdoPair, $kmGpsPair) >= self::GPS_MISMATCH_MIN_KM
+                    && abs($kmOdoPair - $kmGpsPair) / max($kmOdoPair, $kmGpsPair) > self::GPS_MISMATCH_RATIO) {
                     $flags[] = 'gps_mismatch';
-                }
-
-                // Segmen valid hanya bila pengisian ini penuh (full-to-full).
-                // Delta odometer 0 (macet/salah ketik ulang) tidak dipercaya —
-                // jatuh ke km GPS bila ada.
-                $km = ($kmOdo !== null && $kmOdo > 0) ? $kmOdo : $kmGps;
-                if ($log->full_tank && $km !== null && $km > 0 && $log->liters > 0) {
-                    $log->segment_km = $km;
-                    $log->segment_km_per_l = round($km / $log->liters, 1);
-
-                    // M2/M3 — BBM hilang: efisiensi anjlok jauh di bawah baseline.
-                    $baseline = (float) $car->fuel_baseline_km_per_l;
-                    if ($baseline > 0 && $log->segment_km_per_l < $baseline * (1 - self::GUZZLING_TOLERANCE)) {
-                        $flags[] = 'guzzling';
-                    }
                 }
             }
 
-            // M3 — pengisian saat mobil tidak dalam masa sewa (bisa sah: persiapan).
+            if ($anchor !== null && $log->full_tank) {
+                // Km segmen: delta odometer anchor→sekarang; delta 0 (macet /
+                // salah ketik ulang) tidak dipercaya — jatuh ke km GPS.
+                $kmOdo = null;
+                if ($log->odometer_km !== null && $anchor->odometer_km !== null && $log->odometer_km > $anchor->odometer_km) {
+                    $kmOdo = (float) ($log->odometer_km - $anchor->odometer_km);
+                }
+                $km = $kmOdo ?? $this->gpsKmBetween($car, $anchor->filled_at, $log->filled_at);
+
+                // Liter segmen = isi penuh ini + semua isi parsial sejak anchor.
+                $liters = (float) $log->liters + $partialLiters;
+
+                if ($km !== null && $km > 0 && $liters > 0) {
+                    $rawKmPerLiter = $km / $liters;
+
+                    $log->segment_km = round($km, 1);
+                    $log->segment_liters = round($liters, 2);
+                    $log->segment_cost = (int) $log->total_cost + $partialCost;
+                    $log->segment_km_per_l = round($rawKmPerLiter, 1);
+
+                    // M2/M3 — BBM hilang: efisiensi anjlok jauh di bawah baseline.
+                    // Bandingkan nilai MENTAH, bukan yang sudah dibulatkan.
+                    $baseline = (float) $car->fuel_baseline_km_per_l;
+                    if ($baseline > 0 && $rawKmPerLiter < $baseline * (1 - self::GUZZLING_TOLERANCE)) {
+                        $flags[] = 'guzzling';
+                    }
+                }
+            } elseif ($anchor !== null && ! $log->full_tank) {
+                $partialLiters += (float) $log->liters;
+                $partialCost += (int) $log->total_cost;
+            }
+
+            if ($log->full_tank) {
+                $anchor = $log;
+                $partialLiters = 0.0;
+                $partialCost = 0;
+            }
+
+            // M3 — pengisian di luar masa sewa (dengan hari tenggang persiapan/
+            // pengembalian agar isi H-1/H+1 yang sah tidak ter-flag palsu).
             if (! $this->withinAnyBooking($car, $log->filled_at)) {
                 $flags[] = 'idle_fill';
             }
@@ -189,18 +236,21 @@ class FuelService
         $cost = (int) $logs->sum('total_cost');
 
         // Agregat = Σkm ÷ Σliter dari segmen valid (bukan rata-rata rasio),
-        // supaya segmen panjang berbobot benar.
+        // supaya segmen panjang berbobot benar. Liter/biaya segmen sudah
+        // termasuk isi parsial yang terbakar di dalamnya (full-to-full murni).
         $segments = $logs->whereNotNull('segment_km');
         $segmentKm = (float) $segments->sum('segment_km');
-        $segmentLiters = (float) $segments->sum('liters');
-        $segmentCost = (int) $segments->sum('total_cost');
+        $segmentLiters = (float) $segments->sum('segment_liters');
+        $segmentCost = (int) $segments->sum('segment_cost');
 
-        $kmPerLiter = $segmentLiters > 0 ? round($segmentKm / $segmentLiters, 1) : null;
+        // Deviasi dihitung dari nilai MENTAH; pembulatan hanya untuk tampilan.
+        $rawKmPerLiter = $segmentLiters > 0 ? $segmentKm / $segmentLiters : null;
+        $kmPerLiter = $rawKmPerLiter !== null ? round($rawKmPerLiter, 1) : null;
         $baseline = (float) $car->fuel_baseline_km_per_l ?: null;
 
         // Deviasi: positif = lebih boros dari baseline.
-        $deviationPct = ($kmPerLiter !== null && $baseline)
-            ? (int) round(($baseline - $kmPerLiter) / $baseline * 100)
+        $deviationPct = ($rawKmPerLiter !== null && $baseline)
+            ? (int) round(($baseline - $rawKmPerLiter) / $baseline * 100)
             : null;
 
         // Silang-periksa periode: Δodometer vs total km GPS.
@@ -234,10 +284,21 @@ class FuelService
         ];
     }
 
-    /** Km GPS pada rentang tanggal (prev, now] — null bila tidak ada data GPS. */
-    private function gpsKmBetween(Car $car, Carbon $prevAt, Carbon $nowAt): ?int
+    /**
+     * Km GPS antara dua waktu pengisian. Prioritas: jarak PRESISI dari titik
+     * GPS mentah antar jam pengisian (akurat sampai menit, bisa dua pengisian
+     * sehari); fallback: bucket harian car_mileage_daily pada (prev, now].
+     */
+    private function gpsKmBetween(Car $car, Carbon $prevAt, Carbon $nowAt): ?float
     {
-        return $this->gpsKmSum($car, $prevAt->toDateString(), $nowAt->toDateString(), excludeFromDate: true);
+        $precise = $this->mileage->kmBetween($car, $prevAt, $nowAt);
+        if ($precise !== null) {
+            return $precise;
+        }
+
+        $daily = $this->gpsKmSum($car, $prevAt->toDateString(), $nowAt->toDateString(), excludeFromDate: true);
+
+        return $daily !== null ? (float) $daily : null;
     }
 
     /** Km GPS total dalam rentang [from, to] — null bila tidak ada data GPS. */
@@ -256,14 +317,21 @@ class FuelService
         return $rows->isEmpty() ? null : (int) $rows->sum('km');
     }
 
-    /** Apakah tanggal pengisian jatuh dalam masa sewa booking (non-batal) mobil ini. */
+    /**
+     * Apakah tanggal pengisian jatuh dalam masa sewa booking (non-batal) mobil
+     * ini, dengan tenggang IDLE_FILL_GRACE_DAYS di kedua sisi: isi H-1
+     * (persiapan) dan H+1 (setelah pengembalian) adalah operasional yang sah.
+     */
     private function withinAnyBooking(Car $car, Carbon $filledAt): bool
     {
         $date = $filledAt->toDateString();
 
-        return $car->bookings->contains(
-            fn ($b) => $b->start_date->toDateString() <= $date && $b->end_date->toDateString() >= $date
-        );
+        return $car->bookings->contains(function ($b) use ($date) {
+            $start = $b->start_date->copy()->subDays(self::IDLE_FILL_GRACE_DAYS)->toDateString();
+            $end = $b->end_date->copy()->addDays(self::IDLE_FILL_GRACE_DAYS)->toDateString();
+
+            return $start <= $date && $end >= $date;
+        });
     }
 
     /**

@@ -51,18 +51,28 @@ Index: `(tenant_id, car_id, filled_at)`.
 - `fuel_baseline_km_per_l` decimal(5,2) nullable — konsumsi normal mobil ini
   (mis. Innova diesel ±12 km/L). Diisi admin di form mobil; dasar flag M2/M3.
 
-## 4. Perhitungan konsumsi (FuelService)
+## 4. Perhitungan konsumsi (FuelService) — full-to-full murni
 
-Log per mobil diurutkan `filled_at`. Sebuah **segmen valid** terbentuk antara log
-`prev` → `now` bila `now.full_tank` true, dan km segmen bisa ditentukan:
+Log per mobil diurutkan `filled_at`. Segmen berjalan dari **isi-penuh terakhir
+(anchor)** sampai **isi-penuh berikutnya**. Isi **parsial** di tengah TIDAK
+membentuk segmen sendiri — liter & biayanya **diakumulasikan** ke segmen,
+karena BBM itu ikut terbakar sepanjang segmen (tangki kembali penuh hanya di
+akhir segmen, jadi total BBM terpakai = liter penutup + Σ liter parsial).
 
-1. **Odometer** (prioritas): `now.odometer_km − prev.odometer_km`, bila keduanya terisi.
-2. **Fallback GPS**: jumlah `car_mileage_daily.km` pada tanggal `(prev.filled_at,
-   now.filled_at]` bila odometer tak lengkap dan GPS tersedia (> 0 km).
+Km segmen (anchor → penutup), berdasarkan prioritas akurasi:
 
-Efisiensi segmen = `km ÷ now.liters` (liter yang diisi penuh di akhir segmen =
-liter yang terpakai sepanjang segmen). Agregat per mobil = `Σkm ÷ Σliter` semua
-segmen valid — bukan rata-rata dari rasio, supaya segmen panjang berbobot benar.
+1. **Odometer**: `penutup.odometer_km − anchor.odometer_km` bila keduanya terisi
+   dan delta > 0 (delta 0 = odometer macet/salah ketik ulang, tidak dipercaya).
+2. **GPS presisi**: jarak haversine dari titik `vehicle_positions` antara kedua
+   waktu pengisian (filter jitter <15 m & teleport >8 km, sama dengan
+   MileageService) — akurat sampai menit, mendukung dua pengisian dalam sehari.
+3. **GPS bucket harian**: jumlah `car_mileage_daily.km` pada tanggal
+   `(anchor, penutup]` bila titik mentah tidak tersedia.
+
+Efisiensi segmen = `km ÷ (liter_penutup + Σliter_parsial)`. Agregat per mobil =
+`Σkm ÷ Σliter` semua segmen valid — bukan rata-rata dari rasio, supaya segmen
+panjang berbobot benar. **Semua keputusan flag & deviasi memakai nilai MENTAH;
+pembulatan (1 desimal) hanya untuk tampilan.**
 
 ## 5. Indikator (INI YANG DILIHAT OWNER)
 
@@ -83,7 +93,7 @@ segmen valid — bukan rata-rata dari rasio, supaya segmen panjang berbobot bena
 | `odometer_backwards` | MERAH | odometer_km < log sebelumnya | manipulasi data |
 | `guzzling` | MERAH | efisiensi segmen < baseline × 0.8 | M2/M3 BBM hilang |
 | `gps_mismatch` | KUNING | odometer vs GPS selisih > 30% (keduanya ada, km ≥ 30) | odometer palsu / GPS dicabut |
-| `idle_fill` | KUNING | tanggal isi di luar semua booking aktif mobil itu | M3 dipakai di luar order (bisa sah: persiapan) |
+| `idle_fill` | KUNING | tanggal isi di luar semua booking aktif mobil itu, dengan tenggang ±1 hari (H-1 persiapan / H+1 pengembalian dianggap sah) | M3 dipakai di luar order |
 | `price_outlier` | KUNING | harga/L menyimpang > 15% dari median tenant 90 hari (min. 5 log) | M4 markup harga |
 
 MERAH = hampir pasti perlu ditindak; KUNING = perlu ditanya/diperiksa.
