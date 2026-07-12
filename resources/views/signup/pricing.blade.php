@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Harga & Paket — Lajur')
+@section('title', 'Harga & Paket - Lajur')
 
 @section('content')
 <section class="section" style="padding-top:56px">
@@ -8,7 +8,7 @@
         <div class="section-head reveal" style="max-width:680px;margin-inline:auto;text-align:center">
             <span class="eyebrow" style="justify-content:center">Untuk Pemilik Usaha Rental</span>
             <h1 class="section-title">Kelola bisnis rental Anda, tanpa ribet</h1>
-            <p class="section-sub">Booking, armada, driver, hingga laporan keuangan — semua dalam satu dashboard. Mulai gratis 14 hari, tanpa kartu kredit.</p>
+            <p class="section-sub">Booking, armada, driver, hingga laporan keuangan, semua dalam satu dashboard. Mulai gratis 14 hari, tanpa kartu kredit.</p>
         </div>
 
         <div class="pricing-grid reveal" style="margin-top:44px">

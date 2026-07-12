@@ -1,7 +1,8 @@
 @extends('layouts.public')
 
 @php
-    $heroImage = 'https://th.bing.com/th/id/R.5429252568e2275b3deae15d4286fe3a?rik=0o4n9ygJ1DZaOg&riu=http%3a%2f%2f3.bp.blogspot.com%2f-8s5uZdsiPFw%2fVAIB3GYeJNI%2fAAAAAAAATU8%2fP2Ujedhro7k%2fs1600%2fFoto%252BMobil%252BSport%252BTerbaru%252B2014.jpg&ehk=6gt5OnqncLpZUFmNtJukAmNs8WupBse1r2cU7aA99cA%3d&risl=&pid=ImgRaw&r=0';
+    // Di-host lokal — hotlink pihak ketiga lambat & bisa mati sewaktu-waktu (buruk untuk LCP).
+    $heroImage = asset('img/hero-drive.jpg');
 @endphp
 
 @section('content')
@@ -15,7 +16,7 @@
                 <span class="hero-title__lead">Perjalanan Anda,</span>
                 <span class="hero-title__reveal">dalam kendali penuh.</span>
             </h1>
-            <p>Sewa mobil premium yang terawat dengan harga transparan dan proses yang cepat. Dari dinas hingga liburan keluarga — Lajur siap mengantar.</p>
+            <p>Sewa mobil premium yang terawat dengan harga transparan dan proses yang cepat. Dari dinas hingga liburan keluarga, Lajur siap mengantar.</p>
             <div class="hero-actions">
                 <a href="#sewa" class="btn btn-primary">Lihat Armada <x-icon name="arrow-right" /></a>
                 <a href="#cara" class="btn btn-light">Cara Sewa</a>
@@ -30,7 +31,7 @@
         <div class="section-head reveal">
             <span class="eyebrow">Armada Kami</span>
             <h2 class="section-title">Pilih mobil yang pas untuk perjalanan Anda</h2>
-            <p class="section-sub">Setiap unit ditampilkan lengkap dengan spesifikasinya — seperti membaca lembar data, transparan dan jelas.</p>
+            <p class="section-sub">Setiap unit ditampilkan lengkap dengan spesifikasinya: transparan dan jelas, seperti membaca lembar data.</p>
         </div>
 
         @if (session('booking_success'))
@@ -40,8 +41,8 @@
                     <span>{{ session('booking_success') }}</span>
                     @if (session('booking_code'))
                         <div style="margin-top:8px">
-                            Kode booking kamu: <strong class="mono">{{ session('booking_code') }}</strong>
-                            — <a href="{{ route('tracking.show', session('booking_code')) }}">Lacak status pesanan</a>
+                            Kode booking kamu: <strong class="mono">{{ session('booking_code') }}</strong>.
+                            <a href="{{ route('tracking.show', session('booking_code')) }}">Lacak status pesanan</a>
                         </div>
                     @endif
                 </div>
@@ -84,7 +85,6 @@
 <section class="section" id="cara">
     <div class="container">
         <div class="section-head reveal">
-            <span class="eyebrow">Cara Sewa</span>
             <h2 class="section-title">Empat langkah, langsung jalan</h2>
         </div>
         <div class="steps">
@@ -108,7 +108,6 @@
 <section class="section" id="kenapa" style="background:var(--ivory-200)">
     <div class="container">
         <div class="section-head reveal">
-            <span class="eyebrow">Kenapa Lajur</span>
             <h2 class="section-title">Dibangun untuk rasa aman</h2>
         </div>
         <div class="features">
@@ -133,7 +132,6 @@
 <section class="section" id="testimoni">
     <div class="container">
         <div class="section-head reveal">
-            <span class="eyebrow">Testimoni</span>
             <h2 class="section-title">Dipercaya pelanggan kami</h2>
         </div>
         <div class="testi-grid">
@@ -168,7 +166,7 @@
             <div class="reveal">
                 <span class="eyebrow">Tentang Kami</span>
                 <h2 class="section-title">Mitra perjalanan Anda di Kalimantan Timur</h2>
-                <p class="section-sub">Lajur lahir dari kebutuhan akan layanan rental mobil yang rapi, jujur, dan bisa diandalkan. Kami percaya menyewa mobil seharusnya semudah dan seaman membeli tiket — tanpa drama, tanpa biaya kejutan.</p>
+                <p class="section-sub">Lajur lahir dari kebutuhan akan layanan rental mobil yang rapi, jujur, dan bisa diandalkan. Kami percaya menyewa mobil seharusnya semudah dan seaman membeli tiket: tanpa drama, tanpa biaya kejutan.</p>
                 <ul class="about-points">
                     @foreach (['Armada beragam untuk setiap kebutuhan', 'Tim lokal yang memahami medan Kalimantan', 'Konfirmasi cepat & komunikasi yang jelas'] as $point)
                         <li><span class="tick"><x-icon name="check" /></span> <span>{{ $point }}</span></li>
@@ -176,7 +174,7 @@
                 </ul>
             </div>
             <div class="about-visual reveal">
-                <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=70"
+                <img src="{{ asset('img/about-road.jpg') }}"
                      alt="Mobil premium Lajur" data-fallback loading="lazy">
             </div>
         </div>
@@ -188,7 +186,6 @@
     <div class="container">
         <div class="contact">
             <div class="contact-info reveal">
-                <span class="eyebrow">Kontak</span>
                 <h2 class="section-title">Ada pertanyaan? Mari bicara.</h2>
                 <p class="section-sub">Hubungi kami untuk pemesanan khusus, sewa jangka panjang, atau pertanyaan lainnya.</p>
                 <div class="contact-item">
@@ -259,6 +256,19 @@
     </div>
 </section>
 
+{{-- ============ UNTUK PEMILIK USAHA RENTAL ============ --}}
+<section class="section" id="untuk-bisnis" style="padding-top:0">
+    <div class="container">
+        <div class="cta-band reveal">
+            <div>
+                <h2>Punya usaha rental sendiri?</h2>
+                <p>Kelola booking, armada, dan driver Anda dari satu dashboard Lajur.</p>
+            </div>
+            <a href="{{ route('signup.pricing') }}" class="btn btn-primary">Coba Gratis 14 Hari</a>
+        </div>
+    </div>
+</section>
+
 {{-- ============ BOOKING MODAL ============ --}}
 @php $reopen = $errors->booking->any(); @endphp
 <div class="modal-backdrop @if($reopen) open @endif" id="booking-modal" data-close
@@ -275,7 +285,7 @@
                 <img data-modal-img src="{{ asset('img/placeholder-car.svg') }}" alt="">
                 <div>
                     <div class="name" data-modal-name>Mobil</div>
-                    <div class="price" data-modal-price>—</div>
+                    <div class="price" data-modal-price>-</div>
                 </div>
             </div>
 

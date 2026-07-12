@@ -378,7 +378,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
 .contact-item { display: flex; gap: 14px; align-items: flex-start; }
 .contact-item .ico { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; background: var(--petrol); color: var(--amber); display: grid; place-items: center; }
 .contact-item .ico svg { width: 20px; height: 20px; }
-.contact-item .k { font-size: .82rem; color: var(--graphite); }
+.contact-item .k { display: block; font-size: .82rem; color: var(--graphite); }
 .contact-item .v { font-weight: 600; }
 
 /* ---------- Forms ---------- */
@@ -474,6 +474,16 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
 .estimate .days { font-family: var(--font-mono); font-size: .82rem; color: var(--amber); }
 .estimate .amount { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--amber); }
 
+/* ---------- CTA band (pemilik usaha rental → /daftar) ---------- */
+.cta-band {
+    display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap;
+    background: var(--petrol); color: var(--ivory); border-radius: var(--radius-lg);
+    padding: 44px 48px; box-shadow: var(--shadow-lg);
+}
+.cta-band h2 { font-size: clamp(1.4rem, 2.6vw, 2rem); color: var(--white); }
+.cta-band p { margin-top: 8px; color: rgba(247,248,251,.75); max-width: 520px; }
+.cta-band .btn { flex-shrink: 0; }
+
 /* ---------- Footer ---------- */
 .site-footer { background: var(--petrol); color: var(--ivory); padding-block: 56px 28px; }
 .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 40px; }
@@ -507,6 +517,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
 }
 @media (max-width: 760px) {
     .section { padding-block: 64px; }
+    .cta-band { padding: 32px 26px; }
     .nav-links, .nav-cta .btn-ghost { display: none; }
     .nav-toggle { display: inline-flex; }
     .nav-links.open {

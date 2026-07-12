@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Lajur — Rental Mobil Premium Kalimantan Timur')</title>
-    <meta name="description" content="Lajur — sewa mobil premium di Kalimantan Timur. Armada terawat, harga transparan, proses cepat dan aman.">
+    <title>@yield('title', 'Lajur - Rental Mobil Premium Kalimantan Timur')</title>
+    <meta name="description" content="Lajur: sewa mobil premium di Kalimantan Timur. Armada terawat, harga transparan, proses cepat dan aman.">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', ($mode === 'trial' ? 'Coba Gratis 14 Hari' : 'Daftar '.$plan->name).' — Lajur')
+@section('title', ($mode === 'trial' ? 'Coba Gratis 14 Hari' : 'Daftar '.$plan->name).' - Lajur')
 
 @section('content')
 <section class="section" style="padding-top:56px">
@@ -25,7 +25,7 @@
             </h1>
             <p class="section-sub">
                 @if ($mode === 'trial')
-                    Cukup isi nama bisnis rental Anda — dashboard langsung aktif, tanpa kartu kredit.
+                    Cukup isi nama bisnis rental Anda, dashboard langsung aktif. Tanpa kartu kredit.
                 @else
                     Lengkapi data bisnis Anda, lalu lanjutkan ke pembayaran yang aman via Midtrans.
                 @endif
@@ -53,7 +53,7 @@
                         <label for="slug">Alamat Dashboard <span class="req">*</span></label>
                         <input class="input @error('slug') has-error @enderror" type="text" id="slug" name="slug"
                             value="{{ old('slug') }}" placeholder="mis. kaltim-rental" required>
-                        <span style="display:block;margin-top:6px;font-size:.84rem;color:var(--graphite)">Dipakai sebagai identitas unik akun Anda — huruf kecil, angka, dan strip.</span>
+                        <span style="display:block;margin-top:6px;font-size:.84rem;color:var(--graphite)">Dipakai sebagai identitas unik akun Anda: huruf kecil, angka, dan strip.</span>
                         @error('slug')<span class="field-error">{{ $message }}</span>@enderror
                     </div>
                     <div class="form-row">
