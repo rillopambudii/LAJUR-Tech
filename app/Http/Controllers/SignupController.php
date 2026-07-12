@@ -10,6 +10,7 @@ use App\Payments\SubscriptionCheckout;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class SignupController extends Controller
@@ -65,27 +66,43 @@ class SignupController extends Controller
         $plan = Plan::where('key', $planKey)->firstOrFail();
         $data = $request->validated();
 
-        $tenant = Tenant::create([
-            'name' => $data['business_name'],
-            'slug' => $data['slug'],
-            'plan' => $plan->key,
-            'subscription_status' => 'pending_payment',
-        ]);
+        // Slug and email are unique, so tenant/user rows must not survive a failed
+        // checkout — otherwise the visitor can never retry with the same details.
+        // Manual transaction control because createCheckout() signals failure by
+        // returning null (never throws), which DB::transaction() would still commit.
+        DB::beginTransaction();
 
-        User::create([
-            'tenant_id' => $tenant->id,
-            'name' => $data['owner_name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => User::ROLE_OWNER,
-        ]);
+        try {
+            $tenant = Tenant::create([
+                'name' => $data['business_name'],
+                'slug' => $data['slug'],
+                'plan' => $plan->key,
+                'subscription_status' => 'pending_payment',
+            ]);
 
-        $url = $checkout->createCheckout($tenant, $plan);
+            User::create([
+                'tenant_id' => $tenant->id,
+                'name' => $data['owner_name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'role' => User::ROLE_OWNER,
+            ]);
+
+            $url = $checkout->createCheckout($tenant, $plan);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
 
         if (! $url) {
+            DB::rollBack();
+
             return redirect()->route('signup.paid.form', $planKey)
                 ->withErrors(['email' => 'Pembayaran sedang tidak tersedia, silakan coba lagi nanti.']);
         }
+
+        DB::commit();
 
         return redirect($url);
     }

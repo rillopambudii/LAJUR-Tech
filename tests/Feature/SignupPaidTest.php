@@ -50,6 +50,21 @@ class SignupPaidTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => 'sari@bayar-co.id']);
     }
 
+    public function test_failed_checkout_does_not_leave_orphaned_tenant_or_user(): void
+    {
+        Http::fake([
+            'app.sandbox.midtrans.com/*' => Http::response([], 500),
+        ]);
+
+        $this->post('/daftar/pro', [
+            'business_name' => 'Fail Co', 'slug' => 'fail-co',
+            'owner_name' => 'Rudi', 'email' => 'rudi@fail-co.id', 'password' => 'password123',
+        ]);
+
+        $this->assertDatabaseMissing('tenants', ['slug' => 'fail-co']);
+        $this->assertDatabaseMissing('users', ['email' => 'rudi@fail-co.id']);
+    }
+
     public function test_finish_page_shows_pending_when_not_yet_paid(): void
     {
         $tenant = Tenant::create([
