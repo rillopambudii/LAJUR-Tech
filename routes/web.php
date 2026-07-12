@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\FuelController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TrackingController;
 use App\Http\Controllers\SuperAdmin\PlanController as SuperAdminPlanController;
+use App\Http\Controllers\SuperAdmin\TenantController as SuperAdminTenantController;
 use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\TestimonialController;
@@ -152,6 +153,9 @@ Route::prefix('superadmin')
         Route::get('plans', [SuperAdminPlanController::class, 'index'])->name('plans.index');
         Route::patch('plans/{plan}', [SuperAdminPlanController::class, 'update'])->name('plans.update');
         Route::patch('plans/{plan}/features', [SuperAdminPlanController::class, 'updateFeatures'])->name('plans.features');
+        Route::get('tenants', [SuperAdminTenantController::class, 'index'])->name('tenants.index');
+        Route::post('tenants', [SuperAdminTenantController::class, 'store'])->name('tenants.store');
+        Route::patch('tenants/{tenant}/plan', [SuperAdminTenantController::class, 'updatePlan'])->name('tenants.plan');
     });
 
 /*
