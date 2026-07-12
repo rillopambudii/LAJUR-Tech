@@ -37,8 +37,8 @@ class LoginController extends Controller
 
         $user = Auth::user();
 
-        // Only staff (owner/admin/driver) may log in. Customers have no portal yet.
-        if (! ($user->isManager() || $user->hasRole(User::ROLE_DRIVER) || $user->is_admin)) {
+        // Only staff (owner/admin/driver/super_admin) may log in. Customers have no portal yet.
+        if (! ($user->isManager() || $user->hasRole(User::ROLE_DRIVER, User::ROLE_SUPER_ADMIN) || $user->is_admin)) {
             // Log out, but keep the session so the validation error redirects
             // back to the login form (invalidating it would drop the previous URL).
             Auth::guard('web')->logout();
@@ -55,9 +55,15 @@ class LoginController extends Controller
     /** The landing route for a user based on their role. */
     private function homeFor(User $user): string
     {
-        return $user->hasRole(User::ROLE_DRIVER)
-            ? route('driver.dashboard')
-            : route('admin.dashboard');
+        if ($user->hasRole(User::ROLE_DRIVER)) {
+            return route('driver.dashboard');
+        }
+
+        if ($user->hasRole(User::ROLE_SUPER_ADMIN)) {
+            return route('superadmin.plans.index');
+        }
+
+        return route('admin.dashboard');
     }
 
     public function logout(Request $request): RedirectResponse
