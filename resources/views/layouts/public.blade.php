@@ -48,6 +48,7 @@
                 <a href="{{ route('login') }}" class="nav-login-mobile">Masuk</a>
             </nav>
             <div class="nav-cta">
+                <a href="{{ route('signup.pricing') }}" class="btn btn-ghost btn-sm">Daftar</a>
                 <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">
                     <x-icon name="key" /> Masuk
                 </a>
