@@ -28,6 +28,17 @@ class CheckTrials extends Command
             $this->info('Tidak ada tenant trial yang kedaluwarsa.');
         }
 
+        $lapsed = Tenant::where('subscription_status', 'active')
+            ->whereNotNull('subscription_ends_at')
+            ->where('subscription_ends_at', '<', now())
+            ->where('plan', '!=', 'basic')
+            ->get();
+
+        foreach ($lapsed as $tenant) {
+            $guard->settleIfLapsed($tenant);
+            $this->info("Tenant {$tenant->slug}: langganan berakhir, diturunkan ke plan Basic.");
+        }
+
         return self::SUCCESS;
     }
 }

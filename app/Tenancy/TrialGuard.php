@@ -25,4 +25,20 @@ class TrialGuard
 
         return $tenant;
     }
+
+    /** Downgrades a tenant whose PAID subscription period has ended, to the Basic plan. */
+    public function settleIfLapsed(Tenant $tenant): Tenant
+    {
+        if ($tenant->subscription_status !== 'active') {
+            return $tenant;
+        }
+
+        if (! $tenant->subscription_ends_at || $tenant->subscription_ends_at->isFuture()) {
+            return $tenant;
+        }
+
+        $tenant->update(['plan' => 'basic']);
+
+        return $tenant;
+    }
 }

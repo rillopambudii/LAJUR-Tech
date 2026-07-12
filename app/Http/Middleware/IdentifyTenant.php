@@ -31,6 +31,7 @@ class IdentifyTenant
 
         if ($tenant) {
             $tenant = app(TrialGuard::class)->settleIfExpired($tenant);
+            $tenant = app(TrialGuard::class)->settleIfLapsed($tenant);
         }
 
         $manager->set($tenant);
