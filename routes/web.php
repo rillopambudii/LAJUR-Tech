@@ -50,6 +50,8 @@ Route::post('/lacak', [PublicTrackingController::class, 'find'])
 Route::get('/lacak/{bookingCode}', [PublicTrackingController::class, 'show'])->name('tracking.show');
 Route::get('/pantau/{bookingCode}', [PublicTrackingController::class, 'watch'])->name('tracking.watch');
 
+Route::get('/daftar/selesai', fn () => 'placeholder')->name('signup.finish');
+
 /*
 |--------------------------------------------------------------------------
 | Payment (gateway callback + customer return page)
