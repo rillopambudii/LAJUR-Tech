@@ -21,6 +21,12 @@ class EnsureUserIsAdmin
             abort(403, 'Akses ditolak. Halaman ini hanya untuk administrator.');
         }
 
+        // Block tenants whose subscription is not usable (e.g. paid signup abandoned
+        // before completing Midtrans payment). Super admins have no tenant.
+        if ($user->tenant && in_array($user->tenant->subscription_status, ['pending_payment', 'suspended', 'cancelled'], true)) {
+            abort(403, 'Langganan belum aktif. Selesaikan pembayaran terlebih dahulu.');
+        }
+
         return $next($request);
     }
 }
