@@ -56,4 +56,18 @@ class FeatureGatingSidebarTest extends TestCase
         $response->assertSee('Pelacakan');
         $response->assertSee('Asisten AI');
     }
+
+    public function test_tenant_with_expired_trial_loses_gated_route_access_on_next_request(): void
+    {
+        $tenant = Tenant::create([
+            'name' => 'Expiring Co', 'slug' => 'expiring-co', 'plan' => 'business',
+            'subscription_status' => 'trial', 'trial_ends_at' => now()->subDay(),
+        ]);
+
+        $this->actingAs($this->ownerFor($tenant))
+            ->get('/admin/tracking')
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->assertSame('basic', $tenant->fresh()->plan);
+    }
 }
