@@ -61,8 +61,11 @@ Route::get('/daftar/trial', [SignupController::class, 'trialForm'])->name('signu
 Route::post('/daftar/trial', [SignupController::class, 'storeTrial'])
     ->middleware('throttle:10,1')
     ->name('signup.trial.store');
-Route::get('/daftar/selesai', fn () => 'placeholder')->name('signup.finish');
-Route::get('/daftar/{plan}', fn () => 'placeholder')->name('signup.paid.form');
+Route::get('/daftar/selesai', [SignupController::class, 'finish'])->name('signup.finish');
+Route::get('/daftar/{plan}', [SignupController::class, 'paidForm'])->name('signup.paid.form');
+Route::post('/daftar/{plan}', [SignupController::class, 'storePaid'])
+    ->middleware('throttle:10,1')
+    ->name('signup.paid.store');
 
 /*
 |--------------------------------------------------------------------------

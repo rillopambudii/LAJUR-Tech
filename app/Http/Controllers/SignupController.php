@@ -52,4 +52,51 @@ class SignupController extends Controller
 
         return redirect()->route('admin.dashboard');
     }
+
+    public function paidForm(string $planKey): View
+    {
+        $plan = Plan::where('key', $planKey)->firstOrFail();
+
+        return view('signup.form', ['mode' => 'paid', 'plan' => $plan]);
+    }
+
+    public function storePaid(SignupRequest $request, string $planKey, SubscriptionCheckout $checkout): RedirectResponse
+    {
+        $plan = Plan::where('key', $planKey)->firstOrFail();
+        $data = $request->validated();
+
+        $tenant = Tenant::create([
+            'name' => $data['business_name'],
+            'slug' => $data['slug'],
+            'plan' => $plan->key,
+            'subscription_status' => 'pending_payment',
+        ]);
+
+        User::create([
+            'tenant_id' => $tenant->id,
+            'name' => $data['owner_name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role' => User::ROLE_OWNER,
+        ]);
+
+        $url = $checkout->createCheckout($tenant, $plan);
+
+        if (! $url) {
+            return redirect()->route('signup.paid.form', $planKey)
+                ->withErrors(['email' => 'Pembayaran sedang tidak tersedia, silakan coba lagi nanti.']);
+        }
+
+        return redirect($url);
+    }
+
+    public function finish(): View
+    {
+        $orderId = (string) request()->query('order_id', '');
+        $tenant = $orderId !== ''
+            ? Tenant::where('payment_ref', $orderId)->first()
+            : null;
+
+        return view('signup.finish', ['tenant' => $tenant]);
+    }
 }
