@@ -8,6 +8,7 @@ use App\Models\FuelLog;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Tenancy\TenantManager;
+use Database\Seeders\PlanSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use ZipArchive;
@@ -22,6 +23,7 @@ class ExportTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed(PlanSeeder::class);
         $this->tenant = Tenant::where('slug', 'lajur')->firstOrFail();
         app(TenantManager::class)->set($this->tenant);
 

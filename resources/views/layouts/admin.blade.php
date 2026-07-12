@@ -38,18 +38,25 @@
             <a href="{{ route('admin.calendar') }}" class="{{ request()->routeIs('admin.calendar') ? 'active' : '' }}">
                 <x-icon name="calendar" /> Kalender
             </a>
+            @php($currentTenant = app(\App\Tenancy\TenantManager::class)->current())
+            @if ($currentTenant?->hasFeature('gps_tracking'))
             <a href="{{ route('admin.tracking') }}" class="{{ request()->routeIs('admin.tracking') ? 'active' : '' }}">
                 <x-icon name="pin" /> Pelacakan
             </a>
+            @endif
+            @if ($currentTenant?->hasFeature('fuel_tracking'))
             <a href="{{ route('admin.fuel.index') }}" class="{{ request()->routeIs('admin.fuel.*') ? 'active' : '' }}">
                 <x-icon name="fuel" /> BBM &amp; Solar
             </a>
+            @endif
             <a href="{{ route('admin.reports') }}" class="{{ request()->routeIs('admin.reports') ? 'active' : '' }}">
                 <x-icon name="gauge" /> Laporan
             </a>
+            @if ($currentTenant?->hasFeature('ai_assistant'))
             <a href="{{ route('admin.assistant') }}" class="{{ request()->routeIs('admin.assistant') ? 'active' : '' }}">
                 <x-icon name="sparkle" /> Asisten AI
             </a>
+            @endif
             <a href="{{ route('admin.testimonials.index') }}" class="{{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}">
                 <x-icon name="star" /> Testimoni
             </a>

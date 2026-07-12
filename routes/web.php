@@ -89,30 +89,37 @@ Route::prefix('admin')
         // Fleet availability calendar
         Route::get('calendar', [CalendarController::class, 'index'])->name('calendar');
 
-        // Unit tracking (GPS + map)
-        Route::get('tracking', [TrackingController::class, 'index'])->name('tracking');
-        Route::get('tracking/live', [TrackingController::class, 'live'])->middleware('throttle:60,1')->name('tracking.live');
-        Route::get('tracking/history', [TrackingController::class, 'history'])->middleware('throttle:60,1')->name('tracking.history');
+        // Unit tracking (GPS + map) — Pro & Business plans only
+        Route::middleware('feature:gps_tracking')->group(function () {
+            Route::get('tracking', [TrackingController::class, 'index'])->name('tracking');
+            Route::get('tracking/live', [TrackingController::class, 'live'])->middleware('throttle:60,1')->name('tracking.live');
+            Route::get('tracking/history', [TrackingController::class, 'history'])->middleware('throttle:60,1')->name('tracking.history');
+        });
 
-        // Fuel (BBM/solar) logs & leak indicators
-        Route::get('fuel', [FuelController::class, 'index'])->name('fuel.index');
-        Route::get('fuel/create', [FuelController::class, 'create'])->name('fuel.create');
-        Route::post('fuel', [FuelController::class, 'store'])->name('fuel.store');
-        Route::delete('fuel/{fuelLog}', [FuelController::class, 'destroy'])->name('fuel.destroy');
+        // Fuel (BBM/solar) logs & leak indicators — Pro & Business plans only
+        Route::middleware('feature:fuel_tracking')->group(function () {
+            Route::get('fuel', [FuelController::class, 'index'])->name('fuel.index');
+            Route::get('fuel/create', [FuelController::class, 'create'])->name('fuel.create');
+            Route::post('fuel', [FuelController::class, 'store'])->name('fuel.store');
+            Route::delete('fuel/{fuelLog}', [FuelController::class, 'destroy'])->name('fuel.destroy');
+        });
 
-        // Operational data export (PDF/Excel)
+        // Operational data export (PDF/Excel) — Pro & Business plans only
         Route::get('export/{dataset}/{format}', [ExportController::class, 'download'])
+            ->middleware('feature:export')
             ->where('format', 'xlsx|pdf')
             ->name('export.download');
 
-        // Analytics & reports
+        // Analytics & reports (every plan)
         Route::get('reports', [ReportController::class, 'index'])->name('reports');
         Route::get('reports/export', [ReportController::class, 'export'])->name('reports.export');
 
-        // AI business assistant
-        Route::get('assistant', [AssistantController::class, 'index'])->name('assistant');
-        Route::post('assistant', [AssistantController::class, 'ask'])->middleware('throttle:20,1')->name('assistant.ask');
-        Route::get('assistant/insight', [AssistantController::class, 'insight'])->middleware('throttle:30,1')->name('assistant.insight');
+        // AI business assistant — Business plan only
+        Route::middleware('feature:ai_assistant')->group(function () {
+            Route::get('assistant', [AssistantController::class, 'index'])->name('assistant');
+            Route::post('assistant', [AssistantController::class, 'ask'])->middleware('throttle:20,1')->name('assistant.ask');
+            Route::get('assistant/insight', [AssistantController::class, 'insight'])->middleware('throttle:30,1')->name('assistant.insight');
+        });
 
         // Cars CRUD
         Route::resource('cars', AdminCarController::class)->except('show');
