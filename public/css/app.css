@@ -405,6 +405,45 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
 .alert-error { background: rgba(200,69,59,.1); color: #9a322a; border: 1px solid rgba(200,69,59,.3); }
 .alert ul { margin: 4px 0 0 18px; }
 
+/* ---------- Pricing (signup) ---------- */
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; align-items: stretch; }
+.plan-card {
+    position: relative; display: flex; flex-direction: column; gap: 16px;
+    background: var(--white); border-radius: var(--radius-lg); padding: 34px 26px 28px;
+    border: 1px solid var(--ivory-200); box-shadow: var(--shadow-sm);
+    transition: translate .22s ease, box-shadow .28s ease, border-color .22s ease;
+}
+.plan-card:hover { translate: 0 -6px; border-color: rgba(231,178,76,.5); box-shadow: 0 18px 38px -14px var(--amber-glow), var(--shadow); }
+.plan-card.is-trial { border: 1.5px dashed var(--amber-600); }
+.plan-card.is-featured { background: var(--petrol); border-color: var(--amber); }
+.plan-card.is-featured .plan-name,
+.plan-card.is-featured .plan-price .amount { color: var(--white); }
+.plan-card.is-featured .plan-price .per,
+.plan-card.is-featured .plan-desc { color: rgba(247,248,251,.68); }
+.plan-card.is-featured .about-points li { color: rgba(247,248,251,.92); }
+.plan-card.is-featured .about-points .tick { background: var(--amber); color: #2a1c05; }
+.plan-badge {
+    position: absolute; top: -13px; left: 26px; padding: 6px 14px; border-radius: var(--radius-pill);
+    font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    background: var(--amber); color: #2a1c05; box-shadow: var(--shadow-sm);
+}
+.plan-name { font-size: 1.28rem; }
+.plan-desc { color: var(--graphite); font-size: .92rem; min-height: 40px; }
+.plan-price { display: flex; align-items: baseline; gap: 6px; font-family: var(--font-mono); }
+.plan-price .amount { font-size: 2.05rem; font-weight: 700; color: var(--petrol); }
+.plan-price .per { font-size: .82rem; color: var(--graphite); }
+.plan-card .about-points { flex: 1; margin: 2px 0; align-content: start; }
+.plan-card .about-points li { font-size: .92rem; }
+.plan-foot { margin-top: auto; }
+.trust-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 46px; color: var(--graphite); font-size: .9rem; }
+.trust-strip .item { display: flex; align-items: center; gap: 8px; }
+.trust-strip svg { width: 18px; height: 18px; color: var(--amber-600); flex-shrink: 0; }
+
+/* ---------- Signup form ---------- */
+.signup-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 44px; align-items: start; }
+.signup-side { display: grid; gap: 22px; }
+.signup-side .plan-name { margin-bottom: 2px; }
+
 /* ---------- Modal (booking) ---------- */
 .modal-backdrop {
     position: fixed; inset: 0; z-index: 300; background: rgba(15,27,51,.55);
@@ -463,7 +502,7 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
-    .about, .contact { grid-template-columns: 1fr; }
+    .about, .contact, .signup-layout { grid-template-columns: 1fr; }
     .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 760px) {
