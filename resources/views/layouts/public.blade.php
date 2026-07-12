@@ -23,7 +23,6 @@
                 Lajur
             </a>
             <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
-                <a href="{{ route('home') }}" class="nav-home"><x-icon name="home" /> Beranda</a>
                 <div class="nav-item has-dropdown">
                     <button type="button" class="nav-trigger" aria-haspopup="true" aria-expanded="false">
                         Sewa Mobil <x-icon name="chevron-down" class="nav-chevron" />

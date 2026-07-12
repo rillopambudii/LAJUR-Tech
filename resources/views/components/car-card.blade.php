@@ -1,12 +1,12 @@
 @props(['car'])
-<article class="car-card {{ $car->is_available ? '' : 'unavailable' }}" data-type="{{ $car->type }}">
+<article class="car-card {{ $car->is_available ? '' : 'unavailable' }} {{ $car->is_featured && $car->is_available ? 'is-featured' : '' }}" data-type="{{ $car->type }}">
     <div class="car-media">
         <img src="{{ $car->image_url ?? asset('img/placeholder-car.svg') }}"
              alt="{{ $car->brand }} {{ $car->name }}" loading="lazy" data-fallback>
         @if (! $car->is_available)
             <span class="car-badge muted">Tidak Tersedia</span>
         @elseif ($car->is_featured)
-            <span class="car-badge">Unggulan</span>
+            <span class="car-badge"><x-icon name="star" /> Unggulan</span>
         @endif
     </div>
     <div class="car-body">

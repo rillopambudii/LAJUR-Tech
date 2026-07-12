@@ -159,8 +159,6 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
     color: var(--ink); transition: background .15s ease, color .15s ease;
 }
 .nav-links a:hover { background: rgba(15,27,51,.06); }
-.nav-home { display: inline-flex; align-items: center; gap: 6px; }
-.nav-home svg { width: 16px; height: 16px; }
 .nav-cta { display: flex; align-items: center; gap: 10px; }
 .nav-login-mobile { display: none; } /* hanya tampil di drawer mobile */
 .nav-toggle { display: none; background: transparent; border: 1.5px solid rgba(15,27,51,.18); border-radius: 10px; width: 44px; height: 44px; align-items: center; justify-content: center; }
@@ -285,8 +283,27 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
     position: absolute; top: 12px; left: 12px; padding: 6px 12px; border-radius: var(--radius-pill);
     font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
     background: var(--amber); color: #2a1c05;
+    display: inline-flex; align-items: center; gap: 5px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.28);
 }
+.car-badge svg { width: 12px; height: 12px; }
 .car-badge.muted { background: rgba(22,32,31,.8); color: var(--ivory); }
+
+/* Kartu unggulan: menonjol sejak diam (bukan hanya saat hover) — ring emas +
+   shadow bernuansa amber, sebahasa dengan efek hover kartu lain. */
+.car-card.is-featured {
+    position: relative;
+    border-color: rgba(231, 178, 76, .6);
+    box-shadow: 0 14px 34px -14px var(--amber-glow), var(--shadow);
+}
+.car-card.is-featured::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    border-radius: inherit; border: 1px solid rgba(231, 178, 76, .35);
+}
+.car-card.is-featured:hover {
+    border-color: var(--amber);
+    box-shadow: 0 22px 46px -14px var(--amber-glow), var(--shadow-lg);
+}
 .car-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
 .car-brand { font-family: var(--font-mono); font-size: .76rem; letter-spacing: .12em; text-transform: uppercase; color: var(--graphite); }
 .car-name { font-size: 1.22rem; color: var(--ink); }
