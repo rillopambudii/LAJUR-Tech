@@ -26,15 +26,20 @@ class PlanSeeder extends Seeder
         }
 
         foreach ($this->planDefaults as $key => $data) {
-            $plan = Plan::updateOrCreate(['key' => $key], [
+            // firstOrCreate: only apply defaults on first boot. Price/trial_days
+            // and feature assignments become owner-editable via /superadmin/plans
+            // afterwards, so re-seeding must never clobber those manual edits.
+            $plan = Plan::firstOrCreate(['key' => $key], [
                 'name' => $data['name'],
                 'price' => $data['price'],
                 'trial_days' => $data['trial_days'],
                 'sort_order' => $data['sort_order'],
             ]);
 
-            $featureIds = Feature::whereIn('key', $data['features'])->pluck('id');
-            $plan->features()->sync($featureIds);
+            if ($plan->wasRecentlyCreated) {
+                $featureIds = Feature::whereIn('key', $data['features'])->pluck('id');
+                $plan->features()->sync($featureIds);
+            }
         }
     }
 }
