@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+            'feature' => \App\Http\Middleware\EnsureFeatureEnabled::class,
         ]);
 
         // Payment gateway posts server-to-server without a CSRF token.
