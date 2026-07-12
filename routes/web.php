@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FuelController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TrackingController;
+use App\Http\Controllers\SuperAdmin\PlanController as SuperAdminPlanController;
 use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\TestimonialController;
@@ -137,6 +138,20 @@ Route::prefix('admin')
         Route::get('messages/{message}', [MessageController::class, 'show'])->name('messages.show');
         Route::patch('messages/{message}/toggle', [MessageController::class, 'toggle'])->name('messages.toggle');
         Route::delete('messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Super admin (platform owner — auth + role:super_admin)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('superadmin')
+    ->name('superadmin.')
+    ->middleware(['auth', 'role:super_admin'])
+    ->group(function () {
+        Route::get('plans', [SuperAdminPlanController::class, 'index'])->name('plans.index');
+        Route::patch('plans/{plan}', [SuperAdminPlanController::class, 'update'])->name('plans.update');
+        Route::patch('plans/{plan}/features', [SuperAdminPlanController::class, 'updateFeatures'])->name('plans.features');
     });
 
 /*
