@@ -26,6 +26,23 @@ class Tenant extends Model
 
     public const STATUSES = ['trial', 'active', 'suspended', 'cancelled'];
 
+    protected ?Plan $currentPlanCache = null;
+
+    protected bool $currentPlanResolved = false;
+
+    protected static function booted(): void
+    {
+        // Invalidate the per-instance plan cache whenever the `plan` attribute
+        // changes, so a stale cached Plan is never served after e.g.
+        // TrialGuard::settleIfExpired() downgrades the tenant mid-request.
+        static::saved(function (Tenant $tenant) {
+            if ($tenant->wasChanged('plan')) {
+                $tenant->currentPlanResolved = false;
+                $tenant->currentPlanCache = null;
+            }
+        });
+    }
+
     /**
      * @return HasMany<User, $this>
      */
@@ -57,7 +74,12 @@ class Tenant extends Model
 
     public function currentPlan(): ?Plan
     {
-        return Plan::where('key', $this->plan)->first();
+        if (! $this->currentPlanResolved) {
+            $this->currentPlanCache = Plan::with('features')->where('key', $this->plan)->first();
+            $this->currentPlanResolved = true;
+        }
+
+        return $this->currentPlanCache;
     }
 
     public function hasFeature(string $featureKey): bool

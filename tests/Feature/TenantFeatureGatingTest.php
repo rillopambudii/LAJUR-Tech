@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Feature;
+use App\Models\Plan;
 use App\Models\Tenant;
 use Database\Seeders\PlanSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,5 +51,33 @@ class TenantFeatureGatingTest extends TestCase
         $this->assertTrue($tenant->hasFeature('fuel_tracking'));
         $this->assertTrue($tenant->hasFeature('export'));
         $this->assertTrue($tenant->hasFeature('ai_assistant'));
+    }
+
+    public function test_current_plan_cache_is_invalidated_when_plan_changes_on_same_instance(): void
+    {
+        $tenant = Tenant::create([
+            'name' => 'Cache Co', 'slug' => 'cache-co', 'plan' => 'business', 'subscription_status' => 'active',
+        ]);
+
+        $this->assertTrue($tenant->hasFeature('ai_assistant'));
+
+        $tenant->update(['plan' => 'basic']);
+
+        $this->assertFalse($tenant->hasFeature('ai_assistant'));
+    }
+
+    public function test_reseeding_plans_does_not_clobber_manual_superadmin_edits(): void
+    {
+        $plan = Plan::where('key', 'pro')->firstOrFail();
+        $plan->update(['price' => 999999]);
+
+        $exportFeatureId = Feature::where('key', 'export')->value('id');
+        $plan->features()->detach($exportFeatureId);
+
+        $this->seed(PlanSeeder::class);
+
+        $plan->refresh();
+        $this->assertSame(999999, $plan->price);
+        $this->assertFalse($plan->features()->where('key', 'export')->exists());
     }
 }
