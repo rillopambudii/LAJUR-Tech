@@ -20,6 +20,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SignupController;
 use App\Http\Controllers\TrackingController as PublicTrackingController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,7 +51,18 @@ Route::post('/lacak', [PublicTrackingController::class, 'find'])
 Route::get('/lacak/{bookingCode}', [PublicTrackingController::class, 'show'])->name('tracking.show');
 Route::get('/pantau/{bookingCode}', [PublicTrackingController::class, 'watch'])->name('tracking.watch');
 
+/*
+|--------------------------------------------------------------------------
+| Public signup (pricing + trial + paid plan checkout)
+|--------------------------------------------------------------------------
+*/
+Route::get('/daftar', [SignupController::class, 'pricing'])->name('signup.pricing');
+Route::get('/daftar/trial', [SignupController::class, 'trialForm'])->name('signup.trial.form');
+Route::post('/daftar/trial', [SignupController::class, 'storeTrial'])
+    ->middleware('throttle:10,1')
+    ->name('signup.trial.store');
 Route::get('/daftar/selesai', fn () => 'placeholder')->name('signup.finish');
+Route::get('/daftar/{plan}', fn () => 'placeholder')->name('signup.paid.form');
 
 /*
 |--------------------------------------------------------------------------
