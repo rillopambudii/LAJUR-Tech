@@ -22,7 +22,7 @@ class Tenant extends Model
         ];
     }
 
-    public const PLANS = ['free', 'pro', 'enterprise'];
+    public const PLANS = ['basic', 'pro', 'business'];
 
     public const STATUSES = ['trial', 'active', 'suspended', 'cancelled'];
 
@@ -53,5 +53,15 @@ class Tenant extends Model
     public function isActive(): bool
     {
         return $this->subscription_status === 'active';
+    }
+
+    public function currentPlan(): ?Plan
+    {
+        return Plan::where('key', $this->plan)->first();
+    }
+
+    public function hasFeature(string $featureKey): bool
+    {
+        return $this->currentPlan()?->features->contains('key', $featureKey) ?? false;
     }
 }

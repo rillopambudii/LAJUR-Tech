@@ -20,8 +20,9 @@ class User extends Authenticatable
     public const ROLE_ADMIN = 'admin';
     public const ROLE_DRIVER = 'driver';
     public const ROLE_CUSTOMER = 'customer';
+    public const ROLE_SUPER_ADMIN = 'super_admin';
 
-    public const ROLES = [self::ROLE_OWNER, self::ROLE_ADMIN, self::ROLE_DRIVER, self::ROLE_CUSTOMER];
+    public const ROLES = [self::ROLE_OWNER, self::ROLE_ADMIN, self::ROLE_DRIVER, self::ROLE_CUSTOMER, self::ROLE_SUPER_ADMIN];
 
     /**
      * The attributes that are mass assignable.
@@ -84,6 +85,11 @@ class User extends Authenticatable
     public function isOwner(): bool
     {
         return $this->role === self::ROLE_OWNER;
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === self::ROLE_SUPER_ADMIN;
     }
 
     /** Scope: users of a given role, ordered by name. */
