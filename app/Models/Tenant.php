@@ -12,19 +12,22 @@ class Tenant extends Model
         'slug',
         'plan',
         'subscription_status',
+        'payment_ref',
         'trial_ends_at',
+        'subscription_ends_at',
     ];
 
     protected function casts(): array
     {
         return [
             'trial_ends_at' => 'datetime',
+            'subscription_ends_at' => 'datetime',
         ];
     }
 
     public const PLANS = ['basic', 'pro', 'business'];
 
-    public const STATUSES = ['trial', 'active', 'suspended', 'cancelled'];
+    public const STATUSES = ['trial', 'active', 'suspended', 'cancelled', 'pending_payment'];
 
     protected ?Plan $currentPlanCache = null;
 
