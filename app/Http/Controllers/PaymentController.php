@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Tenant;
 use App\Payments\PaymentGateway;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -27,7 +28,9 @@ class PaymentController extends Controller
         $status = $this->gateway->verifyCallback($payload);
         $orderId = $payload['order_id'] ?? null;
 
-        if ($status && $orderId) {
+        if ($status && $orderId && str_starts_with((string) $orderId, 'LAJUR-SUB-')) {
+            $this->activateSubscription((string) $orderId, $status);
+        } elseif ($status && $orderId) {
             $booking = Booking::withoutGlobalScopes()->where('payment_ref', $orderId)->first();
 
             if ($booking) {
@@ -48,6 +51,23 @@ class PaymentController extends Controller
         // Always 200 so the gateway stops retrying; we only act on a valid,
         // signature-verified, mapped status.
         return response()->json(['ok' => true]);
+    }
+
+    /** Activates a tenant's paid subscription. No-op for any status other than 'paid' or if the order_id doesn't match a pending tenant. */
+    private function activateSubscription(string $orderId, string $status): void
+    {
+        if ($status !== 'paid') {
+            return;
+        }
+
+        $tenant = Tenant::where('payment_ref', $orderId)->first();
+
+        if ($tenant) {
+            $tenant->update([
+                'subscription_status' => 'active',
+                'subscription_ends_at' => now()->addDays(30),
+            ]);
+        }
     }
 
     /**
