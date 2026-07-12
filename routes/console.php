@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Nightly: recompute per-car daily mileage from GPS positions.
 Schedule::command('mileage:sync')->dailyAt('01:00');
+
+// Daily: downgrade tenants whose 14-day trial has ended.
+Schedule::command('tenants:check-trial')->dailyAt('02:00');
