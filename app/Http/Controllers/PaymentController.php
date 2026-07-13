@@ -8,6 +8,7 @@ use App\Payments\PaymentGateway;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -63,6 +64,12 @@ class PaymentController extends Controller
         $tenant = Tenant::where('payment_ref', $orderId)->first();
 
         if (! $tenant) {
+            // Bisa terjadi kalau tenant ganti pilihan plan (payment_ref lama
+            // tertimpa) lalu pembayaran pertama tetap diselesaikan di Midtrans —
+            // uang sudah masuk tapi tak ada tenant yang cocok untuk diaktifkan.
+            // Dicatat supaya bisa direkonsiliasi manual, bukan hilang senyap.
+            Log::warning('Midtrans subscription webhook: no tenant matches payment_ref', ['order_id' => $orderId]);
+
             return;
         }
 
