@@ -58,7 +58,7 @@ component CSS, no new selectors beyond the theme-scoped `:root` override):
 | Token | Klasik (today, no override) | Modern | Elegan |
 |---|---|---|---|
 | `--radius-sm` / `--radius` / `--radius-lg` / `--radius-pill` | 8 / 14 / 22 / 999px | 4 / 8 / 12 / 8px (buttons stay a shallow rounded rect, not sharp squares — see anti-pattern note below) | 10 / 18 / 28 / 999px |
-| `--font-display` | Sora | existing `Plus Jakarta Sans` reused as display (avoids a new font-file network dependency) | a new Google Font pairing added to the existing `<link>` in `layouts.public` (see Implementation note) |
+| `--font-display` | Sora | existing `Plus Jakarta Sans` reused as display (avoids a new font-file network dependency) | Playfair Display (new, added to the existing `<link>` in `layouts.public`) — a deliberate serif choice for the premium tier, NOT the LLM-default Fraunces/Instrument Serif |
 | `--font-body` | Plus Jakarta Sans | Inter (already a safe, near-universally-cached system-adjacent choice; added to the same `<link>`) | existing `Plus Jakarta Sans` reused as body (keeps Elegan to one net-new font file, on the display role only) |
 | Section rhythm | `.section { padding-block: 92px }` | `72px` (denser) | `120px` (airier) |
 
