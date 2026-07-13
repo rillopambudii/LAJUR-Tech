@@ -67,6 +67,9 @@
             <a href="{{ route('admin.site.edit') }}" class="{{ request()->routeIs('admin.site.*') ? 'active' : '' }}">
                 <x-icon name="settings" /> Situs
             </a>
+            <a href="{{ route('admin.subscription.index') }}" class="{{ request()->routeIs('admin.subscription.*') ? 'active' : '' }}">
+                <x-icon name="wallet" /> Langganan
+            </a>
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">

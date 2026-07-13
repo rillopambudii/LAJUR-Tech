@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FuelController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TrackingController;
 use App\Http\Controllers\SuperAdmin\PlanController as SuperAdminPlanController;
 use App\Http\Controllers\SuperAdmin\TenantController as SuperAdminTenantController;
@@ -168,6 +169,11 @@ Route::prefix('admin')
         // Pengaturan situs publik (branding storefront) — semua plan
         Route::get('situs', [SiteSettingController::class, 'edit'])->name('site.edit');
         Route::put('situs', [SiteSettingController::class, 'update'])->name('site.update');
+
+        // Lanjut berlangganan / upgrade plan — semua plan, tanpa feature gate
+        Route::get('langganan', [SubscriptionController::class, 'index'])->name('subscription.index');
+        Route::post('langganan/{plan}', [SubscriptionController::class, 'store'])->name('subscription.store');
+        Route::get('langganan/selesai', [SubscriptionController::class, 'finish'])->name('subscription.finish');
     });
 
 /*
