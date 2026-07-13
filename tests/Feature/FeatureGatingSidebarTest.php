@@ -57,6 +57,22 @@ class FeatureGatingSidebarTest extends TestCase
         $response->assertSee('Asisten AI');
     }
 
+    public function test_basic_plan_dashboard_hides_ai_card_and_gated_json_returns_403(): void
+    {
+        $tenant = Tenant::create(['name' => 'Basic Co 3', 'slug' => 'basic-co-3', 'plan' => 'basic', 'subscription_status' => 'active']);
+        $owner = $this->ownerFor($tenant);
+
+        // Kartu AI tidak dirender → tidak ada fetch async yang kena gate.
+        $this->actingAs($owner)->get('/admin')
+            ->assertOk()
+            ->assertDontSee('Ringkasan AI');
+
+        // Kalaupun endpoint gated dipanggil via AJAX, jawabannya 403 JSON,
+        // bukan redirect+flash yang mencemari halaman berikutnya.
+        $this->actingAs($owner)->getJson('/admin/assistant/insight')
+            ->assertStatus(403);
+    }
+
     public function test_tenant_with_expired_trial_loses_gated_route_access_on_next_request(): void
     {
         $tenant = Tenant::create([

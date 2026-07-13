@@ -5,6 +5,9 @@
 @section('heading', 'Dashboard')
 
 @section('content')
+    {{-- Kartu AI hanya untuk plan yang punya fitur ai_assistant — tanpa @if ini,
+         fetch async insight kena gate feature middleware → flash error nyasar. --}}
+    @if (app(\App\Tenancy\TenantManager::class)->current()?->hasFeature('ai_assistant'))
     <div class="ai-insight" data-ai-insight>
         <div class="ai-insight-head">
             <span class="ai-insight-title"><x-icon name="sparkle" /> Ringkasan AI</span>
@@ -15,6 +18,7 @@
         </div>
         <p class="ai-insight-body" data-body>Menyusun ringkasan…</p>
     </div>
+    @endif
 
     <div class="stat-grid">
         <div class="stat-card">
