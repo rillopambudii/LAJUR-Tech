@@ -4,13 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Lajur - Rental Mobil Premium Kalimantan Timur')</title>
+    <title>@yield('title', $branding->name() === 'Lajur' ? 'Lajur - Rental Mobil Premium Kalimantan Timur' : $branding->name().' - Rental Mobil')</title>
     <meta name="description" content="Lajur: sewa mobil premium di Kalimantan Timur. Armada terawat, harga transparan, proses cepat dan aman.">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @if ($branding->accentColor())
+        {{-- --accent-override: penanda uji; nilai menimpa var aksen brand --}}
+        <style id="accent-override">/* --accent-override */
+            :root {
+                --amber: {{ $branding->accentColor() }};
+                --amber-600: {{ $branding->accentDark() }};
+                --amber-glow: {{ $branding->accentGlow() }};
+            }
+        </style>
+    @endif
     @stack('head')
 </head>
 <body>
@@ -18,9 +28,13 @@
 
     <header class="site-header">
         <div class="container nav">
-            <a href="{{ route('home') }}" class="brand" aria-label="Lajur beranda">
-                <span class="mark"><x-icon name="route" /></span>
-                Lajur
+            <a href="{{ route('home') }}" class="brand" aria-label="{{ $branding->name() }} beranda">
+                @if ($branding->logoUrl())
+                    <img src="{{ $branding->logoUrl() }}" alt="{{ $branding->name() }}" style="width:38px;height:38px;border-radius:11px;object-fit:cover">
+                @else
+                    <span class="mark"><x-icon name="route" /></span>
+                @endif
+                {{ $branding->name() }}
             </a>
             <nav class="nav-links" id="nav-links" aria-label="Navigasi utama">
                 <div class="nav-item has-dropdown">
@@ -68,7 +82,12 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="{{ route('home') }}" class="brand" style="color:var(--ivory)">
-                        <span class="mark"><x-icon name="route" /></span> Lajur
+                        @if ($branding->logoUrl())
+                            <img src="{{ $branding->logoUrl() }}" alt="{{ $branding->name() }}" style="width:38px;height:38px;border-radius:11px;object-fit:cover">
+                        @else
+                            <span class="mark"><x-icon name="route" /></span>
+                        @endif
+                        {{ $branding->name() }}
                     </a>
                     <p>Rental mobil premium untuk wilayah Kalimantan Timur. Armada terawat, harga transparan, dan layanan yang bisa Anda percaya.</p>
                 </div>
@@ -82,13 +101,13 @@
                 </div>
                 <div>
                     <h4>Kontak</h4>
-                    <p>Samarinda, Kalimantan Timur</p>
-                    <p>+62 812-0000-0000</p>
-                    <p>halo@lajur.id</p>
+                    <p>{{ $branding->address() }}</p>
+                    <p>{{ $branding->phone() }}</p>
+                    <p>{{ $branding->email() }}</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <span>&copy; {{ date('Y') }} Lajur. Seluruh hak cipta dilindungi.</span>
+                <span>&copy; {{ date('Y') }} {{ $branding->name() }}. Seluruh hak cipta dilindungi.</span>
                 <a href="{{ route('login') }}">Masuk Admin</a>
             </div>
         </div>

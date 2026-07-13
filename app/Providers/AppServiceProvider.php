@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Tenancy\Branding;
 use App\Tenancy\TenantManager;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -50,5 +52,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Localise dates (month names in charts, etc.).
         Carbon::setLocale('id');
+
+        // Storefront branding: only the public layout + home read tenant
+        // branding; dashboards keep Lajur branding.
+        View::composer(['layouts.public', 'home'], function ($view) {
+            $view->with('branding', new Branding(app(TenantManager::class)->current()));
+        });
     }
 }

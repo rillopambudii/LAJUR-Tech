@@ -11,7 +11,7 @@
 <section class="hero" id="home" style="--hero-image: url('{{ $heroImage }}')">
     <div class="container">
         <div class="hero-content">
-            <span class="eyebrow hero-eyebrow">Rental Mobil Premium · Kalimantan Timur</span>
+            <span class="eyebrow hero-eyebrow">{{ $branding->tagline() }}</span>
             <h1 class="hero-title">
                 <span class="hero-title__lead">Perjalanan Anda,</span>
                 <span class="hero-title__reveal">dalam kendali penuh.</span>
@@ -190,15 +190,15 @@
                 <p class="section-sub">Hubungi kami untuk pemesanan khusus, sewa jangka panjang, atau pertanyaan lainnya.</p>
                 <div class="contact-item">
                     <span class="ico"><x-icon name="pin" /></span>
-                    <span><span class="k">Lokasi</span><span class="v">Samarinda, Kalimantan Timur</span></span>
+                    <span><span class="k">Lokasi</span><span class="v">{{ $branding->address() }}</span></span>
                 </div>
                 <div class="contact-item">
                     <span class="ico"><x-icon name="phone" /></span>
-                    <span><span class="k">Telepon / WhatsApp</span><span class="v">+62 812-0000-0000</span></span>
+                    <span><span class="k">Telepon / WhatsApp</span><span class="v">{{ $branding->phone() }}</span></span>
                 </div>
                 <div class="contact-item">
                     <span class="ico"><x-icon name="mail" /></span>
-                    <span><span class="k">Email</span><span class="v">halo@lajur.id</span></span>
+                    <span><span class="k">Email</span><span class="v">{{ $branding->email() }}</span></span>
                 </div>
             </div>
 
