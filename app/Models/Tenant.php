@@ -18,6 +18,7 @@ class Tenant extends Model
         'logo_path',
         'accent_color',
         'plan',
+        'pending_plan',
         'subscription_status',
         'payment_ref',
         'trial_ends_at',

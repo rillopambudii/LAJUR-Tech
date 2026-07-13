@@ -62,12 +62,24 @@ class PaymentController extends Controller
 
         $tenant = Tenant::where('payment_ref', $orderId)->first();
 
-        if ($tenant) {
-            $tenant->update([
-                'subscription_status' => 'active',
-                'subscription_ends_at' => now()->addDays(30),
-            ]);
+        if (! $tenant) {
+            return;
         }
+
+        $data = [
+            'subscription_status' => 'active',
+            'subscription_ends_at' => now()->addDays(30),
+        ];
+
+        // Set only by the in-dashboard upgrade flow (Task 2). Absent for the
+        // new-tenant signup flow, where `plan` is already correct from
+        // creation — this branch is a no-op there.
+        if ($tenant->pending_plan) {
+            $data['plan'] = $tenant->pending_plan;
+            $data['pending_plan'] = null;
+        }
+
+        $tenant->update($data);
     }
 
     /**

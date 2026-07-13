@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
  */
 class SubscriptionCheckout
 {
-    public function createCheckout(Tenant $tenant, Plan $plan): ?string
+    public function createCheckout(Tenant $tenant, Plan $plan, ?string $finishUrl = null): ?string
     {
         $serverKey = (string) config('services.midtrans.server_key');
         if ($serverKey === '') {
@@ -40,7 +40,7 @@ class SubscriptionCheckout
                 'first_name' => $tenant->name,
             ],
             'callbacks' => [
-                'finish' => route('signup.finish'),
+                'finish' => $finishUrl ?? route('signup.finish'),
             ],
         ];
 
