@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', $branding->name() === 'Lajur' ? 'Lajur - Rental Mobil Premium Kalimantan Timur' : $branding->name().' - Rental Mobil')</title>
-    <meta name="description" content="Lajur: sewa mobil premium di Kalimantan Timur. Armada terawat, harga transparan, proses cepat dan aman.">
+    <meta name="description" content="{{ $branding->name() === 'Lajur' ? 'Lajur: sewa mobil premium di Kalimantan Timur. Armada terawat, harga transparan, proses cepat dan aman.' : $branding->name().': sewa mobil dengan armada terawat, harga transparan, proses cepat dan aman.' }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

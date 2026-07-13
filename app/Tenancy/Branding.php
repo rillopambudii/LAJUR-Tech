@@ -34,22 +34,24 @@ class Branding
 
     public function tagline(): string
     {
-        return $this->tenant?->tagline ?? 'Rental Mobil Premium · Kalimantan Timur';
+        // `?:` (bukan `??`) agar string kosong pun jatuh ke default, tanpa
+        // bergantung pada middleware ConvertEmptyStringsToNull.
+        return $this->tenant?->tagline ?: 'Rental Mobil Premium · Kalimantan Timur';
     }
 
     public function phone(): string
     {
-        return $this->tenant?->contact_phone ?? '+62 812-0000-0000';
+        return $this->tenant?->contact_phone ?: '+62 812-0000-0000';
     }
 
     public function address(): string
     {
-        return $this->tenant?->contact_address ?? 'Samarinda, Kalimantan Timur';
+        return $this->tenant?->contact_address ?: 'Samarinda, Kalimantan Timur';
     }
 
     public function email(): string
     {
-        return $this->tenant?->contact_email ?? 'halo@lajur.id';
+        return $this->tenant?->contact_email ?: 'halo@lajur.id';
     }
 
     public function logoUrl(): ?string
