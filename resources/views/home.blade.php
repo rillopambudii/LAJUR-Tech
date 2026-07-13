@@ -16,7 +16,7 @@
                 <span class="hero-title__lead">Perjalanan Anda,</span>
                 <span class="hero-title__reveal">dalam kendali penuh.</span>
             </h1>
-            <p>Sewa mobil premium yang terawat dengan harga transparan dan proses yang cepat. Dari dinas hingga liburan keluarga, Lajur siap mengantar.</p>
+            <p>Sewa mobil premium yang terawat dengan harga transparan dan proses yang cepat. Dari dinas hingga liburan keluarga, {{ $branding->name() }} siap mengantar.</p>
             <div class="hero-actions">
                 <a href="#sewa" class="btn btn-primary">Lihat Armada <x-icon name="arrow-right" /></a>
                 <a href="#cara" class="btn btn-light">Cara Sewa</a>
@@ -166,7 +166,7 @@
             <div class="reveal">
                 <span class="eyebrow">Tentang Kami</span>
                 <h2 class="section-title">Mitra perjalanan Anda di Kalimantan Timur</h2>
-                <p class="section-sub">Lajur lahir dari kebutuhan akan layanan rental mobil yang rapi, jujur, dan bisa diandalkan. Kami percaya menyewa mobil seharusnya semudah dan seaman membeli tiket: tanpa drama, tanpa biaya kejutan.</p>
+                <p class="section-sub">{{ $branding->name() }} lahir dari kebutuhan akan layanan rental mobil yang rapi, jujur, dan bisa diandalkan. Kami percaya menyewa mobil seharusnya semudah dan seaman membeli tiket: tanpa drama, tanpa biaya kejutan.</p>
                 <ul class="about-points">
                     @foreach (['Armada beragam untuk setiap kebutuhan', 'Tim lokal yang memahami medan Kalimantan', 'Konfirmasi cepat & komunikasi yang jelas'] as $point)
                         <li><span class="tick"><x-icon name="check" /></span> <span>{{ $point }}</span></li>
@@ -175,7 +175,7 @@
             </div>
             <div class="about-visual reveal">
                 <img src="{{ asset('img/about-road.jpg') }}"
-                     alt="Mobil premium Lajur" data-fallback loading="lazy">
+                     alt="Mobil premium {{ $branding->name() }}" data-fallback loading="lazy">
             </div>
         </div>
     </div>
@@ -257,6 +257,8 @@
 </section>
 
 {{-- ============ UNTUK PEMILIK USAHA RENTAL ============ --}}
+{{-- Iklan platform Lajur — hanya di situs default, bukan di storefront tenant. --}}
+@if ($branding->name() === 'Lajur')
 <section class="section" id="untuk-bisnis" style="padding-top:0">
     <div class="container">
         <div class="cta-band reveal">
@@ -268,6 +270,7 @@
         </div>
     </div>
 </section>
+@endif
 
 {{-- ============ BOOKING MODAL ============ --}}
 @php $reopen = $errors->booking->any(); @endphp

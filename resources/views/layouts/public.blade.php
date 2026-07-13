@@ -52,7 +52,7 @@
                     </button>
                     <div class="nav-dropdown" role="menu">
                         <a href="{{ route('home') }}#tentang" role="menuitem">Tentang</a>
-                        <a href="{{ route('home') }}#kenapa" role="menuitem">Kenapa Lajur</a>
+                        <a href="{{ route('home') }}#kenapa" role="menuitem">Kenapa Kami</a>
                         <a href="{{ route('home') }}#testimoni" role="menuitem">Testimoni</a>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                     <h4>Navigasi</h4>
                     <a href="{{ route('home') }}#sewa">Sewa Mobil</a>
                     <a href="{{ route('home') }}#cara">Cara Sewa</a>
-                    <a href="{{ route('home') }}#kenapa">Kenapa Lajur</a>
+                    <a href="{{ route('home') }}#kenapa">Kenapa Kami</a>
                     <a href="{{ route('home') }}#testimoni">Testimoni</a>
                     <a href="{{ route('tracking.search') }}">Lacak Pesanan</a>
                 </div>
