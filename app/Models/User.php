@@ -92,6 +92,20 @@ class User extends Authenticatable
         return $this->role === self::ROLE_SUPER_ADMIN;
     }
 
+    /** The dashboard route name this user lands on after login, keyed by role. */
+    public function homeRouteName(): string
+    {
+        if ($this->hasRole(self::ROLE_DRIVER)) {
+            return 'driver.dashboard';
+        }
+
+        if ($this->hasRole(self::ROLE_SUPER_ADMIN)) {
+            return 'superadmin.plans.index';
+        }
+
+        return 'admin.dashboard';
+    }
+
     /** Scope: users of a given role, ordered by name. */
     public function scopeRole(Builder $query, string $role): Builder
     {

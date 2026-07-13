@@ -55,15 +55,7 @@ class LoginController extends Controller
     /** The landing route for a user based on their role. */
     private function homeFor(User $user): string
     {
-        if ($user->hasRole(User::ROLE_DRIVER)) {
-            return route('driver.dashboard');
-        }
-
-        if ($user->hasRole(User::ROLE_SUPER_ADMIN)) {
-            return route('superadmin.plans.index');
-        }
-
-        return route('admin.dashboard');
+        return route($user->homeRouteName());
     }
 
     public function logout(Request $request): RedirectResponse

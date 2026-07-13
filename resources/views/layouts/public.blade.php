@@ -61,10 +61,18 @@
                 <a href="{{ route('login') }}" class="nav-login-mobile">Masuk</a>
             </nav>
             <div class="nav-cta">
-                <a href="{{ route('signup.pricing') }}" class="btn btn-ghost btn-sm">Daftar</a>
-                <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">
-                    <x-icon name="key" /> Masuk
-                </a>
+                @auth
+                    {{-- Tenant sudah punya akun — "Daftar" tidak relevan, arahkan
+                         langsung ke dashboard mereka (termasuk untuk lanjut berlangganan). --}}
+                    <a href="{{ route(auth()->user()->homeRouteName()) }}" class="btn btn-ghost btn-sm">
+                        <x-icon name="dashboard" /> Dashboard
+                    </a>
+                @else
+                    <a href="{{ route('signup.pricing') }}" class="btn btn-ghost btn-sm">Daftar</a>
+                    <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">
+                        <x-icon name="key" /> Masuk
+                    </a>
+                @endauth
                 <a href="{{ route('home') }}#sewa" class="btn btn-primary btn-sm">Sewa Sekarang</a>
                 <button class="nav-toggle" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
                     <x-icon name="menu" />
