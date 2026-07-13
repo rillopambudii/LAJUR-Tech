@@ -10,6 +10,13 @@ class Tenant extends Model
     protected $fillable = [
         'name',
         'slug',
+        'display_name',
+        'tagline',
+        'contact_phone',
+        'contact_address',
+        'contact_email',
+        'logo_path',
+        'accent_color',
         'plan',
         'subscription_status',
         'payment_ref',
