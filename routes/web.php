@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DriverController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FuelController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\TrackingController;
 use App\Http\Controllers\SuperAdmin\PlanController as SuperAdminPlanController;
 use App\Http\Controllers\SuperAdmin\TenantController as SuperAdminTenantController;
@@ -163,6 +164,10 @@ Route::prefix('admin')
         Route::get('messages/{message}', [MessageController::class, 'show'])->name('messages.show');
         Route::patch('messages/{message}/toggle', [MessageController::class, 'toggle'])->name('messages.toggle');
         Route::delete('messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+
+        // Pengaturan situs publik (branding storefront) — semua plan
+        Route::get('situs', [SiteSettingController::class, 'edit'])->name('site.edit');
+        Route::put('situs', [SiteSettingController::class, 'update'])->name('site.update');
     });
 
 /*

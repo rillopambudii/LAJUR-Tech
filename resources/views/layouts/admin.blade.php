@@ -64,6 +64,9 @@
                 <x-icon name="chat" /> Pesan
                 @if ($unread > 0)<span class="badge">{{ $unread }}</span>@endif
             </a>
+            <a href="{{ route('admin.site.edit') }}" class="{{ request()->routeIs('admin.site.*') ? 'active' : '' }}">
+                <x-icon name="settings" /> Situs
+            </a>
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">
