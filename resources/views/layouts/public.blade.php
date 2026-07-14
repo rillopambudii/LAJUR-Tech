@@ -16,9 +16,9 @@
         <style id="accent-override">/* --accent-override */
             :root {
                 @if ($branding->accentColor())
-                    --amber: {!! $branding->accentColor() !!};
-                    --amber-600: {!! $branding->accentDark() !!};
-                    --amber-glow: {!! $branding->accentGlow() !!};
+                    --amber: {{ $branding->accentColor() }};
+                    --amber-600: {{ $branding->accentDark() }};
+                    --amber-glow: {{ $branding->accentGlow() }};
                 @endif
                 @if ($branding->hasPersonalization())
                     --font-display: {!! $branding->fontDisplay() !!};
