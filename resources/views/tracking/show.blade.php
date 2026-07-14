@@ -18,6 +18,39 @@
     $waUrl = 'https://wa.me/'.$waCs.'?text='.rawurlencode($waText);
 @endphp
 
+@push('head')
+<style>
+    .trk-detail .trk-ic{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:none;
+        border-radius:10px;background:var(--ivory-200);color:var(--petrol)}
+    .trk-detail .trk-ic svg{width:18px;height:18px}
+    .trk-detail .trk-ic-lg{width:46px;height:46px;border-radius:14px;background:var(--petrol);color:#fff}
+    .trk-detail .trk-ic-lg svg{width:24px;height:24px}
+    .trk-detail .trk-ic-amber{background:var(--amber);color:#fff;box-shadow:0 4px 12px var(--amber-glow)}
+
+    .trk-hero{display:flex;align-items:center;gap:14px;padding-bottom:16px;margin-bottom:6px;
+        border-bottom:1px solid var(--ivory-200)}
+    .trk-hero-v{font-family:var(--font-display);font-weight:800;font-size:1.25rem;color:var(--petrol);line-height:1.25}
+
+    .trk-k{font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgba(15,27,51,.5)}
+    .trk-rows{display:flex;flex-direction:column}
+    .trk-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--ivory-200)}
+    .trk-row .trk-k{flex:1}
+    .trk-v{font-weight:600;color:var(--petrol);text-align:right}
+    .trk-sep{color:var(--amber-600);margin:0 2px}
+
+    .trk-total{display:flex;align-items:center;gap:12px;margin-top:16px;padding:14px 16px;border-radius:var(--radius);
+        background:linear-gradient(135deg,rgba(255,255,255,.9),var(--ivory-200));border:1px solid var(--ivory-200)}
+    .trk-total-k{flex:1;font-weight:600;color:var(--petrol-600)}
+    .trk-total-v{font-weight:800;font-size:1.2rem;color:var(--petrol)}
+
+    @media (max-width:520px){
+        .trk-row{flex-wrap:wrap}
+        .trk-row .trk-k{flex:1 0 auto}
+        .trk-v{width:100%;text-align:left;padding-left:46px}
+    }
+</style>
+@endpush
+
 @section('content')
 <section class="section" id="lacak">
     <div class="container" style="max-width:760px">
@@ -93,17 +126,47 @@
         </div>
 
         {{-- ===== Detail booking ===== --}}
-        <div class="panel reveal" style="margin-bottom:20px">
+        <div class="panel reveal trk-detail" style="margin-bottom:20px">
             <div class="panel-head"><h2>Detail Pesanan</h2></div>
             <div class="panel-body">
-                <div class="detail-grid">
-                    <div class="detail-item"><div class="k">Mobil</div><div class="v">{{ $booking->car_name }}</div></div>
-                    <div class="detail-item"><div class="k">Tanggal Mulai</div><div class="v">{{ $booking->start_date->translatedFormat('d M Y') }}</div></div>
-                    <div class="detail-item"><div class="k">Tanggal Selesai</div><div class="v">{{ $booking->end_date->translatedFormat('d M Y') }}</div></div>
-                    <div class="detail-item"><div class="k">Lama Sewa</div><div class="v">{{ $booking->days }} hari</div></div>
-                    <div class="detail-item"><div class="k">Jarak Tempuh</div><div class="v">{{ number_format($booking->distanceKm(), 0, ',', '.') }} km</div></div>
-                    <div class="detail-item"><div class="k">Total</div><div class="v mono" style="color:var(--petrol)">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</div></div>
+
+                {{-- Mobil: baris utama, lebih besar dari yang lain --}}
+                <div class="trk-hero">
+                    <span class="trk-ic trk-ic-lg"><x-icon name="car" /></span>
+                    <div>
+                        <div class="trk-k">Mobil</div>
+                        <div class="trk-hero-v">{{ $booking->car_name }}</div>
+                    </div>
                 </div>
+
+                <div class="trk-rows">
+                    <div class="trk-row">
+                        <span class="trk-ic"><x-icon name="calendar" /></span>
+                        <span class="trk-k">Periode Sewa</span>
+                        <span class="trk-v">
+                            {{ $booking->start_date->translatedFormat('d M Y') }}
+                            <span class="trk-sep">→</span>
+                            {{ $booking->end_date->translatedFormat('d M Y') }}
+                        </span>
+                    </div>
+                    <div class="trk-row">
+                        <span class="trk-ic"><x-icon name="clock" /></span>
+                        <span class="trk-k">Lama Sewa</span>
+                        <span class="trk-v">{{ $booking->days }} hari</span>
+                    </div>
+                    <div class="trk-row">
+                        <span class="trk-ic"><x-icon name="route" /></span>
+                        <span class="trk-k">Jarak Tempuh</span>
+                        <span class="trk-v">{{ number_format($booking->distanceKm(), 0, ',', '.') }} km</span>
+                    </div>
+                </div>
+
+                <div class="trk-total">
+                    <span class="trk-ic trk-ic-amber"><x-icon name="wallet" /></span>
+                    <span class="trk-total-k">Total Pembayaran</span>
+                    <span class="trk-total-v mono">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</span>
+                </div>
+
             </div>
         </div>
 
