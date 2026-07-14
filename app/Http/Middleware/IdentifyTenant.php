@@ -49,6 +49,14 @@ class IdentifyTenant
     private function fromSubdomain(Request $request): ?Tenant
     {
         $host = $request->getHost();
+
+        // An IP address (e.g. 127.0.0.1 while developing locally) splits into
+        // 4 dot-separated labels, which would otherwise be misread as
+        // "127" being a subdomain slug — wasting a query on every local request.
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            return null;
+        }
+
         $parts = explode('.', $host);
 
         // Needs at least sub.domain.tld to treat the first label as a slug.
