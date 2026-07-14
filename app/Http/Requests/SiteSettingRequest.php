@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Tenancy\Branding;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SiteSettingRequest extends FormRequest
 {
@@ -25,6 +27,8 @@ class SiteSettingRequest extends FormRequest
             'accent_color' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'logo' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'remove_logo' => ['nullable', 'boolean'],
+            'font_style' => ['nullable', Rule::in(Branding::fontStyleKeys())],
+            'ui_style' => ['nullable', Rule::in(Branding::uiStyleKeys())],
         ];
     }
 

@@ -31,6 +31,16 @@ class Branding
         'playful' => [12, 20, 30, 999, 92],
     ];
 
+    public static function fontStyleKeys(): array
+    {
+        return array_keys(self::FONT_STYLES);
+    }
+
+    public static function uiStyleKeys(): array
+    {
+        return array_keys(self::UI_STYLES);
+    }
+
     public function __construct(private ?Tenant $tenant)
     {
     }

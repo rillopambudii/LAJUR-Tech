@@ -92,4 +92,61 @@
         </form>
     </div>
 </div>
+
+<div class="panel" style="max-width:760px;margin-top:24px">
+    <div class="panel-head">
+        <h2>Gaya Font</h2>
+        <span class="tag">Berlaku di seluruh situs publik Anda</span>
+    </div>
+    <div class="panel-body">
+        <form method="POST" action="{{ route('admin.site.update') }}">
+            @csrf @method('PUT')
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+                @foreach ([
+                    'klasik' => ["'Sora', system-ui, sans-serif", 'Klasik'],
+                    'netral' => ["'Inter', system-ui, sans-serif", 'Netral'],
+                    'ramah' => ["'Poppins', system-ui, sans-serif", 'Ramah'],
+                    'elegan' => ["'Playfair Display', serif", 'Elegan'],
+                    'korporat' => ["'Space Grotesk', system-ui, sans-serif", 'Korporat'],
+                ] as $key => [$fontFamily, $label])
+                    <label style="display:block;padding:16px;border:1.5px solid var(--ivory-200);border-radius:var(--radius);cursor:pointer;{{ ($tenant->font_style ?? 'klasik') === $key ? 'border-color:var(--amber);background:var(--ivory)' : '' }}">
+                        <input type="radio" name="font_style" value="{{ $key }}" {{ ($tenant->font_style ?? 'klasik') === $key ? 'checked' : '' }} style="margin-bottom:8px">
+                        <div style="font-family:{{ $fontFamily }};font-size:1.15rem;font-weight:700">{{ $label }}</div>
+                    </label>
+                @endforeach
+            </div>
+            @error('font_style')<span class="field-error">{{ $message }}</span>@enderror
+            <button type="submit" class="btn btn-primary" style="margin-top:16px">Simpan Gaya Font</button>
+        </form>
+    </div>
+</div>
+
+<div class="panel" style="max-width:760px;margin-top:24px">
+    <div class="panel-head">
+        <h2>Gaya UI</h2>
+        <span class="tag">Bentuk sudut &amp; jarak antar bagian</span>
+    </div>
+    <div class="panel-body">
+        <form method="POST" action="{{ route('admin.site.update') }}">
+            @csrf @method('PUT')
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px">
+                @foreach ([
+                    'klasik' => [14, 'Klasik'],
+                    'tegas' => [8, 'Tegas'],
+                    'lembut' => [18, 'Lembut'],
+                    'minimalis' => [4, 'Minimalis'],
+                    'playful' => [20, 'Playful'],
+                ] as $key => [$radius, $label])
+                    <label style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px;border:1.5px solid var(--ivory-200);border-radius:var(--radius);cursor:pointer;{{ ($tenant->ui_style ?? 'klasik') === $key ? 'border-color:var(--amber);background:var(--ivory)' : '' }}">
+                        <input type="radio" name="ui_style" value="{{ $key }}" {{ ($tenant->ui_style ?? 'klasik') === $key ? 'checked' : '' }}>
+                        <div style="width:56px;height:36px;background:var(--petrol);border-radius:{{ $radius }}px"></div>
+                        <div style="font-weight:600;font-size:.92rem">{{ $label }}</div>
+                    </label>
+                @endforeach
+            </div>
+            @error('ui_style')<span class="field-error">{{ $message }}</span>@enderror
+            <button type="submit" class="btn btn-primary" style="margin-top:16px">Simpan Gaya UI</button>
+        </form>
+    </div>
+</div>
 @endsection
