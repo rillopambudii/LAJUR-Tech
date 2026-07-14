@@ -43,7 +43,7 @@
         <div class="container nav">
             <a href="{{ route('home') }}" class="brand" aria-label="{{ $branding->name() }} beranda">
                 @if ($branding->logoUrl())
-                    <img src="{{ $branding->logoUrl() }}" alt="{{ $branding->name() }}" style="width:38px;height:38px;border-radius:11px;object-fit:cover">
+                    <img src="{{ $branding->logoUrl() }}" alt="{{ $branding->name() }}" style="height:38px;width:auto;max-width:160px;object-fit:contain">
                 @else
                     <span class="mark"><x-icon name="route" /></span>
                 @endif
@@ -104,7 +104,7 @@
                 <div class="footer-brand">
                     <a href="{{ route('home') }}" class="brand" style="color:var(--ivory)">
                         @if ($branding->logoUrl())
-                            <img src="{{ $branding->logoUrl() }}" alt="{{ $branding->name() }}" style="width:38px;height:38px;border-radius:11px;object-fit:cover">
+                            <img src="{{ $branding->logoUrl() }}" alt="{{ $branding->name() }}" style="height:38px;width:auto;max-width:160px;object-fit:contain">
                         @else
                             <span class="mark"><x-icon name="route" /></span>
                         @endif

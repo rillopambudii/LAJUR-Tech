@@ -74,9 +74,11 @@
                 <div class="field">
                     <label for="logo">Logo (opsional)</label>
                     @if ($tenant->logo_path)
-                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-                            <img src="{{ Illuminate\Support\Facades\Storage::disk('public')->url($tenant->logo_path) }}"
-                                 alt="Logo" style="width:52px;height:52px;border-radius:12px;object-fit:cover;border:1px solid var(--ivory-200)">
+                        <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px">
+                            <div style="display:flex;align-items:center;justify-content:center;height:72px;max-width:280px;padding:10px;border-radius:12px;border:1px solid var(--ivory-200);background:var(--ivory)">
+                                <img src="{{ Illuminate\Support\Facades\Storage::disk('public')->url($tenant->logo_path) }}"
+                                     alt="Logo" style="max-height:100%;max-width:100%;object-fit:contain">
+                            </div>
                             <label style="display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--graphite);cursor:pointer">
                                 <input type="checkbox" name="remove_logo" value="1"> Hapus logo
                             </label>
