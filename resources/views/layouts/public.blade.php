@@ -9,16 +9,29 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @if ($branding->accentColor())
-        {{-- --accent-override: penanda uji; nilai menimpa var aksen brand --}}
+    @if ($branding->accentColor() || $branding->hasPersonalization())
+        {{-- --accent-override: penanda uji; nilai menimpa var aksen & gaya brand --}}
         <style id="accent-override">/* --accent-override */
             :root {
-                --amber: {{ $branding->accentColor() }};
-                --amber-600: {{ $branding->accentDark() }};
-                --amber-glow: {{ $branding->accentGlow() }};
+                @if ($branding->accentColor())
+                    --amber: {!! $branding->accentColor() !!};
+                    --amber-600: {!! $branding->accentDark() !!};
+                    --amber-glow: {!! $branding->accentGlow() !!};
+                @endif
+                @if ($branding->hasPersonalization())
+                    --font-display: {!! $branding->fontDisplay() !!};
+                    --font-body: {!! $branding->fontBody() !!};
+                    --radius-sm: {!! $branding->radiusSm() !!};
+                    --radius: {!! $branding->radius() !!};
+                    --radius-lg: {!! $branding->radiusLg() !!};
+                    --radius-pill: {!! $branding->radiusPill() !!};
+                @endif
             }
+            @if ($branding->hasPersonalization())
+                .section { padding-block: {!! $branding->sectionSpacing() !!}; }
+            @endif
         </style>
     @endif
     @stack('head')

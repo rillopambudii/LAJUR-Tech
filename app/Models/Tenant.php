@@ -17,6 +17,8 @@ class Tenant extends Model
         'contact_email',
         'logo_path',
         'accent_color',
+        'font_style',
+        'ui_style',
         'plan',
         'pending_plan',
         'subscription_status',
