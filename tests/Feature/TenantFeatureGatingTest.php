@@ -29,16 +29,17 @@ class TenantFeatureGatingTest extends TestCase
         $this->assertFalse($tenant->hasFeature('ai_assistant'));
     }
 
-    public function test_pro_plan_has_tracking_fuel_export_but_not_ai(): void
+    public function test_pro_plan_has_ai_and_export_but_not_fuel_or_gps(): void
     {
+        // Struktur decoy: Pro cuma menambah AI di atas Basic; BBM & GPS milik Business.
         $tenant = Tenant::create([
             'name' => 'Pro Co', 'slug' => 'pro-co', 'plan' => 'pro', 'subscription_status' => 'active',
         ]);
 
-        $this->assertTrue($tenant->hasFeature('gps_tracking'));
-        $this->assertTrue($tenant->hasFeature('fuel_tracking'));
+        $this->assertTrue($tenant->hasFeature('ai_assistant'));
         $this->assertTrue($tenant->hasFeature('export'));
-        $this->assertFalse($tenant->hasFeature('ai_assistant'));
+        $this->assertFalse($tenant->hasFeature('fuel_tracking'));
+        $this->assertFalse($tenant->hasFeature('gps_tracking'));
     }
 
     public function test_business_plan_has_all_features(): void

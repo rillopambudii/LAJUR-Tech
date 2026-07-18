@@ -5,6 +5,16 @@
 @section('heading', 'Pelacakan Unit')
 
 @section('content')
+{{-- ponytail: banner pratinjau GPS — hapus saat integrasi perangkat (EasyGo) sudah live. --}}
+<div class="alert" role="status" style="background:var(--ivory);border:1px solid var(--ivory-200);border-left:4px solid var(--amber);margin-bottom:16px">
+    <x-icon name="pin" />
+    <span>
+        <strong>Pratinjau Pelacakan GPS.</strong>
+        Peta di bawah adalah simulasi tampilan. Pelacakan posisi kendaraan secara nyata
+        akan aktif otomatis begitu alat GPS terpasang di unit Anda —
+        <a href="{{ route('admin.subscription.index') }}">hubungi kami untuk jadwal pemasangan</a>.
+    </span>
+</div>
 @if (! $mapsKey && ! $demo)
     <div class="alert alert-error" role="alert">
         <x-icon name="alert" />

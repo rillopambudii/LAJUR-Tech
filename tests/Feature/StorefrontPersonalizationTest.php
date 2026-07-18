@@ -21,7 +21,7 @@ class StorefrontPersonalizationTest extends TestCase
 
     public function test_default_tenant_home_uses_klasik_font_and_radius_with_no_override(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/demo');
 
         $response->assertOk();
         // Klasik is a no-op: the accent/personalization <style> block only
@@ -37,7 +37,7 @@ class StorefrontPersonalizationTest extends TestCase
             'subscription_status' => 'active', 'font_style' => 'elegan',
         ]);
 
-        $response = $this->actingAs($this->ownerOf($tenant))->get('/');
+        $response = $this->actingAs($this->ownerOf($tenant))->get('/demo');
 
         $response->assertOk();
         $response->assertSee("'Playfair Display'", false);
@@ -50,7 +50,7 @@ class StorefrontPersonalizationTest extends TestCase
             'subscription_status' => 'active', 'ui_style' => 'tegas',
         ]);
 
-        $response = $this->actingAs($this->ownerOf($tenant))->get('/');
+        $response = $this->actingAs($this->ownerOf($tenant))->get('/demo');
 
         $response->assertOk();
         $response->assertSee('--radius-pill: 8px', false);
@@ -64,7 +64,7 @@ class StorefrontPersonalizationTest extends TestCase
             'subscription_status' => 'active', 'font_style' => 'korporat', 'ui_style' => 'playful',
         ]);
 
-        $response = $this->actingAs($this->ownerOf($tenant))->get('/');
+        $response = $this->actingAs($this->ownerOf($tenant))->get('/demo');
 
         $response->assertOk();
         $response->assertSee("'Space Grotesk'", false);

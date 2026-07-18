@@ -21,10 +21,18 @@ class EnsureUserIsAdmin
             abort(403, 'Akses ditolak. Halaman ini hanya untuk administrator.');
         }
 
-        // Block tenants whose subscription is not usable (e.g. paid signup abandoned
-        // before completing Midtrans payment). Super admins have no tenant.
-        if ($user->tenant && in_array($user->tenant->subscription_status, ['pending_payment', 'suspended', 'cancelled'], true)) {
-            abort(403, 'Langganan belum aktif. Selesaikan pembayaran terlebih dahulu.');
+        // Tenant dengan langganan tak-aktif (trial habis → suspended, pendaftaran
+        // berbayar ditinggal → pending_payment, dibatalkan) dikunci dari back-office
+        // TAPI diarahkan ke halaman langganan agar bisa membayar — bukan jalan buntu.
+        // Halaman langganan sendiri harus lolos supaya tidak terjadi loop.
+        $locked = ['pending_payment', 'suspended', 'cancelled'];
+        $payRoutes = ['admin.subscription.index', 'admin.subscription.store', 'admin.subscription.finish'];
+
+        if ($user->tenant
+            && in_array($user->tenant->subscription_status, $locked, true)
+            && ! in_array($request->route()?->getName(), $payRoutes, true)) {
+            return redirect()->route('admin.subscription.index')
+                ->with('locked', 'Masa langganan Anda berakhir. Pilih paket dan selesaikan pembayaran untuk mengaktifkan kembali akun.');
         }
 
         return $next($request);

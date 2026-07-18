@@ -450,7 +450,14 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
 .plan-price .amount { font-size: 2.05rem; font-weight: 700; color: var(--petrol); }
 .plan-price .per { font-size: .82rem; color: var(--graphite); }
 .plan-card .about-points { flex: 1; margin: 2px 0; align-content: start; }
-.plan-card .about-points li { font-size: .92rem; }
+/* min-width:0 wajib: item flex/grid default tak boleh menyusut → teks fitur
+   panjang menerobos keluar kartu. Ini membuatnya turun baris di dalam kartu. */
+.plan-card .about-points li { font-size: .92rem; min-width: 0; }
+.plan-card .about-points .pt-txt { min-width: 0; overflow-wrap: break-word; }
+/* Sub-keterangan fitur (mis. catatan GPS). Warna adaptif: redup di kartu terang,
+   terang-redup di kartu unggulan yang gelap agar tetap terbaca. */
+.plan-card .pt-sub { display: block; font-size: .76rem; line-height: 1.35; margin-top: 3px; color: var(--graphite); }
+.plan-card.is-featured .pt-sub { color: rgba(247,248,251,.6); }
 .plan-foot { margin-top: auto; }
 .trust-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 46px; color: var(--graphite); font-size: .9rem; }
 .trust-strip .item { display: flex; align-items: center; gap: 8px; }

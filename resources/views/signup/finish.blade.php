@@ -1,4 +1,4 @@
-@extends('layouts.public')
+@extends('layouts.platform')
 
 @section('title', 'Status Pembayaran - Lajur')
 

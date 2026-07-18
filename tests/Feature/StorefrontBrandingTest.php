@@ -35,7 +35,7 @@ class StorefrontBrandingTest extends TestCase
 
     public function test_default_tenant_home_still_shows_lajur_branding(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/demo');
 
         $response->assertOk();
         $response->assertSee('Lajur');
@@ -47,7 +47,7 @@ class StorefrontBrandingTest extends TestCase
     {
         $tenant = $this->brandedTenant();
 
-        $response = $this->actingAs($this->ownerOf($tenant))->get('/');
+        $response = $this->actingAs($this->ownerOf($tenant))->get('/demo');
 
         $response->assertOk();
         $response->assertSee('Kaltim Rental Mobil');
@@ -58,14 +58,14 @@ class StorefrontBrandingTest extends TestCase
 
     public function test_accent_style_absent_when_not_set(): void
     {
-        $this->get('/')->assertOk()->assertDontSee('--accent-override', false);
+        $this->get('/demo')->assertOk()->assertDontSee('--accent-override', false);
     }
 
     public function test_branding_does_not_leak_across_tenants(): void
     {
         $this->brandedTenant(); // exists, but request runs under default lajur tenant
 
-        $response = $this->get('/');
+        $response = $this->get('/demo');
 
         $response->assertOk();
         $response->assertDontSee('Kaltim Rental Mobil');

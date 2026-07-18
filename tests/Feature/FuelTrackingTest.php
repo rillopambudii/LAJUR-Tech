@@ -228,6 +228,22 @@ class FuelTrackingTest extends TestCase
         $this->assertSame(11.0, $log->segment_km_per_l); // GPS 440 km / 40 L
     }
 
+    public function test_price_outlier_pool_scoped_to_fuel_type(): void
+    {
+        // 5 pengisian bensin mahal (~13.000) di armada.
+        $bensin = $this->car(['name' => 'Camry Bensin', 'fuel_type' => 'Bensin']);
+        foreach (range(1, 5) as $d) {
+            $this->log($bensin, ['filled_at' => "2026-07-0{$d} 08:00:00", 'price_per_liter' => 13000]);
+        }
+        // Satu pengisian solar wajar (~6.800). Dgn median dicampur, ini akan
+        // ter-flag palsu; dengan filter jenis BBM, tidak.
+        $solar = $this->car(['name' => 'Hilux Solar', 'fuel_type' => 'Diesel']);
+        $solarLog = $this->log($solar, ['filled_at' => '2026-07-10 08:00:00', 'price_per_liter' => 6800]);
+
+        $logs = $this->analyze()['logs'];
+        $this->assertNotContains('price_outlier', $logs->firstWhere('id', $solarLog->id)->flags);
+    }
+
     public function test_price_outlier_pool_stays_tenant_wide_when_filtered_by_car(): void
     {
         $carA = $this->car();
@@ -307,6 +323,30 @@ class FuelTrackingTest extends TestCase
             ->assertSee('Innova Diesel')
             ->assertSee('Konsumsi aktual')
             ->assertSee('Konsumsi jauh lebih boros dari baseline');
+    }
+
+    public function test_fuel_index_nudges_when_active_car_missing_specs(): void
+    {
+        $this->car(['name' => 'Camry Kosong', 'tank_capacity_liters' => null]);
+
+        $this->actingAs($this->admin())
+            ->get('/admin/fuel')
+            ->assertOk()
+            ->assertSee('Deteksi kebocoran belum aktif')
+            ->assertSee('Camry Kosong');
+    }
+
+    public function test_fuel_index_no_nudge_when_specs_complete_or_car_inactive(): void
+    {
+        // Mobil aktif dengan spesifikasi lengkap: tidak perlu nudge.
+        $this->car(['name' => 'Lengkap']);
+        // Mobil nonaktif walau spesifikasi kosong: tidak di-nudge.
+        $this->car(['name' => 'Nonaktif Kosong', 'is_available' => false, 'fuel_baseline_km_per_l' => null]);
+
+        $this->actingAs($this->admin())
+            ->get('/admin/fuel')
+            ->assertOk()
+            ->assertDontSee('Deteksi kebocoran belum aktif');
     }
 
     public function test_destroy_deletes_log(): void

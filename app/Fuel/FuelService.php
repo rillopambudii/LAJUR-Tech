@@ -82,11 +82,14 @@ class FuelService
             ])
             ->get();
 
-        // Median harga dihitung dari semua log tenant (lintas mobil) — pool
-        // pembanding TIDAK boleh ikut menyempit saat analisis difilter satu mobil.
+        // Pool pembanding harga: lintas mobil se-tenant, TAPI difilter per jenis
+        // BBM saat dinilai (lihat isPriceOutlier) — solar & bensin tak boleh saling
+        // tuduh outlier. Karena itu tiap log pool harus tahu fuel_type mobilnya.
         $allLogs = $carId
-            ? FuelLog::query()->orderBy('filled_at')->orderBy('id')->get()
-            : $cars->flatMap->fuelLogs;
+            ? FuelLog::query()->with('car:id,fuel_type')->orderBy('filled_at')->orderBy('id')->get()
+            : $cars->flatMap(fn (Car $car) => $car->fuelLogs->each(
+                fn (FuelLog $log) => $log->setRelation('car', $car)
+            ));
 
         $summaries = collect();
         $rangeLogs = collect();
@@ -337,16 +340,19 @@ class FuelService
     /**
      * Harga/L menyimpang > PRICE_OUTLIER_RATIO dari median log tenant dalam
      * PRICE_MEDIAN_WINDOW_DAYS hari sebelum log ini (butuh minimal
-     * PRICE_MEDIAN_MIN_LOGS sampel pembanding).
+     * PRICE_MEDIAN_MIN_LOGS sampel pembanding). Pembanding difilter ke JENIS BBM
+     * yang sama — median solar vs bensin beda jauh, mencampurnya bikin flag palsu.
      *
      * @param Collection<int, FuelLog> $tenantLogs
      */
     private function isPriceOutlier(FuelLog $log, Collection $tenantLogs): bool
     {
         $windowStart = $log->filled_at->copy()->subDays(self::PRICE_MEDIAN_WINDOW_DAYS);
+        $fuelType = $log->car?->fuel_type;
 
         $samples = $tenantLogs
             ->filter(fn (FuelLog $other) => $other->id !== $log->id
+                && $other->car?->fuel_type === $fuelType
                 && $other->filled_at->lte($log->filled_at)
                 && $other->filled_at->gte($windowStart))
             ->pluck('price_per_liter')

@@ -5,9 +5,10 @@ namespace App\Tenancy;
 use App\Models\Tenant;
 
 /**
- * Settles a tenant whose trial period has ended: drops it to the Basic plan
- * and marks the subscription active. No payment flow exists yet, so tenants
- * keep using the app on a reduced plan instead of being locked out.
+ * Settles a tenant whose trial period has ended. Payment now runs through
+ * Midtrans (SubscriptionCheckout), so an expired trial is SUSPENDED — access
+ * is locked until the tenant pays. EnsureUserIsAdmin routes a suspended tenant
+ * to the subscription page instead of blocking it outright.
  */
 class TrialGuard
 {
@@ -21,12 +22,18 @@ class TrialGuard
             return $tenant;
         }
 
-        $tenant->update(['plan' => 'basic', 'subscription_status' => 'active']);
+        // Plan dibiarkan (moot selagi terkunci); saat tenant membayar, webhook
+        // menerapkan pending_plan dan mengaktifkan kembali.
+        $tenant->update(['subscription_status' => 'suspended']);
 
         return $tenant;
     }
 
-    /** Downgrades a tenant whose PAID subscription period has ended, to the Basic plan. */
+    /**
+     * Mengunci tenant yang langganan BERBAYAR-nya lewat masa aktif. Diperlakukan
+     * sama dengan trial habis: suspended sampai membayar lagi — bukan turun ke
+     * Basic gratis (Basic adalah paket berbayar, bukan tier gratis).
+     */
     public function settleIfLapsed(Tenant $tenant): Tenant
     {
         if ($tenant->subscription_status !== 'active') {
@@ -37,7 +44,7 @@ class TrialGuard
             return $tenant;
         }
 
-        $tenant->update(['plan' => 'basic']);
+        $tenant->update(['subscription_status' => 'suspended']);
 
         return $tenant;
     }

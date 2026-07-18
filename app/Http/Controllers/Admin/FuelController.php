@@ -30,11 +30,21 @@ class FuelController extends Controller
         $carId = $request->integer('car_id') ?: null;
         $analysis = $this->fuel->analyze($from, $to, $carId);
 
+        // Mobil aktif tanpa kapasitas tangki / baseline: deteksi overfill & boros
+        // dijaga null-check di FuelService, jadi diam-diam tak menyala untuk mobil
+        // ini. Ditonjolkan agar owner melengkapinya, bukan mengira fitur mati.
+        $carsMissingSpecs = Car::query()
+            ->available()
+            ->where(fn ($q) => $q->whereNull('tank_capacity_liters')->orWhereNull('fuel_baseline_km_per_l'))
+            ->ordered()
+            ->get(['id', 'name', 'tank_capacity_liters', 'fuel_baseline_km_per_l']);
+
         return view('admin.fuel.index', [
             'from' => $from,
             'to' => $to,
             'carId' => $carId,
             'cars' => Car::query()->ordered()->get(['id', 'name', 'plate_number']),
+            'carsMissingSpecs' => $carsMissingSpecs,
             'summaries' => $analysis['summaries'],
             'logs' => $analysis['logs'],
         ]);

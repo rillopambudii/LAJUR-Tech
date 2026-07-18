@@ -21,6 +21,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\TrackingController as PublicTrackingController;
@@ -31,7 +32,10 @@ use Illuminate\Support\Facades\Route;
 | Public routes
 |--------------------------------------------------------------------------
 */
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// "/" = page induk (marketing Lajur) di domain pusat; di subdomain tenant,
+// LandingController melempar ke etalase tenant. "/demo" = etalase contoh.
+Route::get('/', [LandingController::class, 'index'])->name('home');
+Route::get('/demo', fn () => app(HomeController::class)->index(true))->name('demo');
 
 Route::post('/booking', [BookingController::class, 'store'])
     ->middleware('throttle:10,1')
@@ -52,6 +56,14 @@ Route::post('/lacak', [PublicTrackingController::class, 'find'])
     ->name('tracking.find');
 Route::get('/lacak/{bookingCode}', [PublicTrackingController::class, 'show'])->name('tracking.show');
 Route::get('/pantau/{bookingCode}', [PublicTrackingController::class, 'watch'])->name('tracking.watch');
+
+/*
+|--------------------------------------------------------------------------
+| Legal (platform induk — dokumen statis, tanpa controller)
+|--------------------------------------------------------------------------
+*/
+Route::view('/syarat', 'legal.terms')->name('legal.terms');
+Route::view('/privasi', 'legal.privacy')->name('legal.privacy');
 
 /*
 |--------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-@extends('layouts.public')
+@extends('layouts.platform')
 
 @section('title', 'Harga & Paket - Lajur')
 
@@ -23,9 +23,9 @@
                     <span class="per">/ 14 hari</span>
                 </div>
                 <ul class="about-points">
-                    <li><span class="tick"><x-icon name="check" /></span> Akses penuh semua fitur</li>
-                    <li><span class="tick"><x-icon name="check" /></span> Tanpa kartu kredit</li>
-                    <li><span class="tick"><x-icon name="check" /></span> Bisa upgrade kapan saja</li>
+                    <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">BBM anti-kebocoran &amp; Asisten AI</span></li>
+                    <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Tanpa kartu kredit</span></li>
+                    <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Pelacakan GPS <span style="display:inline-block;background:rgba(231,178,76,.18);color:var(--amber-600);font-size:.68rem;font-weight:700;padding:2px 9px;border-radius:6px;white-space:nowrap;vertical-align:1px">segera hadir</span><small class="pt-sub">bisa digunakan ketika alat GPS telah dipasang</small></span></li>
                 </ul>
                 <div class="plan-foot">
                     <a href="{{ route('signup.trial.form') }}" class="btn btn-primary btn-block">Coba Gratis 14 Hari</a>
@@ -55,10 +55,13 @@
                         <span class="per">/ bulan</span>
                     </div>
                     <ul class="about-points">
-                        <li><span class="tick"><x-icon name="check" /></span> Booking &amp; kalender armada</li>
-                        <li><span class="tick"><x-icon name="check" /></span> Kelola driver &amp; laporan</li>
+                        <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Booking &amp; kalender armada</span></li>
+                        <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Kelola driver &amp; laporan</span></li>
                         @foreach ($plan->features as $feature)
-                            <li><span class="tick"><x-icon name="check" /></span> {{ $feature->name }}</li>
+                            <li>
+                                <span class="tick"><x-icon name="check" /></span>
+                                <span class="pt-txt">{{ $feature->name }}@if ($feature->key === \App\Models\Feature::GPS_TRACKING) <span style="display:inline-block;background:rgba(231,178,76,.18);color:var(--amber-600);font-size:.68rem;font-weight:700;padding:2px 9px;border-radius:6px;white-space:nowrap;vertical-align:1px">segera hadir</span><small class="pt-sub">bisa digunakan ketika alat GPS telah dipasang</small>@endif</span>
+                            </li>
                         @endforeach
                     </ul>
                     <div class="plan-foot">

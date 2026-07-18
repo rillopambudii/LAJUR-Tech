@@ -30,14 +30,18 @@ class SignupController extends Controller
     public function storeTrial(SignupRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $businessPlan = Plan::where('key', 'business')->firstOrFail();
+        // Trial berjalan di paket Business penuh: pemakai mencoba SEMUA fitur
+        // premium (BBM, AI, dan pratinjau GPS) selama masa coba, lalu setelah
+        // trial habis harus berlangganan untuk mempertahankannya. Panjang trial
+        // diambil dari data paket Business.
+        $trialPlan = Plan::where('key', 'business')->firstOrFail();
 
         $tenant = Tenant::create([
             'name' => $data['business_name'],
             'slug' => $data['slug'],
             'plan' => 'business',
             'subscription_status' => 'trial',
-            'trial_ends_at' => now()->addDays($businessPlan->trial_days),
+            'trial_ends_at' => now()->addDays($trialPlan->trial_days),
         ]);
 
         $user = User::create([

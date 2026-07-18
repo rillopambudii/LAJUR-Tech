@@ -5,13 +5,20 @@
 @section('heading', 'Langganan')
 
 @section('content')
+@if (session('locked'))
+    <div class="panel" style="border-left:4px solid var(--danger);margin-bottom:20px">
+        <div class="panel-body"><strong>{{ session('locked') }}</strong></div>
+    </div>
+@endif
 <div class="panel">
     <div class="panel-head">
         <h2>Plan Saat Ini</h2>
         <span class="tag">{{ ucfirst($tenant->plan) }} · {{ $tenant->subscription_status }}</span>
     </div>
     <div class="panel-body">
-        @if ($tenant->subscription_status === 'trial')
+        @if (in_array($tenant->subscription_status, ['suspended', 'pending_payment', 'cancelled'], true))
+            <p>Akun Anda <strong>terkunci</strong>. Pilih paket di bawah dan selesaikan pembayaran untuk mengaktifkannya kembali.</p>
+        @elseif ($tenant->subscription_status === 'trial')
             <p>Masa trial Anda berakhir pada <strong>{{ $tenant->trial_ends_at?->format('d M Y') }}</strong>.</p>
         @elseif ($tenant->subscription_ends_at)
             <p>Langganan Anda aktif hingga <strong>{{ $tenant->subscription_ends_at->format('d M Y') }}</strong>.</p>

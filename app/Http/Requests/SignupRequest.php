@@ -22,6 +22,7 @@ class SignupRequest extends FormRequest
             'owner_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'max:255'],
+            'agree' => ['accepted'],
         ];
     }
 
@@ -40,6 +41,7 @@ class SignupRequest extends FormRequest
             'email.unique' => 'Email ini sudah terdaftar.',
             'password.required' => 'Kata sandi wajib diisi.',
             'password.min' => 'Kata sandi minimal 8 karakter.',
+            'agree.accepted' => 'Anda harus menyetujui Syarat & Ketentuan dan Kebijakan Privasi.',
         ];
     }
 }

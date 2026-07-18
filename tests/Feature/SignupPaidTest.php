@@ -37,6 +37,7 @@ class SignupPaidTest extends TestCase
         $response = $this->post('/daftar/pro', [
             'business_name' => 'Bayar Co', 'slug' => 'bayar-co',
             'owner_name' => 'Sari', 'email' => 'sari@bayar-co.id', 'password' => 'password123',
+            'agree' => '1',
         ]);
 
         $response->assertRedirect('https://app.sandbox.midtrans.com/snap/v2/vtweb/subxyz');
@@ -59,6 +60,7 @@ class SignupPaidTest extends TestCase
         $this->post('/daftar/pro', [
             'business_name' => 'Fail Co', 'slug' => 'fail-co',
             'owner_name' => 'Rudi', 'email' => 'rudi@fail-co.id', 'password' => 'password123',
+            'agree' => '1',
         ]);
 
         $this->assertDatabaseMissing('tenants', ['slug' => 'fail-co']);

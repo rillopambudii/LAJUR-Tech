@@ -37,11 +37,14 @@
     @stack('head')
 </head>
 <body>
+    {{-- Basis link etalase: url('/') untuk tenant, url('/demo') saat mode demo.
+         Default aman untuk halaman yang tak menyetelnya (tracking, payment). --}}
+    @php($storeBase ??= url('/'))
     <a href="#main" class="skip-link">Lewati ke konten</a>
 
     <header class="site-header">
         <div class="container nav">
-            <a href="{{ route('home') }}" class="brand" aria-label="{{ $branding->name() }} beranda">
+            <a href="{{ $storeBase }}" class="brand" aria-label="{{ $branding->name() }} beranda">
                 @if ($branding->logoUrl())
                     <img src="{{ $branding->logoUrl() }}" alt="{{ $branding->name() }}" style="height:38px;width:auto;max-width:160px;object-fit:contain">
                 @else
@@ -55,8 +58,8 @@
                         Sewa Mobil <x-icon name="chevron-down" class="nav-chevron" />
                     </button>
                     <div class="nav-dropdown" role="menu">
-                        <a href="{{ route('home') }}#sewa" role="menuitem">Sewa Mobil</a>
-                        <a href="{{ route('home') }}#cara" role="menuitem">Cara Sewa</a>
+                        <a href="{{ $storeBase }}#sewa" role="menuitem">Sewa Mobil</a>
+                        <a href="{{ $storeBase }}#cara" role="menuitem">Cara Sewa</a>
                     </div>
                 </div>
                 <div class="nav-item has-dropdown">
@@ -64,12 +67,12 @@
                         Tentang <x-icon name="chevron-down" class="nav-chevron" />
                     </button>
                     <div class="nav-dropdown" role="menu">
-                        <a href="{{ route('home') }}#tentang" role="menuitem">Tentang</a>
-                        <a href="{{ route('home') }}#kenapa" role="menuitem">Kenapa Kami</a>
-                        <a href="{{ route('home') }}#testimoni" role="menuitem">Testimoni</a>
+                        <a href="{{ $storeBase }}#tentang" role="menuitem">Tentang</a>
+                        <a href="{{ $storeBase }}#kenapa" role="menuitem">Kenapa Kami</a>
+                        <a href="{{ $storeBase }}#testimoni" role="menuitem">Testimoni</a>
                     </div>
                 </div>
-                <a href="{{ route('home') }}#kontak">Kontak</a>
+                <a href="{{ $storeBase }}#kontak">Kontak</a>
                 <a href="{{ route('tracking.search') }}">Lacak Pesanan</a>
                 <a href="{{ route('login') }}" class="nav-login-mobile">Masuk</a>
             </nav>
@@ -86,7 +89,7 @@
                         <x-icon name="key" /> Masuk
                     </a>
                 @endauth
-                <a href="{{ route('home') }}#sewa" class="btn btn-primary btn-sm">Sewa Sekarang</a>
+                <a href="{{ $storeBase }}#sewa" class="btn btn-primary btn-sm">Sewa Sekarang</a>
                 <button class="nav-toggle" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
                     <x-icon name="menu" />
                 </button>
@@ -102,7 +105,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
-                    <a href="{{ route('home') }}" class="brand" style="color:var(--ivory)">
+                    <a href="{{ $storeBase }}" class="brand" style="color:var(--ivory)">
                         @if ($branding->logoUrl())
                             <img src="{{ $branding->logoUrl() }}" alt="{{ $branding->name() }}" style="height:38px;width:auto;max-width:160px;object-fit:contain">
                         @else
@@ -114,10 +117,10 @@
                 </div>
                 <div>
                     <h4>Navigasi</h4>
-                    <a href="{{ route('home') }}#sewa">Sewa Mobil</a>
-                    <a href="{{ route('home') }}#cara">Cara Sewa</a>
-                    <a href="{{ route('home') }}#kenapa">Kenapa Kami</a>
-                    <a href="{{ route('home') }}#testimoni">Testimoni</a>
+                    <a href="{{ $storeBase }}#sewa">Sewa Mobil</a>
+                    <a href="{{ $storeBase }}#cara">Cara Sewa</a>
+                    <a href="{{ $storeBase }}#kenapa">Kenapa Kami</a>
+                    <a href="{{ $storeBase }}#testimoni">Testimoni</a>
                     <a href="{{ route('tracking.search') }}">Lacak Pesanan</a>
                 </div>
                 <div>
@@ -129,7 +132,11 @@
             </div>
             <div class="footer-bottom">
                 <span>&copy; {{ date('Y') }} {{ $branding->name() }}. Seluruh hak cipta dilindungi.</span>
-                <a href="{{ route('login') }}">Masuk Admin</a>
+                <span style="display:flex;gap:18px;flex-wrap:wrap">
+                    <a href="{{ route('legal.terms') }}">Syarat &amp; Ketentuan</a>
+                    <a href="{{ route('legal.privacy') }}">Kebijakan Privasi</a>
+                    <a href="{{ route('login') }}">Masuk Admin</a>
+                </span>
             </div>
         </div>
     </footer>

@@ -14,6 +14,34 @@
 @endphp
 
 @section('content')
+    {{-- Nudge onboarding: deteksi kebocoran mati diam-diam tanpa spesifikasi armada. --}}
+    @if ($carsMissingSpecs->isNotEmpty())
+        <div class="panel" style="border-left:4px solid var(--warn);margin-bottom:18px">
+            <div class="panel-body">
+                <strong>Deteksi kebocoran belum aktif untuk {{ $carsMissingSpecs->count() }} mobil.</strong>
+                <p style="margin:6px 0 12px;color:var(--graphite)">
+                    Mobil berikut belum diisi <strong>kapasitas tangki</strong> atau <strong>konsumsi normal (km/L)</strong>,
+                    sehingga anomali <em>isi melebihi tangki</em> dan <em>konsumsi boros</em> tidak bisa dihitung.
+                    Lengkapi agar deteksi berjalan:
+                </p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    @foreach ($carsMissingSpecs as $car)
+                        <a href="{{ route('admin.cars.edit', $car) }}" class="btn btn-ghost btn-sm">
+                            {{ $car->name }}
+                            @if (! $car->tank_capacity_liters && ! $car->fuel_baseline_km_per_l)
+                                <span class="tag">tangki &amp; km/L</span>
+                            @elseif (! $car->tank_capacity_liters)
+                                <span class="tag">tangki</span>
+                            @else
+                                <span class="tag">km/L</span>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Filter + export --}}
     <div class="panel" style="margin-bottom:18px">
         <div class="panel-body">

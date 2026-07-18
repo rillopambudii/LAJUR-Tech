@@ -10,12 +10,18 @@ class PlanSeeder extends Seeder
 {
     /** Default plan config + which feature keys each plan includes. Editable later from /superadmin/plans. */
     private array $planDefaults = [
-        'basic' => ['name' => 'Basic', 'price' => 150000, 'trial_days' => 14, 'sort_order' => 1, 'features' => []],
-        'pro' => ['name' => 'Pro', 'price' => 350000, 'trial_days' => 14, 'sort_order' => 2, 'features' => [
-            Feature::GPS_TRACKING, Feature::FUEL_TRACKING, Feature::EXPORT,
+        // Struktur decoy: Pro cuma menambah AI di atas Basic; Business menambah
+        // BBM + GPS sekaligus → lompatan Pro→Business terasa jauh lebih worth it.
+        // Harga decoy: lompatan Pro→Business sengaja kecil (Rp 200rb) padahal
+        // Business menambah BBM + GPS → dorong "sekalian Business".
+        'basic' => ['name' => 'Basic', 'price' => 799000, 'trial_days' => 14, 'sort_order' => 1, 'features' => [
+            Feature::EXPORT,
         ]],
-        'business' => ['name' => 'Business', 'price' => 750000, 'trial_days' => 14, 'sort_order' => 3, 'features' => [
-            Feature::GPS_TRACKING, Feature::FUEL_TRACKING, Feature::EXPORT, Feature::AI_ASSISTANT,
+        'pro' => ['name' => 'Pro', 'price' => 1290000, 'trial_days' => 14, 'sort_order' => 2, 'features' => [
+            Feature::EXPORT, Feature::AI_ASSISTANT,
+        ]],
+        'business' => ['name' => 'Business', 'price' => 1490000, 'trial_days' => 14, 'sort_order' => 3, 'features' => [
+            Feature::EXPORT, Feature::AI_ASSISTANT, Feature::FUEL_TRACKING, Feature::GPS_TRACKING,
         ]],
     ];
 

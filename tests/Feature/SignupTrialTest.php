@@ -34,7 +34,7 @@ class SignupTrialTest extends TestCase
         $this->post('/daftar/trial', [
             'business_name' => 'Rental Baru', 'slug' => 'rental-baru',
             'owner_name' => 'Budi', 'email' => 'budi@rental-baru.id',
-            'password' => 'password123',
+            'password' => 'password123', 'agree' => '1',
         ])->assertRedirect(route('admin.dashboard'));
 
         $tenant = Tenant::where('slug', 'rental-baru')->firstOrFail();
@@ -45,6 +45,17 @@ class SignupTrialTest extends TestCase
         $user = User::where('email', 'budi@rental-baru.id')->firstOrFail();
         $this->assertSame(User::ROLE_OWNER, $user->role);
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_trial_signup_requires_agreeing_to_terms(): void
+    {
+        $this->post('/daftar/trial', [
+            'business_name' => 'Tanpa Setuju', 'slug' => 'tanpa-setuju',
+            'owner_name' => 'Budi', 'email' => 'budi@tanpa-setuju.id',
+            'password' => 'password123', // tanpa 'agree'
+        ])->assertSessionHasErrors('agree');
+
+        $this->assertDatabaseMissing('tenants', ['slug' => 'tanpa-setuju']);
     }
 
     public function test_trial_signup_rejects_duplicate_slug(): void

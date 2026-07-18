@@ -1,4 +1,4 @@
-@extends('layouts.public')
+@extends('layouts.platform')
 
 @section('title', ($mode === 'trial' ? 'Coba Gratis 14 Hari' : 'Daftar '.$plan->name).' - Lajur')
 
@@ -78,6 +78,17 @@
                         @error('password')<span class="field-error">{{ $message }}</span>@enderror
                     </div>
 
+                    <label style="display:flex;gap:10px;align-items:flex-start;font-size:.9rem;color:var(--graphite);margin-bottom:16px;cursor:pointer">
+                        <input type="checkbox" name="agree" value="1" @checked(old('agree')) required style="margin-top:3px;flex-shrink:0">
+                        <span>
+                            Saya setuju dengan
+                            <a href="{{ route('legal.terms') }}" target="_blank" rel="noopener">Syarat &amp; Ketentuan</a>
+                            dan
+                            <a href="{{ route('legal.privacy') }}" target="_blank" rel="noopener">Kebijakan Privasi</a>.
+                        </span>
+                    </label>
+                    @error('agree')<span class="field-error" style="display:block;margin:-8px 0 16px">{{ $message }}</span>@enderror
+
                     <button type="submit" class="btn btn-primary btn-block">
                         @if ($mode === 'trial')
                             <x-icon name="arrow-right" /> Mulai Trial Gratis Sekarang
@@ -99,7 +110,8 @@
                         <ul class="about-points">
                             <li><span class="tick"><x-icon name="check" /></span> 14 hari akses penuh, setara paket Business</li>
                             <li><span class="tick"><x-icon name="check" /></span> Booking, armada &amp; driver dalam satu dashboard</li>
-                            <li><span class="tick"><x-icon name="check" /></span> Pelacakan GPS &amp; laporan BBM</li>
+                            <li><span class="tick"><x-icon name="check" /></span> Laporan BBM anti-kebocoran</li>
+                            <li><span class="tick"><x-icon name="check" /></span> Pelacakan GPS — bisa digunakan ketika alat GPS telah dipasang <span style="display:inline-block;background:rgba(231,178,76,.18);color:var(--amber-600);font-size:.68rem;font-weight:700;padding:2px 9px;border-radius:6px;white-space:nowrap;vertical-align:1px">segera hadir</span></li>
                             <li><span class="tick"><x-icon name="check" /></span> Asisten AI untuk ringkasan bisnis</li>
                             <li><span class="tick"><x-icon name="check" /></span> Tanpa kartu kredit, bisa berhenti kapan saja</li>
                         </ul>

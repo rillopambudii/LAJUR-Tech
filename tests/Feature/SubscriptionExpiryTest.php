@@ -18,7 +18,7 @@ class SubscriptionExpiryTest extends TestCase
         $this->seed(PlanSeeder::class);
     }
 
-    public function test_lapsed_paid_subscription_downgrades_to_basic(): void
+    public function test_lapsed_paid_subscription_is_locked(): void
     {
         $tenant = Tenant::create([
             'name' => 'Lapsed Co', 'slug' => 'lapsed-co', 'plan' => 'pro',
@@ -27,8 +27,8 @@ class SubscriptionExpiryTest extends TestCase
 
         app(TrialGuard::class)->settleIfLapsed($tenant);
 
-        $this->assertSame('basic', $tenant->fresh()->plan);
-        $this->assertSame('active', $tenant->fresh()->subscription_status);
+        // Langganan berbayar yang lewat masa diperlakukan sama dgn trial: dikunci.
+        $this->assertSame('suspended', $tenant->fresh()->subscription_status);
     }
 
     public function test_active_unexpired_subscription_is_untouched(): void
@@ -56,7 +56,7 @@ class SubscriptionExpiryTest extends TestCase
         $this->assertSame('business', $tenant->fresh()->plan);
     }
 
-    public function test_check_trial_command_also_downgrades_lapsed_subscriptions(): void
+    public function test_check_trial_command_also_locks_lapsed_subscriptions(): void
     {
         Tenant::create([
             'name' => 'Lapsed Co 2', 'slug' => 'lapsed-co-2', 'plan' => 'business',
@@ -65,6 +65,6 @@ class SubscriptionExpiryTest extends TestCase
 
         $this->artisan('tenants:check-trial')->assertExitCode(0);
 
-        $this->assertSame('basic', Tenant::where('slug', 'lapsed-co-2')->value('plan'));
+        $this->assertSame('suspended', Tenant::where('slug', 'lapsed-co-2')->value('subscription_status'));
     }
 }

@@ -18,7 +18,7 @@ class TrialGuardTest extends TestCase
         $this->seed(PlanSeeder::class);
     }
 
-    public function test_expired_trial_is_downgraded_to_basic(): void
+    public function test_expired_trial_is_locked_until_payment(): void
     {
         $tenant = Tenant::create([
             'name' => 'Trial Co', 'slug' => 'trial-co', 'plan' => 'business',
@@ -27,8 +27,8 @@ class TrialGuardTest extends TestCase
 
         app(TrialGuard::class)->settleIfExpired($tenant);
 
-        $this->assertSame('basic', $tenant->fresh()->plan);
-        $this->assertSame('active', $tenant->fresh()->subscription_status);
+        // Dikunci (suspended), bukan turun ke Basic gratis.
+        $this->assertSame('suspended', $tenant->fresh()->subscription_status);
     }
 
     public function test_active_trial_is_left_untouched(): void
@@ -44,7 +44,7 @@ class TrialGuardTest extends TestCase
         $this->assertSame('trial', $tenant->fresh()->subscription_status);
     }
 
-    public function test_check_trial_command_downgrades_all_expired_tenants(): void
+    public function test_check_trial_command_locks_all_expired_tenants(): void
     {
         Tenant::create([
             'name' => 'Expired Co', 'slug' => 'expired-co', 'plan' => 'business',
@@ -53,6 +53,6 @@ class TrialGuardTest extends TestCase
 
         $this->artisan('tenants:check-trial')->assertExitCode(0);
 
-        $this->assertSame('basic', Tenant::where('slug', 'expired-co')->value('plan'));
+        $this->assertSame('suspended', Tenant::where('slug', 'expired-co')->value('subscription_status'));
     }
 }

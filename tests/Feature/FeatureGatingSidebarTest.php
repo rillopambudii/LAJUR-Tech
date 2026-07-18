@@ -73,17 +73,18 @@ class FeatureGatingSidebarTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_tenant_with_expired_trial_loses_gated_route_access_on_next_request(): void
+    public function test_tenant_with_expired_trial_is_locked_until_payment(): void
     {
         $tenant = Tenant::create([
             'name' => 'Expiring Co', 'slug' => 'expiring-co', 'plan' => 'business',
             'subscription_status' => 'trial', 'trial_ends_at' => now()->subDay(),
         ]);
 
+        // Trial habis → dikunci → diarahkan ke halaman bayar, bukan turun ke Basic.
         $this->actingAs($this->ownerFor($tenant))
             ->get('/admin/tracking')
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertRedirect(route('admin.subscription.index'));
 
-        $this->assertSame('basic', $tenant->fresh()->plan);
+        $this->assertSame('suspended', $tenant->fresh()->subscription_status);
     }
 }

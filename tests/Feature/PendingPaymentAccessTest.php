@@ -29,7 +29,8 @@ class PendingPaymentAccessTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_OWNER, 'is_admin' => true,
         ]);
 
-        $this->actingAs($owner)->get('/admin')->assertForbidden();
+        // Tenant terkunci tidak di-403 buntu, tapi diarahkan ke halaman bayar.
+        $this->actingAs($owner)->get('/admin')->assertRedirect(route('admin.subscription.index'));
     }
 
     public function test_active_tenant_owner_can_access_admin_dashboard(): void

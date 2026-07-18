@@ -13,7 +13,7 @@ class NavbarAuthStateTest extends TestCase
 
     public function test_guest_sees_daftar_button_on_public_site(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/demo');
 
         $response->assertOk();
         $response->assertSee('Daftar');
@@ -28,7 +28,7 @@ class NavbarAuthStateTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_OWNER, 'is_admin' => true,
         ]);
 
-        $response = $this->actingAs($owner)->get('/');
+        $response = $this->actingAs($owner)->get('/demo');
 
         $response->assertOk();
         $response->assertDontSee('Daftar');
@@ -43,7 +43,7 @@ class NavbarAuthStateTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_DRIVER,
         ]);
 
-        $response = $this->actingAs($driver)->get('/');
+        $response = $this->actingAs($driver)->get('/demo');
 
         $response->assertOk();
         $response->assertDontSee('Daftar');
@@ -57,7 +57,7 @@ class NavbarAuthStateTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN,
         ]);
 
-        $response = $this->actingAs($superAdmin)->get('/');
+        $response = $this->actingAs($superAdmin)->get('/demo');
 
         $response->assertOk();
         $response->assertDontSee('Daftar');

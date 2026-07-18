@@ -8,7 +8,13 @@ use Illuminate\Contracts\View\View;
 
 class HomeController extends Controller
 {
-    public function index(): View
+    /**
+     * Etalase rental (storefront). Dipakai di dua konteks:
+     *  - subdomain tenant "/" → etalase tenant itu,
+     *  - "/demo" pada domain pusat → etalase contoh (tenant default), $demo=true.
+     * $demo mengaktifkan banner "ini contoh" dan mengarahkan anchor nav ke /demo.
+     */
+    public function index(bool $demo = false): View
     {
         // Featured & available cars for the highlight; fall back to the
         // latest available cars when no featured car exists (FR-06 / BR-06).
@@ -30,6 +36,10 @@ class HomeController extends Controller
             'happy_customers' => max(Testimonial::query()->published()->count(), 0),
         ];
 
-        return view('home', compact('featured', 'cars', 'types', 'testimonials', 'stats'));
+        // Basis anchor nav/footer etalase: di /demo harus tetap di /demo, bukan
+        // meloncat ke page induk di "/". Dibaca oleh layouts.public + home.
+        $storeBase = $demo ? url('/demo') : url('/');
+
+        return view('home', compact('featured', 'cars', 'types', 'testimonials', 'stats', 'demo', 'storeBase'));
     }
 }

@@ -7,6 +7,14 @@
 
 @section('content')
 
+@if ($demo ?? false)
+    {{-- Banner mode demo: etalase ini dipamerkan dari page induk sebagai contoh. --}}
+    <div style="background:var(--petrol);color:var(--ivory);text-align:center;padding:13px 18px;font-size:.92rem;display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap">
+        <span><x-icon name="eye" style="width:16px;height:16px;vertical-align:-3px" /> Ini <strong>demo</strong> — beginilah tampilan etalase sewa yang didapat tiap tenant Lajur.</span>
+        <a href="{{ route('signup.trial.form') }}" style="color:var(--amber);font-weight:700">Buat punya Anda →</a>
+    </div>
+@endif
+
 {{-- ============ HERO ============ --}}
 <section class="hero" id="home" style="--hero-image: url('{{ $heroImage }}')">
     <div class="container">
