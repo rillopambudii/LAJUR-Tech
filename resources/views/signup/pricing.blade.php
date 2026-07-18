@@ -33,7 +33,7 @@
             </div>
 
             @foreach ($plans as $plan)
-                @php $featured = $plan->key === 'pro'; @endphp
+                @php $featured = $plan->key === 'business'; @endphp
                 <div class="plan-card @if ($featured) is-featured @endif">
                     @if ($featured)
                         <span class="plan-badge">Paling Populer</span>

@@ -23,8 +23,8 @@
 
 <div class="pricing-grid" style="margin-top:24px">
     @foreach ($plans as $plan)
-        <div class="plan-card @if ($plan->key === 'pro') is-featured @endif">
-            @if ($plan->key === 'pro')
+        <div class="plan-card @if ($plan->key === 'business') is-featured @endif">
+            @if ($plan->key === 'business')
                 <span class="plan-badge">Paling Populer</span>
             @endif
             <h2 class="plan-name">{{ $plan->name }}</h2>
