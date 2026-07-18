@@ -17,10 +17,10 @@ class PlanSeeder extends Seeder
         'basic' => ['name' => 'Basic', 'price' => 799000, 'trial_days' => 14, 'sort_order' => 1, 'features' => [
             Feature::EXPORT,
         ]],
-        'pro' => ['name' => 'Pro', 'price' => 1290000, 'trial_days' => 14, 'sort_order' => 2, 'features' => [
+        'pro' => ['name' => 'Pro', 'price' => 1299000, 'trial_days' => 14, 'sort_order' => 2, 'features' => [
             Feature::EXPORT, Feature::AI_ASSISTANT,
         ]],
-        'business' => ['name' => 'Business', 'price' => 1490000, 'trial_days' => 14, 'sort_order' => 3, 'features' => [
+        'business' => ['name' => 'Business', 'price' => 1499000, 'trial_days' => 14, 'sort_order' => 3, 'features' => [
             Feature::EXPORT, Feature::AI_ASSISTANT, Feature::FUEL_TRACKING, Feature::GPS_TRACKING,
         ]],
     ];
