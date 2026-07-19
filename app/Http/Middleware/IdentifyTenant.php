@@ -59,8 +59,12 @@ class IdentifyTenant
 
         $parts = explode('.', $host);
 
-        // Needs at least sub.domain.tld to treat the first label as a slug.
-        if (count($parts) < 3) {
+        // Needs at least sub.domain.tld to treat the first label as a slug —
+        // except *.localhost, where "slug.localhost" (2 labels) already is one
+        // (mirrors Domain::isCentral).
+        $min = str_ends_with($host, '.localhost') ? 2 : 3;
+
+        if (count($parts) < $min) {
             return null;
         }
 

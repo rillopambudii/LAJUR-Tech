@@ -25,6 +25,19 @@ class IdentifyTenantHostTest extends TestCase
         $response->assertSee('Lajur');
     }
 
+    public function test_slug_dot_localhost_resolves_the_tenant_storefront(): void
+    {
+        Tenant::create([
+            'name' => 'Ucup Rental', 'slug' => 'ucupadhy', 'plan' => 'basic',
+            'subscription_status' => 'active', 'display_name' => 'Ucup Rental Mobil',
+        ]);
+
+        $response = $this->get('http://ucupadhy.localhost/');
+
+        $response->assertOk();
+        $response->assertSee('Ucup Rental Mobil');
+    }
+
     public function test_genuine_subdomain_still_resolves_the_matching_tenant(): void
     {
         $tenant = Tenant::create([

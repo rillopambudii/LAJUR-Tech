@@ -53,9 +53,10 @@ class AppServiceProvider extends ServiceProvider
         // Localise dates (month names in charts, etc.).
         Carbon::setLocale('id');
 
-        // Storefront branding: only the public layout + home read tenant
-        // branding; dashboards keep Lajur branding.
-        View::composer(['layouts.public', 'home'], function ($view) {
+        // Storefront branding: the public layout + home read tenant branding;
+        // dashboards keep Lajur branding — layouts.admin & admin.site only get
+        // it for the "Lihat Situs" link (Branding::siteUrl).
+        View::composer(['layouts.public', 'home', 'layouts.admin', 'admin.site'], function ($view) {
             $view->with('branding', new Branding(app(TenantManager::class)->current()));
         });
     }

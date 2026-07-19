@@ -20,6 +20,24 @@ class NavbarAuthStateTest extends TestCase
         $response->assertSee(route('signup.pricing'), false);
     }
 
+    public function test_guest_on_tenant_subdomain_sees_only_sewa_cta(): void
+    {
+        Tenant::create([
+            'name' => 'Kaltim Rental', 'slug' => 'kaltim-rental', 'plan' => 'basic',
+            'subscription_status' => 'active',
+        ]);
+
+        $response = $this->get('http://kaltim-rental.example.test/');
+
+        $response->assertOk();
+        // Daftar/Masuk (jualan Lajur) tidak muncul untuk customer tenant…
+        $response->assertDontSee(route('signup.pricing'), false);
+        $response->assertDontSee('nav-login-mobile');
+        // …CTA sewa dan pintu owner di footer tetap ada.
+        $response->assertSee('Sewa Sekarang');
+        $response->assertSee('Masuk Admin');
+    }
+
     public function test_logged_in_owner_sees_dashboard_link_instead_of_daftar(): void
     {
         $tenant = Tenant::where('slug', 'lajur')->firstOrFail();

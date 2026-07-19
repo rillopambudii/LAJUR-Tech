@@ -27,8 +27,12 @@ class Domain
 
         $parts = explode('.', $host);
 
+        // Browser me-resolve *.localhost ke 127.0.0.1, jadi saat dev lokal
+        // "slug.localhost" (2 label) sudah dianggap subdomain tenant.
+        $min = str_ends_with($host, '.localhost') ? 2 : 3;
+
         // Kurang dari sub.domain.tld (mis. lajur.id, localhost) = pusat.
-        if (count($parts) < 3) {
+        if (count($parts) < $min) {
             return true;
         }
 

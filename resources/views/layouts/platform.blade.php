@@ -10,42 +10,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-
-    {{-- Loading screen: tampil sekali per sesi. Cek dulu SEBELUM body render agar
-         tak berkedip saat pindah halaman. --}}
-    <script>try{if(sessionStorage.getItem('lajurSplash')){document.documentElement.classList.add('no-splash');}else{sessionStorage.setItem('lajurSplash','1');}}catch(e){}</script>
-    <style>
-        #splash{position:fixed;inset:0;z-index:9999;background:#0F1B33;display:grid;place-items:center;
-            transition:opacity .55s ease,visibility .55s ease}
-        #splash.hide{opacity:0;visibility:hidden}
-        .no-splash #splash{display:none}
-        .splash-inner{display:flex;flex-direction:column;align-items:center;gap:24px}
-        .splash-logo{display:flex;align-items:center;gap:13px;color:#F7F8FB;
-            font-family:'Sora',system-ui,sans-serif;font-weight:800;font-size:2rem;letter-spacing:-.02em;
-            animation:splashPop .6s cubic-bezier(.2,.7,.2,1) both}
-        .splash-mark{width:48px;height:48px;border-radius:13px;background:#E7B24C;color:#0F1B33;
-            display:grid;place-items:center}
-        .splash-mark svg{width:28px;height:28px}
-        .splash-bar{width:160px;height:4px;border-radius:4px;background:rgba(247,248,251,.14);overflow:hidden}
-        .splash-bar span{display:block;height:100%;width:42%;border-radius:4px;background:#E7B24C;
-            animation:splashSlide 1.15s ease-in-out infinite}
-        @keyframes splashSlide{0%{transform:translateX(-130%)}100%{transform:translateX(360%)}}
-        @keyframes splashPop{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
-        /* Jaring pengaman tanpa JS: sembunyi otomatis setelah 4 detik. */
-        @keyframes splashSafety{to{opacity:0;visibility:hidden}}
-        #splash{animation:splashSafety .01s linear 4s forwards}
-        @media(prefers-reduced-motion:reduce){#splash{display:none}}
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
     @stack('head')
 </head>
 <body>
-    <div id="splash" aria-hidden="true">
-        <div class="splash-inner">
-            <div class="splash-logo"><span class="splash-mark"><x-icon name="route" /></span> Lajur</div>
-            <div class="splash-bar"><span></span></div>
-        </div>
-    </div>
+    @include('partials.splash', ['name' => 'Lajur', 'logo' => null])
     <a href="#main" class="skip-link">Lewati ke konten</a>
 
     {{-- Page induk = selalu brand Lajur (bukan brand tenant). --}}
@@ -123,22 +92,6 @@
         </div>
     </footer>
 
-    <script>
-        (function(){
-            var s=document.getElementById('splash');
-            if(!s||document.documentElement.classList.contains('no-splash')){if(s)s.remove();return;}
-            var start=Date.now(),MIN=650; // tampil minimal biar terasa disengaja, bukan berkedip
-            function hide(){
-                setTimeout(function(){
-                    s.classList.add('hide');
-                    setTimeout(function(){s.remove();},600);
-                },Math.max(0,MIN-(Date.now()-start)));
-            }
-            if(document.readyState==='complete')hide();
-            else window.addEventListener('load',hide);
-            setTimeout(hide,3500); // jaring pengaman
-        })();
-    </script>
     <script src="{{ asset('js/app.js') }}" defer></script>
     @stack('scripts')
 </body>

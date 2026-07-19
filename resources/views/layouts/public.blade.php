@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', $branding->name() === 'Lajur' ? 'Lajur - Rental Mobil Premium Kalimantan Timur' : $branding->name().' - Rental Mobil')</title>
-    <meta name="description" content="{{ $branding->name() === 'Lajur' ? 'Lajur: sewa mobil premium di Kalimantan Timur. Armada terawat, harga transparan, proses cepat dan aman.' : $branding->name().': sewa mobil dengan armada terawat, harga transparan, proses cepat dan aman.' }}">
+    <title>@yield('title', $branding->metaTitle())</title>
+    <meta name="description" content="{{ $branding->metaDescription() }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&family=Playfair+Display:wght@600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
     @if ($branding->accentColor() || $branding->hasPersonalization())
         {{-- --accent-override: penanda uji; nilai menimpa var aksen & gaya brand --}}
         <style id="accent-override">/* --accent-override */
@@ -36,10 +36,14 @@
     @endif
     @stack('head')
 </head>
-<body>
+<body data-effect="{{ $branding->sectionEffect() }}">
     {{-- Basis link etalase: url('/') untuk tenant, url('/demo') saat mode demo.
          Default aman untuk halaman yang tak menyetelnya (tracking, payment). --}}
     @php($storeBase ??= url('/'))
+    @php($navIsCentral = \App\Tenancy\Domain::isCentral(request()->getHost()))
+    @if ($branding->splashEnabled())
+        @include('partials.splash', ['name' => $branding->name(), 'logo' => $branding->logoUrl()])
+    @endif
     <a href="#main" class="skip-link">Lewati ke konten</a>
 
     <header class="site-header">
@@ -74,16 +78,23 @@
                 </div>
                 <a href="{{ $storeBase }}#kontak">Kontak</a>
                 <a href="{{ route('tracking.search') }}">Lacak Pesanan</a>
-                <a href="{{ route('login') }}" class="nav-login-mobile">Masuk</a>
+                @auth
+                    <a href="{{ route(auth()->user()->homeRouteName()) }}" class="nav-login-mobile">Dashboard</a>
+                @elseif ($navIsCentral)
+                    <a href="{{ route('login') }}" class="nav-login-mobile">Masuk</a>
+                @endauth
             </nav>
             <div class="nav-cta">
                 @auth
                     {{-- Tenant sudah punya akun — "Daftar" tidak relevan, arahkan
                          langsung ke dashboard mereka (termasuk untuk lanjut berlangganan). --}}
-                    <a href="{{ route(auth()->user()->homeRouteName()) }}" class="btn btn-ghost btn-sm">
+                    <a href="{{ route(auth()->user()->homeRouteName()) }}" class="btn btn-dark btn-sm">
                         <x-icon name="dashboard" /> Dashboard
                     </a>
-                @else
+                @elseif ($navIsCentral)
+                    {{-- Daftar/Masuk = jualan Lajur — hanya di domain pusat (/demo).
+                         Customer di etalase tenant cukup lihat "Sewa Sekarang";
+                         pintu owner tetap ada via "Masuk Admin" di footer. --}}
                     <a href="{{ route('signup.pricing') }}" class="btn btn-ghost btn-sm">Daftar</a>
                     <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">
                         <x-icon name="key" /> Masuk
@@ -114,6 +125,22 @@
                         {{ $branding->name() }}
                     </a>
                     <p>Rental mobil premium untuk wilayah Kalimantan Timur. Armada terawat, harga transparan, dan layanan yang bisa Anda percaya.</p>
+                    @if ($branding->instagram() || $branding->facebook() || $branding->tiktok() || $branding->whatsappUrl())
+                        <div class="footer-social">
+                            @if ($branding->whatsappUrl())
+                                <a href="{{ $branding->whatsappUrl() }}" target="_blank" rel="noopener" aria-label="WhatsApp"><x-icon name="whatsapp" /></a>
+                            @endif
+                            @if ($branding->instagram())
+                                <a href="{{ $branding->instagram() }}" target="_blank" rel="noopener" aria-label="Instagram"><x-icon name="instagram" /></a>
+                            @endif
+                            @if ($branding->facebook())
+                                <a href="{{ $branding->facebook() }}" target="_blank" rel="noopener" aria-label="Facebook"><x-icon name="facebook" /></a>
+                            @endif
+                            @if ($branding->tiktok())
+                                <a href="{{ $branding->tiktok() }}" target="_blank" rel="noopener" aria-label="TikTok"><x-icon name="tiktok" /></a>
+                            @endif
+                        </div>
+                    @endif
                 </div>
                 <div>
                     <h4>Navigasi</h4>
@@ -131,15 +158,23 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <span>&copy; {{ date('Y') }} {{ $branding->name() }}. Seluruh hak cipta dilindungi.</span>
-                <span style="display:flex;gap:18px;flex-wrap:wrap">
+                <span>&copy; {{ date('Y') }} {{ $branding->name() }}. Seluruh hak cipta dilindungi.
+                    <span style="display:block;margin-top:4px;opacity:.65">Situs ini didukung oleh <a href="https://lajur.id" target="_blank" rel="noopener">Lajur</a>, produk dari Realwintech.</span>
+                </span>
+                <span style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
                     <a href="{{ route('legal.terms') }}">Syarat &amp; Ketentuan</a>
                     <a href="{{ route('legal.privacy') }}">Kebijakan Privasi</a>
-                    <a href="{{ route('login') }}">Masuk Admin</a>
+                    <a href="{{ route('login') }}" class="footer-admin-btn">Masuk Admin</a>
                 </span>
             </div>
         </div>
     </footer>
+
+    @if ($branding->whatsappUrl())
+        <a href="{{ $branding->whatsappUrl() }}" class="wa-float" target="_blank" rel="noopener" aria-label="Chat WhatsApp {{ $branding->name() }}">
+            <x-icon name="whatsapp" />
+        </a>
+    @endif
 
     <script src="{{ asset('js/app.js') }}" defer></script>
     @stack('scripts')
