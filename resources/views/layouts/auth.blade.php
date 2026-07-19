@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Masuk Admin — Lajur</title>
+    <title>@yield('title', 'Lajur')</title>
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,6 @@
         .auth-head p { color: var(--graphite); margin-top: 6px; font-size: .95rem; }
         .back-home { display: block; text-align: center; margin-top: 18px; color: var(--graphite); font-size: .9rem; }
         .back-home:hover { color: var(--petrol); }
-        .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-size: .92rem; color: var(--graphite); }
     </style>
 </head>
 <body>
@@ -30,39 +29,24 @@
                 <span class="mark"><x-icon name="route" /></span> Lajur
             </a>
             <div class="auth-head">
-                <h1>Masuk Admin</h1>
-                <p>Panel pengelolaan Lajur</p>
+                <h1>@yield('heading')</h1>
+                <p>@yield('sub')</p>
             </div>
 
+            @if (session('status'))
+                <div class="alert alert-success" role="status">
+                    <x-icon name="check" /> <span>{{ session('status') }}</span>
+                </div>
+            @endif
             @if ($errors->any())
                 <div class="alert alert-error" role="alert">
-                    <x-icon name="alert" />
-                    <span>{{ $errors->first() }}</span>
+                    <x-icon name="alert" /> <span>{{ $errors->first() }}</span>
                 </div>
             @endif
 
-            <form action="{{ route('login.attempt') }}" method="POST" novalidate>
-                @csrf
-                <div class="field">
-                    <label for="email">Email</label>
-                    <input class="input @error('email') has-error @enderror" type="email" id="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username">
-                </div>
-                <div class="field">
-                    <label for="password">Kata Sandi</label>
-                    <input class="input @error('password') has-error @enderror" type="password" id="password" name="password" required autocomplete="current-password">
-                </div>
-                <div class="check-row" style="justify-content:space-between">
-                    <label style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer">
-                        <input type="checkbox" name="remember" value="1"> Ingat saya
-                    </label>
-                    <a href="{{ route('password.request') }}" style="color:var(--petrol);font-weight:600">Lupa kata sandi?</a>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">
-                    <x-icon name="key" /> Masuk
-                </button>
-            </form>
+            @yield('content')
 
-            <a href="{{ route('home') }}" class="back-home">&larr; Kembali ke beranda</a>
+            <a href="{{ route('login') }}" class="back-home">&larr; Kembali ke halaman masuk</a>
         </div>
     </div>
 </body>

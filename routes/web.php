@@ -18,6 +18,7 @@ use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
@@ -105,6 +106,21 @@ Route::post('/login', [LoginController::class, 'login'])
 Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Lupa & reset kata sandi (broker bawaan Laravel)
+|--------------------------------------------------------------------------
+*/
+Route::get('/lupa-password', [PasswordResetController::class, 'request'])->name('password.request');
+Route::post('/lupa-password', [PasswordResetController::class, 'email'])
+    ->middleware('throttle:5,1') // batasi brute-force / spam email
+    ->name('password.email');
+// Nama 'password.reset' WAJIB: notifikasi bawaan Laravel membangun tautan via route('password.reset').
+Route::get('/reset-password/{token}', [PasswordResetController::class, 'reset'])->name('password.reset');
+Route::post('/reset-password', [PasswordResetController::class, 'update'])
+    ->middleware('throttle:5,1')
+    ->name('password.update');
 
 /*
 |--------------------------------------------------------------------------
