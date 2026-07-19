@@ -92,6 +92,44 @@ class SiteSettingTest extends TestCase
         Storage::disk('public')->assertMissing($path);
     }
 
+    public function test_owner_can_save_storefront_customization(): void
+    {
+        $owner = $this->owner();
+
+        $this->actingAs($owner)->put('/admin/situs', [
+            'hero_title' => 'Sewa Mobil Anti Ribet',
+            'about_title' => 'Kenalan dengan kami',
+            'about_text' => 'Kami rental terpercaya.',
+            'why_us' => [
+                ['title' => 'Cepat', 'text' => 'Proses 10 menit'],
+                ['title' => '', 'text' => 'baris kosong dibuang'],
+            ],
+            'whatsapp' => '0812-3456-7890',
+            'instagram' => 'lajurprima',
+            'section_effect' => 'zoom',
+            'meta_title' => 'Lajur Prima - Rental',
+            // checkbox tak dicentang → show_testimonials harus jadi false
+            'splash_enabled' => '1',
+            'show_about' => '1',
+            'show_why' => '1',
+        ])->assertRedirect(route('admin.site.edit'));
+
+        $t = $this->tenant->fresh();
+        $this->assertSame('Sewa Mobil Anti Ribet', $t->hero_title);
+        $this->assertSame('zoom', $t->section_effect);
+        $this->assertCount(1, $t->why_us); // baris judul kosong terbuang
+        $this->assertSame('Cepat', $t->why_us[0]['title']);
+        $this->assertFalse($t->show_testimonials); // checkbox tak dikirim → false
+        $this->assertTrue($t->show_about);
+    }
+
+    public function test_invalid_section_effect_is_rejected(): void
+    {
+        $this->actingAs($this->owner())->put('/admin/situs', [
+            'section_effect' => 'meledak',
+        ])->assertSessionHasErrors('section_effect');
+    }
+
     public function test_driver_cannot_access_site_settings(): void
     {
         $driver = User::create([

@@ -55,7 +55,8 @@ class SignupController extends Controller
         Auth::login($user);
         request()->session()->regenerate();
 
-        return redirect()->route('admin.dashboard');
+        // Tenant baru: sapaan splash sekali di dashboard.
+        return redirect()->route('admin.dashboard')->with('greet', 1);
     }
 
     public function paidForm(string $planKey): View
@@ -84,7 +85,7 @@ class SignupController extends Controller
                 'subscription_status' => 'pending_payment',
             ]);
 
-            User::create([
+            $user = User::create([
                 'tenant_id' => $tenant->id,
                 'name' => $data['owner_name'],
                 'email' => $data['email'],
@@ -108,15 +109,37 @@ class SignupController extends Controller
 
         DB::commit();
 
+        // Login pemilik sekarang: sesi bertahan lewat perjalanan ke Midtrans dan
+        // kembali, jadi di halaman "selesai" mereka sudah masuk → langsung dashboard.
+        Auth::login($user);
+
         return redirect($url);
     }
 
-    public function finish(): View
+    public function finish(SubscriptionCheckout $checkout): RedirectResponse|View
     {
         $orderId = (string) request()->query('order_id', '');
         $tenant = $orderId !== ''
             ? Tenant::where('payment_ref', $orderId)->first()
             : null;
+
+        if ($tenant) {
+            // Jangan menunggu webhook (tak terjangkau di lokal, balapan di produksi):
+            // verifikasi langsung ke Midtrans, lalu aktifkan bila sudah dibayar.
+            if ($tenant->subscription_status !== 'active' && $checkout->verifyPaid($orderId)) {
+                $checkout->activate($tenant);
+            }
+
+            if ($tenant->subscription_status === 'active') {
+                $owner = $tenant->users()->where('role', User::ROLE_OWNER)->first();
+                if ($owner && ! Auth::check()) {
+                    Auth::login($owner);
+                }
+
+                // Langsung ke dashboard + sapaan splash.
+                return redirect()->route('admin.dashboard')->with('greet', 1);
+            }
+        }
 
         return view('signup.finish', ['tenant' => $tenant]);
     }

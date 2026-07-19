@@ -174,6 +174,34 @@
         }
     }
 
+    /* ---------- Testimonial popup (kutipan panjang di-clamp CSS) ---------- */
+    var testiDialog = document.getElementById('testi-dialog');
+    if (testiDialog && testiDialog.showModal) {
+        document.querySelectorAll('.testi-group:not([aria-hidden]) .testi').forEach(function (card) {
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('role', 'button');
+        });
+        document.addEventListener('click', function (e) {
+            var card = e.target.closest && e.target.closest('.testi-group .testi');
+            if (!card) return;
+            testiDialog.innerHTML = '';
+            var full = card.cloneNode(true);
+            full.removeAttribute('tabindex');
+            full.removeAttribute('role');
+            testiDialog.appendChild(full);
+            testiDialog.showModal();
+        });
+        document.addEventListener('keydown', function (e) {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.testi-group .testi')) {
+                e.preventDefault();
+                e.target.click();
+            }
+        });
+        testiDialog.addEventListener('click', function (e) {
+            if (e.target === testiDialog) testiDialog.close();
+        });
+    }
+
     /* ---------- Reveal on scroll (respects reduced motion) ---------- */
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var reveals = document.querySelectorAll('.reveal, .car-card');

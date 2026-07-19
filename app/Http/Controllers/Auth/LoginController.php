@@ -49,7 +49,8 @@ class LoginController extends Controller
         // Prevent session fixation (NFR-12).
         $request->session()->regenerate();
 
-        return redirect()->intended($this->homeFor($user));
+        // Tandai untuk splash sapaan sekali di halaman tujuan (lihat layouts.admin).
+        return redirect()->intended($this->homeFor($user))->with('greet', 1);
     }
 
     /** The landing route for a user based on their role. */

@@ -16,18 +16,21 @@
 @endif
 
 {{-- ============ HERO ============ --}}
-<section class="hero" id="home" style="--hero-image: url('{{ $heroImage }}')">
+<section class="hero" id="home" style="--hero-image: url('{{ $branding->heroImageUrl() }}')">
     <div class="container">
         <div class="hero-content">
             <span class="eyebrow hero-eyebrow">{{ $branding->tagline() }}</span>
             <h1 class="hero-title">
-                <span class="hero-title__lead">Perjalanan Anda,</span>
-                <span class="hero-title__reveal">dalam kendali penuh.</span>
+                <span class="hero-title__reveal">{{ $branding->heroTitle() }}</span>
             </h1>
-            <p>Sewa mobil premium yang terawat dengan harga transparan dan proses yang cepat. Dari dinas hingga liburan keluarga, {{ $branding->name() }} siap mengantar.</p>
+            <p>{{ $branding->heroSubtitle() }}</p>
             <div class="hero-actions">
                 <a href="#sewa" class="btn btn-primary">Lihat Armada <x-icon name="arrow-right" /></a>
-                <a href="#cara" class="btn btn-light">Cara Sewa</a>
+                @if ($branding->whatsappUrl())
+                    <a href="{{ $branding->whatsappUrl() }}" class="btn btn-light" target="_blank" rel="noopener"><x-icon name="whatsapp" /> Chat WhatsApp</a>
+                @else
+                    <a href="#cara" class="btn btn-light">Cara Sewa</a>
+                @endif
             </div>
         </div>
     </div>
@@ -112,69 +115,77 @@
     </div>
 </section>
 
-{{-- ============ KENAPA LAJUR ============ --}}
+{{-- ============ KEUNGGULAN ============ --}}
+@if ($branding->showWhy() && count($branding->whyUs()))
 <section class="section" id="kenapa" style="background:var(--ivory-200)">
     <div class="container">
         <div class="section-head reveal">
             <h2 class="section-title">Dibangun untuk rasa aman</h2>
         </div>
         <div class="features">
-            @foreach ([
-                ['shield', 'Armada Terawat', 'Setiap mobil diservis berkala dan dicek menyeluruh sebelum disewakan.'],
-                ['tag', 'Harga Transparan', 'Tarif jelas per hari, tanpa biaya tersembunyi. Estimasi total dihitung di muka.'],
-                ['clock', 'Proses Cepat', 'Ajukan sewa dalam hitungan menit. Tim responsif siap membantu kapan saja.'],
-                ['sparkle', 'Layanan Premium', 'Pengalaman menyewa yang rapi dan profesional dari awal hingga akhir.'],
-            ] as $f)
+            @foreach ($branding->whyUs() as $f)
                 <div class="feature reveal">
-                    <div class="ico"><x-icon name="{{ $f[0] }}" /></div>
-                    <h3>{{ $f[1] }}</h3>
-                    <p>{{ $f[2] }}</p>
+                    <div class="ico"><x-icon name="{{ $f['icon'] }}" /></div>
+                    <h3>{{ $f['title'] }}</h3>
+                    <p>{{ $f['text'] }}</p>
                 </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-
-{{-- ============ TESTIMONI ============ --}}
-@if ($testimonials->isNotEmpty())
-<section class="section" id="testimoni">
-    <div class="container">
-        <div class="section-head reveal">
-            <h2 class="section-title">Dipercaya pelanggan kami</h2>
-        </div>
-        <div class="testi-grid">
-            @foreach ($testimonials as $t)
-                <figure class="testi reveal">
-                    <div class="stars" aria-label="Rating {{ $t->rating }} dari 5">
-                        @for ($i = 0; $i < $t->rating; $i++)<x-icon name="star" />@endfor
-                    </div>
-                    <blockquote>“{{ $t->quote }}”</blockquote>
-                    <figcaption class="who">
-                        @if ($t->avatar_url)
-                            <img src="{{ $t->avatar_url }}" alt="{{ $t->name }}" data-fallback>
-                        @else
-                            <span class="ph">{{ strtoupper(substr($t->name, 0, 1)) }}</span>
-                        @endif
-                        <span>
-                            <span class="name">{{ $t->name }}</span>
-                            @if ($t->role)<span class="role">{{ $t->role }}</span>@endif
-                        </span>
-                    </figcaption>
-                </figure>
             @endforeach
         </div>
     </div>
 </section>
 @endif
 
+{{-- ============ TESTIMONI ============ --}}
+@if ($branding->showTestimonials() && $testimonials->isNotEmpty())
+<section class="section" id="testimoni">
+    <div class="container">
+        <div class="section-head reveal">
+            <h2 class="section-title">Dipercaya pelanggan kami</h2>
+        </div>
+        @php $rows = $testimonials->count() >= 4 ? $testimonials->split(2) : collect([$testimonials]); @endphp
+        <div class="testi-marquee reveal">
+            @foreach ($rows as $row)
+                <div class="testi-track {{ $loop->even ? '' : 'reverse' }}">
+                    @foreach ([false, true] as $clone)
+                        <div class="testi-group" @if ($clone) aria-hidden="true" @endif>
+                            @foreach ($row as $t)
+                                <figure class="testi">
+                                    <div class="stars" aria-label="Rating {{ $t->rating }} dari 5">
+                                        @for ($i = 0; $i < $t->rating; $i++)<x-icon name="star" />@endfor
+                                    </div>
+                                    <blockquote>“{{ $t->quote }}”</blockquote>
+                                    <figcaption class="who">
+                                        @if ($t->avatar_url)
+                                            <img src="{{ $t->avatar_url }}" alt="{{ $t->name }}" data-fallback>
+                                        @else
+                                            <span class="ph">{{ strtoupper(substr($t->name, 0, 1)) }}</span>
+                                        @endif
+                                        <span>
+                                            <span class="name">{{ $t->name }}</span>
+                                            @if ($t->role)<span class="role">{{ $t->role }}</span>@endif
+                                        </span>
+                                    </figcaption>
+                                </figure>
+                            @endforeach
+                        </div>
+                    @endforeach
+                </div>
+            @endforeach
+        </div>
+    </div>
+    <dialog class="testi-dialog" id="testi-dialog"></dialog>
+</section>
+@endif
+
 {{-- ============ TENTANG ============ --}}
+@if ($branding->showAbout())
 <section class="section" id="tentang" style="background:var(--ivory-200)">
     <div class="container">
         <div class="about">
             <div class="reveal">
                 <span class="eyebrow">Tentang Kami</span>
-                <h2 class="section-title">Mitra perjalanan Anda di Kalimantan Timur</h2>
-                <p class="section-sub">{{ $branding->name() }} lahir dari kebutuhan akan layanan rental mobil yang rapi, jujur, dan bisa diandalkan. Kami percaya menyewa mobil seharusnya semudah dan seaman membeli tiket: tanpa drama, tanpa biaya kejutan.</p>
+                <h2 class="section-title">{{ $branding->aboutTitle() }}</h2>
+                <p class="section-sub">{{ $branding->aboutText() }}</p>
                 <ul class="about-points">
                     @foreach (['Armada beragam untuk setiap kebutuhan', 'Tim lokal yang memahami medan Kalimantan', 'Konfirmasi cepat & komunikasi yang jelas'] as $point)
                         <li><span class="tick"><x-icon name="check" /></span> <span>{{ $point }}</span></li>
@@ -188,6 +199,7 @@
         </div>
     </div>
 </section>
+@endif
 
 {{-- ============ KONTAK ============ --}}
 <section class="section" id="kontak">

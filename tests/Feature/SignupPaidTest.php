@@ -47,8 +47,56 @@ class SignupPaidTest extends TestCase
         $this->assertSame('pending_payment', $tenant->subscription_status);
         $this->assertNotNull($tenant->payment_ref);
 
-        $this->assertGuest();
+        // Pemilik login otomatis: sesi bertahan lewat Midtrans, jadi saat kembali
+        // ke halaman "selesai" mereka sudah masuk dan langsung ke dashboard.
+        $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['email' => 'sari@bayar-co.id']);
+    }
+
+    public function test_finish_activates_subscription_and_redirects_to_dashboard_when_paid(): void
+    {
+        $tenant = Tenant::create([
+            'name' => 'Bayar Co', 'slug' => 'bayar-co', 'plan' => 'basic',
+            'subscription_status' => 'pending_payment', 'payment_ref' => 'LAJUR-SUB-1-999',
+        ]);
+        $owner = User::create([
+            'tenant_id' => $tenant->id, 'name' => 'Sari', 'email' => 'sari@bayar-co.id',
+            'password' => 'password', 'role' => User::ROLE_OWNER, 'is_admin' => true,
+        ]);
+
+        // Midtrans mengonfirmasi pembayaran (verifikasi server-to-server).
+        Http::fake([
+            'api.sandbox.midtrans.com/v2/*/status' => Http::response([
+                'transaction_status' => 'settlement', 'fraud_status' => 'accept',
+            ]),
+        ]);
+
+        $this->get('/daftar/selesai?order_id=LAJUR-SUB-1-999')
+            ->assertRedirect(route('admin.dashboard'));
+
+        $tenant->refresh();
+        $this->assertSame('active', $tenant->subscription_status);
+        $this->assertNotNull($tenant->subscription_ends_at);
+        $this->assertAuthenticatedAs($owner);
+    }
+
+    public function test_finish_stays_pending_when_payment_not_completed(): void
+    {
+        $tenant = Tenant::create([
+            'name' => 'Belum Co', 'slug' => 'belum-co', 'plan' => 'basic',
+            'subscription_status' => 'pending_payment', 'payment_ref' => 'LAJUR-SUB-2-888',
+        ]);
+
+        Http::fake([
+            'api.sandbox.midtrans.com/v2/*/status' => Http::response([
+                'transaction_status' => 'pending', 'fraud_status' => 'accept',
+            ]),
+        ]);
+
+        $this->get('/daftar/selesai?order_id=LAJUR-SUB-2-888')->assertOk();
+
+        $this->assertSame('pending_payment', $tenant->fresh()->subscription_status);
+        $this->assertGuest();
     }
 
     public function test_failed_checkout_does_not_leave_orphaned_tenant_or_user(): void
@@ -74,13 +122,22 @@ class SignupPaidTest extends TestCase
             'subscription_status' => 'pending_payment', 'payment_ref' => 'LAJUR-SUB-1-999',
         ]);
 
+        // Midtrans belum menerima pembayaran → tetap menunggu.
+        Http::fake([
+            'api.sandbox.midtrans.com/v2/*/status' => Http::response([
+                'transaction_status' => 'pending', 'fraud_status' => 'accept',
+            ]),
+        ]);
+
         $this->get('/daftar/selesai?order_id=LAJUR-SUB-1-999')
             ->assertOk()
             ->assertSee('Menunggu');
     }
 
-    public function test_finish_page_shows_success_when_active(): void
+    public function test_finish_redirects_active_tenant_to_dashboard(): void
     {
+        // Sudah aktif (mis. webhook lebih dulu tiba) → langsung ke dashboard,
+        // tak perlu klik "Login" manual.
         $tenant = Tenant::create([
             'name' => 'Paid Co', 'slug' => 'paid-co', 'plan' => 'pro',
             'subscription_status' => 'active', 'payment_ref' => 'LAJUR-SUB-2-999',
@@ -88,7 +145,6 @@ class SignupPaidTest extends TestCase
         ]);
 
         $this->get('/daftar/selesai?order_id=LAJUR-SUB-2-999')
-            ->assertOk()
-            ->assertSee('Login');
+            ->assertRedirect(route('admin.dashboard'));
     }
 }
