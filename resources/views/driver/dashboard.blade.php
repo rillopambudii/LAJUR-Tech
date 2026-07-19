@@ -4,56 +4,67 @@
 
 @php
     $statusColors = ['pending' => 'pill-pending', 'confirmed' => 'pill-confirmed', 'completed' => 'pill-completed', 'cancelled' => 'pill-cancelled'];
+    $today = \Illuminate\Support\Carbon::today();
+    $ongoing = $upcoming->filter(fn ($b) => $b->start_date->lte($today) && $b->end_date->gte($today));
 @endphp
 
 @section('content')
-    <h1 style="font-family:'Sora',sans-serif;font-size:1.6rem;margin:6px 0 4px">Jadwal Tugas Saya</h1>
-    <p style="color:rgba(0,0,0,.55);margin:0">{{ $upcoming->count() }} tugas mendatang</p>
-
-    <h2 class="drv-section-title">Tugas Mendatang</h2>
-    <div class="panel">
-        <div class="table-wrap">
-            <table class="data">
-                <thead>
-                    <tr><th>Mobil</th><th>Penyewa</th><th>Mulai</th><th>Selesai</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-                @forelse ($upcoming as $b)
-                    <tr>
-                        <td class="nm">{{ $b->car_name }}</td>
-                        <td>{{ $b->customer_name }}<br><a href="tel:{{ $b->customer_phone }}" style="font-size:.82rem">{{ $b->customer_phone }}</a></td>
-                        <td>{{ $b->start_date->translatedFormat('d M Y') }}</td>
-                        <td>{{ $b->end_date->translatedFormat('d M Y') }}</td>
-                        <td><span class="pill {{ $statusColors[$b->status] ?? '' }}">{{ $b->status_label }}</span></td>
-                    </tr>
-                @empty
-                    <tr><td colspan="5" class="empty-row">Belum ada tugas mendatang.</td></tr>
-                @endforelse
-                </tbody>
-            </table>
+    <div class="drv-hero">
+        <div>
+            <span class="eyebrow">{{ $today->translatedFormat('l, d F Y') }}</span>
+            <h1 class="drv-title">Jadwal Tugas Saya</h1>
+        </div>
+        <div class="drv-stats">
+            <div class="drv-stat"><span class="n">{{ $ongoing->count() }}</span><span class="l">Berjalan</span></div>
+            <div class="drv-stat"><span class="n">{{ $upcoming->count() - $ongoing->count() }}</span><span class="l">Mendatang</span></div>
         </div>
     </div>
 
+    <h2 class="drv-section-title">Tugas Mendatang</h2>
+    @forelse ($upcoming as $b)
+        @php $now = $b->start_date->lte($today) && $b->end_date->gte($today); @endphp
+        <article class="drv-card {{ $now ? 'now' : '' }}">
+            <div class="drv-date" aria-hidden="true">
+                <span class="d">{{ $b->start_date->format('d') }}</span>
+                <span class="m">{{ $b->start_date->translatedFormat('M') }}</span>
+            </div>
+            <div class="drv-info">
+                <div class="drv-car">{{ $b->car_name }}
+                    @if ($now)<span class="drv-now-badge">Sedang berjalan</span>@endif
+                </div>
+                <div class="drv-row"><x-icon name="calendar" /> {{ $b->start_date->translatedFormat('d M') }} – {{ $b->end_date->translatedFormat('d M Y') }} · {{ $b->start_date->diffInDays($b->end_date) + 1 }} hari</div>
+                <div class="drv-row"><x-icon name="users" /> {{ $b->customer_name }}</div>
+            </div>
+            <div class="drv-side">
+                <span class="pill {{ $statusColors[$b->status] ?? '' }}">{{ $b->status_label }}</span>
+                @if ($b->customer_phone)
+                    <a class="btn btn-primary btn-sm" href="tel:{{ $b->customer_phone }}"><x-icon name="phone" /> Telepon</a>
+                @endif
+            </div>
+        </article>
+    @empty
+        <div class="drv-empty">
+            <x-icon name="route" />
+            <p>Belum ada tugas mendatang.<br>Santai dulu — jadwal baru akan muncul di sini.</p>
+        </div>
+    @endforelse
+
     @if ($past->isNotEmpty())
         <h2 class="drv-section-title">Riwayat Terakhir</h2>
-        <div class="panel">
-            <div class="table-wrap">
-                <table class="data">
-                    <thead>
-                        <tr><th>Mobil</th><th>Penyewa</th><th>Tanggal</th><th>Status</th></tr>
-                    </thead>
-                    <tbody>
-                    @foreach ($past as $b)
-                        <tr>
-                            <td class="nm">{{ $b->car_name }}</td>
-                            <td>{{ $b->customer_name }}</td>
-                            <td>{{ $b->start_date->translatedFormat('d M') }} – {{ $b->end_date->translatedFormat('d M Y') }}</td>
-                            <td><span class="pill {{ $statusColors[$b->status] ?? '' }}">{{ $b->status_label }}</span></td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        @foreach ($past as $b)
+            <article class="drv-card past">
+                <div class="drv-date" aria-hidden="true">
+                    <span class="d">{{ $b->start_date->format('d') }}</span>
+                    <span class="m">{{ $b->start_date->translatedFormat('M') }}</span>
+                </div>
+                <div class="drv-info">
+                    <div class="drv-car">{{ $b->car_name }}</div>
+                    <div class="drv-row"><x-icon name="users" /> {{ $b->customer_name }} · {{ $b->start_date->translatedFormat('d M') }} – {{ $b->end_date->translatedFormat('d M Y') }}</div>
+                </div>
+                <div class="drv-side">
+                    <span class="pill {{ $statusColors[$b->status] ?? '' }}">{{ $b->status_label }}</span>
+                </div>
+            </article>
+        @endforeach
     @endif
 @endsection
