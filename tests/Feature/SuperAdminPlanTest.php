@@ -50,6 +50,44 @@ class SuperAdminPlanTest extends TestCase
         $this->assertSame(399000, $plan->fresh()->price);
     }
 
+    public function test_super_admin_can_set_and_clear_discount(): void
+    {
+        $plan = Plan::where('key', 'pro')->firstOrFail();
+        $admin = $this->superAdmin();
+
+        $this->actingAs($admin)
+            ->patch("/superadmin/plans/{$plan->id}", [
+                'price' => $plan->price, 'trial_days' => $plan->trial_days,
+                'discount_price' => 999000, 'discount_label' => 'Promo Peluncuran',
+            ])->assertRedirect();
+
+        $plan->refresh();
+        $this->assertTrue($plan->hasDiscount());
+        $this->assertSame(999000, $plan->effectivePrice());
+
+        // Kosongkan diskon → label ikut terhapus, harga kembali normal.
+        $this->actingAs($admin)
+            ->patch("/superadmin/plans/{$plan->id}", [
+                'price' => $plan->price, 'trial_days' => $plan->trial_days,
+            ])->assertRedirect();
+
+        $plan->refresh();
+        $this->assertFalse($plan->hasDiscount());
+        $this->assertNull($plan->discount_label);
+        $this->assertSame($plan->price, $plan->effectivePrice());
+    }
+
+    public function test_discount_must_be_below_normal_price(): void
+    {
+        $plan = Plan::where('key', 'pro')->firstOrFail();
+
+        $this->actingAs($this->superAdmin())
+            ->patch("/superadmin/plans/{$plan->id}", [
+                'price' => $plan->price, 'trial_days' => $plan->trial_days,
+                'discount_price' => $plan->price + 1000,
+            ])->assertSessionHasErrors('discount_price');
+    }
+
     public function test_super_admin_can_toggle_plan_features(): void
     {
         $plan = Plan::where('key', 'basic')->firstOrFail();

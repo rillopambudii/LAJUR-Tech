@@ -122,7 +122,10 @@
                             <div class="lbl">Paket dipilih</div>
                             <div style="font-weight:700;font-family:var(--font-display);font-size:1.1rem">{{ $plan->name }}</div>
                         </div>
-                        <div class="amount">Rp {{ number_format($plan->price, 0, ',', '.') }}<span style="font-size:.7rem;font-weight:400;color:rgba(247,248,251,.7)"> /bln</span></div>
+                        <div class="amount">
+                            @if ($plan->hasDiscount())<s style="font-size:.75rem;font-weight:400;color:rgba(247,248,251,.6)">Rp {{ number_format($plan->price, 0, ',', '.') }}</s>@endif
+                            Rp {{ number_format($plan->effectivePrice(), 0, ',', '.') }}<span style="font-size:.7rem;font-weight:400;color:rgba(247,248,251,.7)"> /bln</span>
+                        </div>
                     </div>
                     <div class="plan-card" style="padding:22px">
                         <p style="font-size:.9rem;color:var(--graphite);display:flex;align-items:flex-start;gap:10px">

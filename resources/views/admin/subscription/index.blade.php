@@ -36,7 +36,15 @@
             @endif
             <h2 class="plan-name">{{ $plan->name }}</h2>
             <div class="plan-price">
-                <span class="amount">Rp {{ number_format($plan->price, 0, ',', '.') }}</span>
+                @if ($plan->hasDiscount())
+                    <span style="display:block;font-size:.9rem;color:var(--graphite)">
+                        <s>Rp {{ number_format($plan->price, 0, ',', '.') }}</s>
+                        @if ($plan->discount_label)
+                            <span style="background:rgba(231,178,76,.18);color:var(--amber-600);font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:6px;vertical-align:1px">{{ $plan->discount_label }}</span>
+                        @endif
+                    </span>
+                @endif
+                <span class="amount">Rp {{ number_format($plan->effectivePrice(), 0, ',', '.') }}</span>
                 <span class="per">/ bulan</span>
             </div>
             <div class="plan-foot">

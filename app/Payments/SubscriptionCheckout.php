@@ -28,11 +28,11 @@ class SubscriptionCheckout
         $payload = [
             'transaction_details' => [
                 'order_id' => $orderId,
-                'gross_amount' => (int) $plan->price,
+                'gross_amount' => $plan->effectivePrice(),
             ],
             'item_details' => [[
                 'id' => 'plan-'.$plan->key,
-                'price' => (int) $plan->price,
+                'price' => $plan->effectivePrice(),
                 'quantity' => 1,
                 'name' => mb_substr('Langganan Lajur - '.$plan->name.' (30 hari)', 0, 50),
             ]],

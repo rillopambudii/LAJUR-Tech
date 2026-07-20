@@ -22,8 +22,14 @@ class PlanController extends Controller
     {
         $data = $request->validate([
             'price' => ['required', 'integer', 'min:0'],
+            'discount_price' => ['nullable', 'integer', 'min:0', 'lt:price'],
+            'discount_label' => ['nullable', 'string', 'max:40'],
             'trial_days' => ['required', 'integer', 'min:0'],
         ]);
+
+        // Kosongkan diskon = hapus; label tanpa diskon tidak ada artinya.
+        $data['discount_price'] = $data['discount_price'] ?? null;
+        $data['discount_label'] = $data['discount_price'] !== null ? ($data['discount_label'] ?? null) : null;
 
         $plan->update($data);
 
