@@ -50,4 +50,47 @@ class SuperAdminLandingContentTest extends TestCase
             ->patch('/superadmin/konten-landing', ['hero_title_lead' => 'Hack'])
             ->assertForbidden();
     }
+
+    public function test_super_admin_can_update_hero_and_it_reflects_on_landing_page(): void
+    {
+        $this->actingAs($this->superAdmin())
+            ->patch('/superadmin/konten-landing', [
+                'hero_title_lead' => 'Judul Kustom Owner',
+                'hero_title_reveal' => 'baris kedua kustom.',
+            ])
+            ->assertRedirect(route('superadmin.landing.edit'));
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Judul Kustom Owner')
+            ->assertSee('baris kedua kustom.');
+    }
+
+    public function test_partial_pain_item_edit_keeps_other_items_default(): void
+    {
+        $this->actingAs($this->superAdmin())
+            ->patch('/superadmin/konten-landing', [
+                'pain_items' => [
+                    2 => ['title' => 'Kartu Ketiga Kustom'],
+                ],
+            ])
+            ->assertRedirect();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Kartu Ketiga Kustom') // item 2 diganti
+            ->assertSee('Sulit tahu posisi kendaraan') // item 0 tetap default
+            ->assertSee('Data operasional tersebar'); // item 4 tetap default
+    }
+
+    public function test_blank_field_falls_back_to_default_after_being_previously_set(): void
+    {
+        $admin = $this->superAdmin();
+
+        $this->actingAs($admin)->patch('/superadmin/konten-landing', ['cta_title' => 'Judul Sementara']);
+        $this->get('/')->assertSee('Judul Sementara');
+
+        $this->actingAs($admin)->patch('/superadmin/konten-landing', ['cta_title' => '']);
+        $this->get('/')->assertSee('Siap mengelola armada lebih efisien?'); // kembali ke default
+    }
 }
