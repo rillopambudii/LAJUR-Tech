@@ -54,4 +54,54 @@ class LandingCopyTest extends TestCase
         $this->assertSame('Label Baru', $items[0]);
         $this->assertSame('Platform cloud', $items[1]); // index 1 tetap default
     }
+
+    public function test_feature_groups_overrides_title_and_item_independently_without_losing_siblings(): void
+    {
+        // Test 1: Override only group 1's title, verify items remain at default and other groups unaffected
+        $copy1 = new LandingCopy([
+            'feature_groups' => [
+                1 => ['title' => 'Monitoring Kustom'],
+            ],
+        ]);
+
+        $groups1 = $copy1->featureGroups();
+
+        // Group 0 title unchanged
+        $this->assertSame('Operasional', $groups1[0]['title']);
+
+        // Group 1 title overridden
+        $this->assertSame('Monitoring Kustom', $groups1[1]['title']);
+
+        // Group 1 items still at defaults
+        $this->assertSame('BBM anti-kebocoran, ditandai otomatis', $groups1[1]['items'][0]);
+        $this->assertSame('Laporan pendapatan dan utilisasi', $groups1[1]['items'][1]);
+        $this->assertSame('Export PDF / Excel', $groups1[1]['items'][2]);
+        $this->assertSame('GPS live di peta', $groups1[1]['items'][3]);
+
+        // Group 2 and 3 titles unchanged
+        $this->assertSame('Produktivitas', $groups1[2]['title']);
+        $this->assertSame('Pengalaman Pelanggan', $groups1[3]['title']);
+
+        // Test 2: Override only an item in group 1, verify title remains at default and other items unaffected
+        $copy2 = new LandingCopy([
+            'feature_groups' => [
+                1 => ['items' => [2 => 'Export custom items saja']],
+            ],
+        ]);
+
+        $groups2 = $copy2->featureGroups();
+
+        // Group 1 title still at default (not overridden)
+        $this->assertSame('Monitoring', $groups2[1]['title']);
+
+        // Group 1 items: only index 2 overridden, others at default
+        $this->assertSame('BBM anti-kebocoran, ditandai otomatis', $groups2[1]['items'][0]);
+        $this->assertSame('Laporan pendapatan dan utilisasi', $groups2[1]['items'][1]);
+        $this->assertSame('Export custom items saja', $groups2[1]['items'][2]); // overridden
+        $this->assertSame('GPS live di peta', $groups2[1]['items'][3]);
+
+        // Group 0 and other groups unaffected
+        $this->assertSame('Operasional', $groups2[0]['title']);
+        $this->assertSame('Produktivitas', $groups2[2]['title']);
+    }
 }
