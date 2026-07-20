@@ -26,6 +26,9 @@
             <a href="{{ route('superadmin.tenants.index') }}" class="{{ request()->routeIs('superadmin.tenants.*') ? 'active' : '' }}">
                 <x-icon name="users" /> Tenant
             </a>
+            <a href="{{ route('superadmin.landing.edit') }}" class="{{ request()->routeIs('superadmin.landing.*') ? 'active' : '' }}">
+                Konten Landing
+            </a>
         </nav>
         <div class="sidebar-foot">
             <div class="sidebar-user">
