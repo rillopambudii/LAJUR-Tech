@@ -62,6 +62,8 @@
                     <th>Trial Berakhir</th>
                     <th>Langganan Berakhir</th>
                     <th>Ubah Plan</th>
+                    <th>Ubah Status</th>
+                    <th>Hapus</th>
                 </tr>
             </thead>
             <tbody>
@@ -96,9 +98,36 @@
                                 <button type="submit" class="btn btn-ghost btn-sm">Simpan</button>
                             </form>
                         </td>
+                        <td>
+                            <form method="POST" action="{{ route('superadmin.tenants.status', $tenant) }}" style="display:flex;gap:8px;align-items:center">
+                                @csrf @method('PATCH')
+                                <select name="subscription_status" class="select" style="width:auto;padding:8px 12px">
+                                    @foreach (\App\Models\Tenant::STATUSES as $status)
+                                        <option value="{{ $status }}" {{ $tenant->subscription_status === $status ? 'selected' : '' }}>
+                                            {{ $statusLabel[$status] ?? $status }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="btn btn-ghost btn-sm">Simpan</button>
+                            </form>
+                        </td>
+                        <td>
+                            @if ($tenant->slug === 'lajur')
+                                <span class="br">Tenant bawaan</span>
+                            @else
+                                <form method="POST" action="{{ route('superadmin.tenants.destroy', $tenant) }}"
+                                      data-confirm="Hapus tenant {{ $tenant->name }} secara permanen? Semua data (mobil, booking, user, dll) ikut terhapus dan tidak bisa dikembalikan."
+                                      style="display:flex;gap:8px;align-items:center">
+                                    @csrf @method('DELETE')
+                                    <input type="text" class="input" style="width:130px;padding:8px 12px" placeholder="ketik slug"
+                                           data-slug-confirm data-slug="{{ $tenant->slug }}" autocomplete="off">
+                                    <button type="submit" class="btn btn-danger btn-sm" disabled>Hapus</button>
+                                </form>
+                            @endif
+                        </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="empty-row">Belum ada tenant.</td></tr>
+                    <tr><td colspan="8" class="empty-row">Belum ada tenant.</td></tr>
                 @endforelse
             </tbody>
         </table>

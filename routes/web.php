@@ -219,6 +219,8 @@ Route::prefix('superadmin')
         Route::get('tenants', [SuperAdminTenantController::class, 'index'])->name('tenants.index');
         Route::post('tenants', [SuperAdminTenantController::class, 'store'])->name('tenants.store');
         Route::patch('tenants/{tenant}/plan', [SuperAdminTenantController::class, 'updatePlan'])->name('tenants.plan');
+        Route::patch('tenants/{tenant}/status', [SuperAdminTenantController::class, 'updateStatus'])->name('tenants.status');
+        Route::delete('tenants/{tenant}', [SuperAdminTenantController::class, 'destroy'])->name('tenants.destroy');
     });
 
 /*

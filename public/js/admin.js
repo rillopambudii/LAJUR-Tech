@@ -62,4 +62,13 @@
             if (!window.confirm(form.getAttribute('data-confirm'))) e.preventDefault();
         });
     });
+
+    /* ---------- Slug-confirm gate (tenant delete) ---------- */
+    document.querySelectorAll('[data-slug-confirm]').forEach(function (input) {
+        var btn = input.form && input.form.querySelector('button[type="submit"]');
+        if (!btn) return;
+        input.addEventListener('input', function () {
+            btn.disabled = input.value.trim() !== input.getAttribute('data-slug');
+        });
+    });
 })();
