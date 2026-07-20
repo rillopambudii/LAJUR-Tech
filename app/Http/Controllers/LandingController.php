@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Content\LandingCopy;
+use App\Models\LandingContent;
 use App\Models\Plan;
 use App\Tenancy\Domain;
 use Illuminate\Contracts\View\View;
@@ -25,6 +27,8 @@ class LandingController extends Controller
         // Ringkasan paket untuk teaser harga (decoy) — urut sesuai sort_order.
         $plans = Plan::with('features')->orderBy('sort_order')->get();
 
-        return view('landing', compact('plans'));
+        $copy = new LandingCopy(LandingContent::current());
+
+        return view('landing', compact('plans', 'copy'));
     }
 }
