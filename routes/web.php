@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TrackingController;
+use App\Http\Controllers\SuperAdmin\LandingContentController as SuperAdminLandingContentController;
 use App\Http\Controllers\SuperAdmin\PlanController as SuperAdminPlanController;
 use App\Http\Controllers\SuperAdmin\TenantController as SuperAdminTenantController;
 use App\Http\Controllers\Driver\DriverDashboardController;
@@ -221,6 +222,8 @@ Route::prefix('superadmin')
         Route::patch('tenants/{tenant}/plan', [SuperAdminTenantController::class, 'updatePlan'])->name('tenants.plan');
         Route::patch('tenants/{tenant}/status', [SuperAdminTenantController::class, 'updateStatus'])->name('tenants.status');
         Route::delete('tenants/{tenant}', [SuperAdminTenantController::class, 'destroy'])->name('tenants.destroy');
+        Route::get('konten-landing', [SuperAdminLandingContentController::class, 'edit'])->name('landing.edit');
+        Route::patch('konten-landing', [SuperAdminLandingContentController::class, 'update'])->name('landing.update');
     });
 
 /*

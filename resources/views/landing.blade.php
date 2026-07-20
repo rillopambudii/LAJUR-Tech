@@ -8,15 +8,14 @@
 <section class="hero" id="home">
     <div class="container">
         <div class="hero-content">
-            <span class="eyebrow hero-eyebrow">Untuk pemilik usaha rental mobil</span>
+            <span class="eyebrow hero-eyebrow">{{ $copy->heroEyebrow() }}</span>
             <h1 class="hero-title">
-                <span class="hero-title__lead">Kelola seluruh operasional armada</span>
-                <span class="hero-title__reveal">dalam satu platform.</span>
+                <span class="hero-title__lead">{{ $copy->heroTitleLead() }}</span>
+                <span class="hero-title__reveal">{{ $copy->heroTitleReveal() }}</span>
             </h1>
-            <p>Pantau kendaraan, pengemudi, booking, BBM, hingga laporan operasional
-                secara real-time dalam satu dashboard.</p>
+            <p>{{ $copy->heroSubtitle() }}</p>
             <div class="hero-actions">
-                <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">Coba Gratis 14 Hari <x-icon name="arrow-right" /></a>
+                <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">{{ $copy->ctaLabel() }} <x-icon name="arrow-right" /></a>
                 <a href="{{ url('/demo') }}" class="btn btn-light">Lihat Demo</a>
             </div>
         </div>
@@ -39,12 +38,11 @@
 
 {{-- ============ TRUST STRIP ============ --}}
 <div class="container">
-    <p class="trust-lead reveal">Dibangun untuk membantu operasional bisnis rental di Indonesia</p>
+    <p class="trust-lead reveal">{{ $copy->trustLead() }}</p>
     <div class="trust-strip reveal" style="margin-top:14px">
-        <span class="item"><x-icon name="gauge" /> Monitoring real-time</span>
-        <span class="item"><x-icon name="dashboard" /> Platform cloud</span>
-        <span class="item"><x-icon name="phone" /> Ramah di HP</span>
-        <span class="item"><x-icon name="whatsapp" /> Support Indonesia</span>
+        @foreach ([['gauge', 0], ['dashboard', 1], ['phone', 2], ['whatsapp', 3]] as [$icon, $i])
+            <span class="item"><x-icon name="{{ $icon }}" /> {{ $copy->trustItems()[$i] }}</span>
+        @endforeach
     </div>
 </div>
 
@@ -53,24 +51,19 @@
     <div class="container">
         <div class="prob-grid">
             <div class="prob-head reveal">
-                <span class="eyebrow">Kenapa Lajur</span>
-                <h2 class="section-title">Masih mengelola armada secara manual?</h2>
-                <p class="section-sub">Kalau salah satunya terasa akrab, Anda tidak sendirian. Ini keluhan yang paling sering kami dengar dari pemilik rental.</p>
+                <span class="eyebrow">{{ $copy->painEyebrow() }}</span>
+                <h2 class="section-title">{{ $copy->painTitle() }}</h2>
+                <p class="section-sub">{{ $copy->painSubtitle() }}</p>
             </div>
             <div class="prob-list">
-                @foreach ([
-                    ['pin', 'Sulit tahu posisi kendaraan', 'Mobil disewa keluar kota, kabarnya hanya dari telepon sopir.'],
-                    ['gauge', 'Laporan selalu terlambat', 'Rekap bulanan baru jadi tanggal 10. Keputusan diambil pakai firasat.'],
-                    ['fuel', 'Sulit mengontrol driver &amp; BBM', 'Sopir isi 50 ribu, lapor 100 ribu. Sebulan hilang jutaan tanpa jejak.'],
-                    ['chat', 'Booking masih lewat chat', 'Pesanan tercecer di WhatsApp. Dua penyewa, mobil sama, hari sama.'],
-                    ['list', 'Data operasional tersebar', 'Jadwal di buku, keuangan di Excel, kontak di HP. Tidak ada yang utuh.'],
-                ] as $i => $f)
+                @php $painIcons = ['pin', 'gauge', 'fuel', 'chat', 'list']; @endphp
+                @foreach ($copy->painItems() as $i => $item)
                     <div class="prob reveal">
                         <span class="prob-num">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
-                        <div class="prob-ico"><x-icon name="{{ $f[0] }}" /></div>
+                        <div class="prob-ico"><x-icon name="{{ $painIcons[$i] }}" /></div>
                         <div>
-                            <h3>{!! $f[1] !!}</h3>
-                            <p>{!! $f[2] !!}</p>
+                            <h3>{{ $item['title'] }}</h3>
+                            <p>{{ $item['text'] }}</p>
                         </div>
                     </div>
                 @endforeach
@@ -78,7 +71,7 @@
         </div>
         <div class="prob-close reveal">
             <x-icon name="chevron-down" class="prob-arrow" />
-            <p>Lajur menyelesaikan semuanya.</p>
+            <p>{{ $copy->painClosing() }}</p>
         </div>
     </div>
 </section>
@@ -90,17 +83,17 @@
             <div class="ba-before">
                 <span class="ba-lbl">Sebelum</span>
                 <ul>
-                    <li><x-icon name="list" /> Excel &amp; buku catatan</li>
-                    <li><x-icon name="chat" /> Booking via chat</li>
-                    <li><x-icon name="phone" /> Telepon satu per satu</li>
-                    <li><x-icon name="edit" /> Nota &amp; kertas tercecer</li>
+                    @php $beforeIcons = ['list', 'chat', 'phone', 'edit']; @endphp
+                    @foreach ($copy->beforeItems() as $i => $label)
+                        <li><x-icon name="{{ $beforeIcons[$i] }}" /> {{ $label }}</li>
+                    @endforeach
                 </ul>
             </div>
             <div class="ba-arrow" aria-hidden="true"><x-icon name="arrow-right" /></div>
             <div class="ba-after">
                 <span class="ba-lbl">Sesudah</span>
-                <div class="ba-brand"><span class="mark"><x-icon name="route" /></span> Lajur Platform</div>
-                <p>Booking, armada, driver, BBM, dan laporan. Satu login, semua terhubung.</p>
+                <div class="ba-brand"><span class="mark"><x-icon name="route" /></span> {{ $copy->afterBrand() }}</div>
+                <p>{{ $copy->afterText() }}</p>
             </div>
         </div>
     </div>
@@ -110,48 +103,35 @@
 <section class="section" id="fitur">
     <div class="container">
         <div class="section-head reveal" style="max-width:640px;margin-inline:auto;text-align:center">
-            <h2 class="section-title">Semua yang Anda butuh untuk kelola rental</h2>
-            <p class="section-sub">Empat area kerja, satu dashboard.</p>
+            <h2 class="section-title">{{ $copy->featuresTitle() }}</h2>
+            <p class="section-sub">{{ $copy->featuresSubtitle() }}</p>
         </div>
         <div class="bento">
-            <div class="cell cell-wide reveal">
-                <div class="ico"><x-icon name="calendar" /></div>
-                <h3>Operasional</h3>
-                <ul class="fg-list">
-                    <li><x-icon name="check" /> Booking &amp; kode unik per pesanan</li>
-                    <li><x-icon name="check" /> Kalender armada anti-tabrakan</li>
-                    <li><x-icon name="check" /> Penugasan &amp; jadwal driver</li>
-                    <li><x-icon name="check" /> Tujuan perjalanan per booking</li>
-                </ul>
-            </div>
-            <div class="cell cell-wide cell-dark reveal">
-                <div class="ico"><x-icon name="fuel" /></div>
-                <h3>Monitoring</h3>
-                <ul class="fg-list">
-                    <li><x-icon name="check" /> BBM anti-kebocoran, ditandai otomatis</li>
-                    <li><x-icon name="check" /> Laporan pendapatan &amp; utilisasi</li>
-                    <li><x-icon name="check" /> Export PDF / Excel</li>
-                    <li><x-icon name="clock" /> GPS live di peta <span class="pill pill-pending" style="font-size:.64rem;vertical-align:middle">Segera hadir</span></li>
-                </ul>
-            </div>
-            <div class="cell cell-wide cell-tint reveal">
-                <div class="ico"><x-icon name="sparkle" /></div>
-                <h3>Produktivitas</h3>
-                <ul class="fg-list">
-                    <li><x-icon name="check" /> Asisten AI: tanya angka bisnis, dijawab dari data</li>
-                    <li><x-icon name="check" /> Biaya per km &amp; konsumsi terhitung sendiri</li>
-                    <li><x-icon name="check" /> Dashboard ringkas untuk keputusan cepat</li>
-                </ul>
-            </div>
-            <div class="cell cell-wide reveal">
-                <div class="ico"><x-icon name="users" /></div>
-                <h3>Pengalaman Pelanggan</h3>
-                <ul class="fg-list">
-                    <li><x-icon name="check" /> Etalase booking online milik Anda sendiri</li>
-                    <li><x-icon name="check" /> Lacak pesanan dengan kode booking</li>
-                    <li><x-icon name="check" /> Keluarga ikut memantau perjalanan</li>
-                </ul>
-            </div>
+            @php
+                $groupMeta = [
+                    ['ico' => 'calendar', 'class' => 'cell-wide', 'itemIcons' => ['check', 'check', 'check', 'check']],
+                    ['ico' => 'fuel', 'class' => 'cell-wide cell-dark', 'itemIcons' => ['check', 'check', 'check', 'clock']],
+                    ['ico' => 'sparkle', 'class' => 'cell-wide cell-tint', 'itemIcons' => ['check', 'check', 'check']],
+                    ['ico' => 'users', 'class' => 'cell-wide', 'itemIcons' => ['check', 'check', 'check']],
+                ];
+            @endphp
+            @foreach ($copy->featureGroups() as $gi => $group)
+                <div class="cell {{ $groupMeta[$gi]['class'] }} reveal">
+                    <div class="ico"><x-icon name="{{ $groupMeta[$gi]['ico'] }}" /></div>
+                    <h3>{{ $group['title'] }}</h3>
+                    <ul class="fg-list">
+                        @foreach ($group['items'] as $ii => $item)
+                            <li>
+                                <x-icon name="{{ $groupMeta[$gi]['itemIcons'][$ii] }}" /> {{ $item }}
+                                {{-- Item terakhir kelompok Monitoring (GPS) selalu berlabel "segera hadir" — fitur belum berjalan, bukan bagian teks yg diedit. --}}
+                                @if ($gi === 1 && $ii === 3)
+                                    <span class="pill pill-pending" style="font-size:.64rem;vertical-align:middle">Segera hadir</span>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endforeach
         </div>
     </div>
 </section>
@@ -166,12 +146,10 @@
                      alt="Halaman BBM Lajur menandai pengisian yang tak wajar" loading="lazy">
             </div>
             <div class="spotlight-text reveal">
-                <span class="eyebrow">Fitur unggulan</span>
-                <h2>BBM yang bocor, langsung ketahuan</h2>
-                <p>Sopir isi 60 liter ke tangki yang cuma muat 45? Konsumsi tiba-tiba boros dua kali
-                    lipat? Lajur hitung sendiri dari tiap catatan pengisian dan menandainya merah.
-                    Anda tak perlu memeriksa satu per satu.</p>
-                <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">Coba Gratis 14 Hari <x-icon name="arrow-right" /></a>
+                <span class="eyebrow">{{ $copy->spotlightEyebrow() }}</span>
+                <h2>{{ $copy->spotlightFuelTitle() }}</h2>
+                <p>{{ $copy->spotlightFuelText() }}</p>
+                <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">{{ $copy->ctaLabel() }} <x-icon name="arrow-right" /></a>
             </div>
         </div>
     </div>
@@ -182,12 +160,10 @@
     <div class="container">
         <div class="spotlight spotlight-rev">
             <div class="spotlight-text reveal">
-                <span class="eyebrow">Fitur unggulan</span>
-                <h2>Sopir tak perlu tanya alamat lagi</h2>
-                <p>Isi lokasi tujuan sekali saat menugaskan driver, satu tombol Maps langsung
-                    muncul di HP sopir. Sekali tap, Google Maps terbuka dengan rute dari
-                    posisinya saat itu — tanpa telepon, tanpa dikte alamat lewat WhatsApp.</p>
-                <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">Coba Gratis 14 Hari <x-icon name="arrow-right" /></a>
+                <span class="eyebrow">{{ $copy->spotlightEyebrow() }}</span>
+                <h2>{{ $copy->spotlightDriverTitle() }}</h2>
+                <p>{{ $copy->spotlightDriverText() }}</p>
+                <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">{{ $copy->ctaLabel() }} <x-icon name="arrow-right" /></a>
             </div>
             <div class="phone-frame-wrap reveal">
                 <div class="phone-frame-col">
@@ -237,17 +213,15 @@
 <section class="section" style="background:var(--ivory-200)">
     <div class="container">
         <div class="section-head reveal" style="max-width:680px;margin-inline:auto;text-align:center">
-            <h2 class="section-title">Keluarga juga bisa memantau perjalanan</h2>
-            <p class="section-sub">Setiap booking punya kode unik. Penyewa cukup membagikannya, dan keluarga di rumah ikut tenang.</p>
+            <h2 class="section-title">{{ $copy->familyTitle() }}</h2>
+            <p class="section-sub">{{ $copy->familySubtitle() }}</p>
         </div>
         <div class="flow reveal">
-            <div class="flow-step"><div class="fico"><x-icon name="car" /></div><h3>Booking dibuat</h3><p>Pesanan masuk, kode booking terbit otomatis.</p></div>
-            <span class="flow-arr" aria-hidden="true"><x-icon name="arrow-right" /></span>
-            <div class="flow-step"><div class="fico"><x-icon name="chat" /></div><h3>Kode dibagikan</h3><p>Penyewa mengirim kode ke keluarganya.</p></div>
-            <span class="flow-arr" aria-hidden="true"><x-icon name="arrow-right" /></span>
-            <div class="flow-step"><div class="fico"><x-icon name="search" /></div><h3>Masukkan kode</h3><p>Buka halaman Lacak Pesanan, tanpa perlu akun.</p></div>
-            <span class="flow-arr" aria-hidden="true"><x-icon name="arrow-right" /></span>
-            <div class="flow-step"><div class="fico"><x-icon name="pin" /></div><h3>Perjalanan terpantau</h3><p>Status &amp; detail perjalanan terlihat. Posisi live menyusul bersama GPS.</p></div>
+            @php $familyIcons = ['car', 'chat', 'search', 'pin']; @endphp
+            @foreach ($copy->familySteps() as $i => $step)
+                <div class="flow-step"><div class="fico"><x-icon name="{{ $familyIcons[$i] }}" /></div><h3>{{ $step['title'] }}</h3><p>{{ $step['text'] }}</p></div>
+                @if (! $loop->last)<span class="flow-arr" aria-hidden="true"><x-icon name="arrow-right" /></span>@endif
+            @endforeach
         </div>
     </div>
 </section>
@@ -262,12 +236,10 @@
                      alt="Etalase booking online bermerek milik tenant Lajur, lengkap dengan warna dan logo sendiri" loading="lazy">
             </div>
             <div class="spotlight-text reveal">
-                <span class="eyebrow">Fitur unggulan</span>
-                <h2>Situs booking sendiri, bukan skin generik</h2>
-                <p>Setiap tenant dapat etalase online sendiri: logo, warna aksen, dan alamat
-                    domain sendiri (namatenant.lajur.id). Pelanggan booking langsung dari situs
-                    itu — bukan chat WhatsApp yang mudah terlewat.</p>
-                <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">Coba Gratis 14 Hari <x-icon name="arrow-right" /></a>
+                <span class="eyebrow">{{ $copy->spotlightEyebrow() }}</span>
+                <h2>{{ $copy->spotlightStorefrontTitle() }}</h2>
+                <p>{{ $copy->spotlightStorefrontText() }}</p>
+                <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">{{ $copy->ctaLabel() }} <x-icon name="arrow-right" /></a>
             </div>
         </div>
     </div>
@@ -277,11 +249,10 @@
 <section class="section gps-band" id="gps">
     <div class="container gps-grid">
         <div class="gps-text reveal">
-            <span class="gps-badge"><i></i> Segera hadir</span>
-            <h2>Mobil Anda, terlihat di peta</h2>
-            <p>Begitu alat GPS terpasang di unit, posisi tiap mobil tampil langsung di dashboard.
-                Tak perlu lagi menelepon sopir untuk tanya "sudah sampai mana".</p>
-            <p class="gps-note">Tampilan di samping adalah gambaran fitur yang sedang dalam pengembangan.</p>
+            <span class="gps-badge"><i></i> {{ $copy->gpsBadge() }}</span>
+            <h2>{{ $copy->gpsTitle() }}</h2>
+            <p>{{ $copy->gpsText() }}</p>
+            <p class="gps-note">{{ $copy->gpsNote() }}</p>
         </div>
         <div class="gps-phone-wrap reveal">
             <div class="gps-phone">
@@ -330,21 +301,15 @@
 <section class="section">
     <div class="container">
         <div class="section-head reveal" style="max-width:640px;margin-inline:auto;text-align:center">
-            <h2 class="section-title">Kenapa memilih Lajur?</h2>
+            <h2 class="section-title">{{ $copy->whyTitle() }}</h2>
         </div>
         <div class="why-grid">
-            @foreach ([
-                ['clock', 'Setup cepat', 'Akun jadi dalam hitungan menit, tanpa instalasi.'],
-                ['dashboard', 'Berbasis cloud', 'Buka dari mana saja, data tersimpan aman di server.'],
-                ['phone', 'Ramah di HP', 'Dashboard, driver, dan pelanggan nyaman diakses dari ponsel.'],
-                ['shield', 'Aman', 'Data bisnis terenkripsi dan terisolasi per tenant.'],
-                ['gauge', 'Real-time', 'Booking masuk dan laporan terhitung saat itu juga.'],
-                ['whatsapp', 'Support Indonesia', 'Tim lokal, respons cepat lewat WhatsApp.'],
-            ] as $w)
+            @php $whyIcons = ['clock', 'dashboard', 'phone', 'shield', 'gauge', 'whatsapp']; @endphp
+            @foreach ($copy->whyItems() as $i => $item)
                 <div class="why reveal">
-                    <div class="wico"><x-icon name="{{ $w[0] }}" /></div>
-                    <h3>{{ $w[1] }}</h3>
-                    <p>{{ $w[2] }}</p>
+                    <div class="wico"><x-icon name="{{ $whyIcons[$i] }}" /></div>
+                    <h3>{{ $item['title'] }}</h3>
+                    <p>{{ $item['text'] }}</p>
                 </div>
             @endforeach
         </div>
@@ -355,20 +320,14 @@
 <section class="section" id="cara-kerja" style="background:var(--ivory-200)">
     <div class="container">
         <div class="section-head reveal" style="max-width:640px;margin-inline:auto;text-align:center">
-            <h2 class="section-title">Dari daftar sampai go live, tidak ribet</h2>
+            <h2 class="section-title">{{ $copy->workflowTitle() }}</h2>
         </div>
         <div class="steps">
-            @foreach ([
-                ['Daftar', 'Buat akun dalam semenit, tanpa kartu kredit.'],
-                ['Coba &amp; demo', 'Jelajahi dashboard dengan akses penuh 14 hari.'],
-                ['Setup data', 'Masukkan mobil, tarif, dan driver. Kami bantu tiap langkah.'],
-                ['Training singkat', 'Tim Anda dipandu lewat WhatsApp sampai lancar.'],
-                ['Go live', 'Terima booking dan pantau operasional dari satu layar.'],
-            ] as $i => $step)
+            @foreach ($copy->workflowSteps() as $i => $step)
                 <div class="step reveal">
                     <div class="num">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</div>
-                    <h3>{!! $step[0] !!}</h3>
-                    <p>{{ $step[1] }}</p>
+                    <h3>{{ $step['title'] }}</h3>
+                    <p>{{ $step['text'] }}</p>
                 </div>
             @endforeach
         </div>
@@ -379,29 +338,26 @@
 <section class="section" id="platform">
     <div class="container">
         <div class="section-head reveal" style="max-width:720px;margin-inline:auto;text-align:center">
-            <h2 class="section-title">Bukan sekadar aplikasi rental.<br>Ini platform operasional Anda.</h2>
-            <p class="section-sub">Seluruh data operasional terhubung dalam satu platform, dan terus bertumbuh bersama bisnis Anda.</p>
+            <h2 class="section-title">{{ $copy->ecosystemTitleLine1() }}<br>{{ $copy->ecosystemTitleLine2() }}</h2>
+            <p class="section-sub">{{ $copy->ecosystemSubtitle() }}</p>
         </div>
         <div class="eco-grid reveal">
-            @foreach ([
-                ['car', 'Armada', null],
-                ['users', 'Driver', null],
-                ['calendar', 'Booking', null],
-                ['home', 'Etalase pelanggan', null],
-                ['fuel', 'BBM anti-kebocoran', null],
-                ['gauge', 'Laporan &amp; export', null],
-                ['sparkle', 'Asisten AI', null],
-                ['pin', 'GPS live', 'Segera hadir'],
-                ['chip', 'Integrasi IoT', 'Segera hadir'],
-            ] as $n)
-                <div class="eco-tile {{ $n[2] ? 'soon' : '' }}">
-                    <div class="eco-ico"><x-icon name="{{ $n[0] }}" /></div>
-                    <span>{!! $n[1] !!}</span>
-                    @if ($n[2])<em>{{ $n[2] }}</em>@endif
+            @php
+                $ecoMeta = [
+                    ['car', false], ['users', false], ['calendar', false], ['home', false],
+                    ['fuel', false], ['gauge', false], ['sparkle', false],
+                    ['pin', true], ['chip', true],
+                ];
+            @endphp
+            @foreach ($copy->ecosystemItems() as $i => $label)
+                <div class="eco-tile {{ $ecoMeta[$i][1] ? 'soon' : '' }}">
+                    <div class="eco-ico"><x-icon name="{{ $ecoMeta[$i][0] }}" /></div>
+                    <span>{{ $label }}</span>
+                    @if ($ecoMeta[$i][1])<em>Segera hadir</em>@endif
                 </div>
             @endforeach
         </div>
-        <p class="eco-caption reveal">Juga dalam pengembangan: prediksi perawatan armada &amp; notifikasi pintar.</p>
+        <p class="eco-caption reveal">{{ $copy->ecosystemCaption() }}</p>
     </div>
 </section>
 
@@ -409,8 +365,8 @@
 <section class="section" id="harga" style="background:var(--ivory-200)">
     <div class="container">
         <div class="section-head reveal" style="max-width:640px;margin-inline:auto;text-align:center">
-            <h2 class="section-title">Harga jujur, tanpa kejutan</h2>
-            <p class="section-sub">Semua paket bisa dicoba gratis 14 hari dulu. Bayar bulanan, berhenti kapan saja.</p>
+            <h2 class="section-title">{{ $copy->pricingTitle() }}</h2>
+            <p class="section-sub">{{ $copy->pricingSubtitle() }}</p>
         </div>
         <div class="price-teaser">
             @foreach ($plans as $plan)
@@ -438,15 +394,15 @@
     <div class="container">
         <div class="cta-band reveal">
             <div>
-                <h2>Siap mengelola armada lebih efisien?</h2>
-                <p>Coba semua fitur Lajur gratis 14 hari. Tanpa kartu kredit, tanpa risiko.</p>
+                <h2>{{ $copy->ctaTitle() }}</h2>
+                <p>{{ $copy->ctaText() }}</p>
             </div>
-            <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">Coba Gratis 14 Hari</a>
+            <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">{{ $copy->ctaLabel() }}</a>
         </div>
         <div class="trust-strip">
-            <span class="item"><x-icon name="shield" /> Data bisnis aman &amp; terenkripsi</span>
-            <span class="item"><x-icon name="whatsapp" /> Dukungan cepat via WhatsApp</span>
-            <span class="item"><x-icon name="settings" /> Upgrade atau turun paket kapan saja</span>
+            @foreach ([['shield', 0], ['whatsapp', 1], ['settings', 2]] as [$icon, $i])
+                <span class="item"><x-icon name="{{ $icon }}" /> {{ $copy->ctaTrustItems()[$i] }}</span>
+            @endforeach
         </div>
     </div>
 </section>
