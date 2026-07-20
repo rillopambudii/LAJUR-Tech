@@ -21,9 +21,20 @@ class LandingPageTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('Kelola bisnis rental Anda')
+            ->assertSee('Kelola seluruh operasional armada')
             ->assertSee(route('signup.trial.form'), false)
             ->assertDontSee('Sewa Sekarang'); // itu tombol etalase, bukan page induk
+    }
+
+    public function test_landing_shows_struck_price_when_plan_discounted(): void
+    {
+        \App\Models\Plan::where('key', 'pro')->update(['discount_price' => 999000, 'discount_label' => 'Promo Peluncuran']);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('999.000')
+            ->assertSee('Promo Peluncuran')
+            ->assertSee('1.299.000'); // harga asli tetap tampil (dicoret)
     }
 
     public function test_demo_shows_storefront_with_banner(): void
