@@ -34,12 +34,21 @@
                 </div>
                 <div class="drv-row"><x-icon name="calendar" /> {{ $b->start_date->translatedFormat('d M') }} – {{ $b->end_date->translatedFormat('d M Y') }} · {{ $b->start_date->diffInDays($b->end_date) + 1 }} hari</div>
                 <div class="drv-row"><x-icon name="users" /> {{ $b->customer_name }}</div>
+                @if ($b->destination)
+                    <div class="drv-row"><x-icon name="pin" /> {{ $b->destination }}</div>
+                @endif
             </div>
             <div class="drv-side">
                 <span class="pill {{ $statusColors[$b->status] ?? '' }}">{{ $b->status_label }}</span>
-                @if ($b->customer_phone)
-                    <a class="btn btn-primary btn-sm" href="tel:{{ $b->customer_phone }}"><x-icon name="phone" /> Telepon</a>
-                @endif
+                <div class="drv-actions">
+                    @if ($b->customer_phone)
+                        <a class="btn btn-primary btn-sm" href="https://wa.me/{{ \App\Tenancy\Branding::waNumber($b->customer_phone) }}" target="_blank" rel="noopener"><x-icon name="whatsapp" /> WhatsApp</a>
+                        <a class="btn btn-ghost btn-sm" href="tel:{{ $b->customer_phone }}"><x-icon name="phone" /> Telepon</a>
+                    @endif
+                    @if ($b->mapsUrl())
+                        <a class="btn btn-ghost btn-sm" href="{{ $b->mapsUrl() }}" target="_blank" rel="noopener"><x-icon name="pin" /> Maps</a>
+                    @endif
+                </div>
             </div>
         </article>
     @empty

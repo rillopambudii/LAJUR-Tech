@@ -126,11 +126,15 @@ class BookingController extends Controller
                     ->where('role', User::ROLE_DRIVER)
                     ->where('tenant_id', $tenantId),
             ],
+            'destination' => ['nullable', 'string', 'max:200'],
         ], [
             'driver_id.exists' => 'Driver yang dipilih tidak valid.',
         ]);
 
-        $booking->update(['driver_id' => $validated['driver_id'] ?: null]);
+        $booking->update([
+            'driver_id' => $validated['driver_id'] ?: null,
+            'destination' => $validated['destination'] ?? null,
+        ]);
 
         return back()->with('success', $validated['driver_id']
             ? 'Driver berhasil ditugaskan.'

@@ -259,7 +259,13 @@ class Branding
     /** Nomor WA dinormalkan ke format internasional tanpa "+"; null bila kosong. */
     public function whatsapp(): ?string
     {
-        $raw = preg_replace('/\D+/', '', (string) $this->tenant?->whatsapp);
+        return self::waNumber($this->tenant?->whatsapp);
+    }
+
+    /** Normalkan nomor telepon apa pun ke format 62 tanpa "+"; null bila kosong. */
+    public static function waNumber(?string $phone): ?string
+    {
+        $raw = preg_replace('/\D+/', '', (string) $phone);
         if ($raw === '' || $raw === null) {
             return null;
         }

@@ -21,6 +21,7 @@ class Booking extends Model
         'tenant_id',
         'car_id',
         'driver_id',
+        'destination',
         'car_name',
         'customer_name',
         'customer_email',
@@ -39,6 +40,14 @@ class Booking extends Model
         'paid_at',
         'notes',
     ];
+
+    /** Link Google Maps universal: buka app Maps dgn rute ke tujuan (titik awal = posisi pengguna). */
+    public function mapsUrl(): ?string
+    {
+        return $this->destination
+            ? 'https://www.google.com/maps/dir/?api=1&destination='.urlencode($this->destination)
+            : null;
+    }
 
     /**
      * @return array<string, string>

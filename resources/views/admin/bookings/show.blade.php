@@ -112,6 +112,13 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="field">
+                    <label for="destination">Lokasi Tujuan</label>
+                    <input class="input" id="destination" name="destination" type="text" maxlength="200"
+                        value="{{ old('destination', $booking->destination) }}"
+                        placeholder="mis. Bandara APT Pranoto, Samarinda">
+                    <p style="font-size:.8rem;color:rgba(0,0,0,.5);margin:6px 0 0">Jadi tombol Maps (rute Google Maps) di dashboard driver.</p>
+                </div>
                 @if ($drivers->isEmpty())
                     <p style="font-size:.82rem;color:rgba(0,0,0,.5);margin:0 0 12px">Belum ada driver. <a href="{{ route('admin.drivers.create') }}">Tambah driver</a> dulu.</p>
                 @endif

@@ -107,6 +107,38 @@ class DriverManagementTest extends TestCase
         $this->assertNull($booking->fresh()->driver_id);
     }
 
+    public function test_destination_saves_and_shows_maps_button_on_driver_dashboard(): void
+    {
+        $driver = $this->makeDriver();
+        $car = Car::create([
+            'name' => 'Xenia', 'brand' => 'Daihatsu', 'type' => 'MPV', 'transmission' => 'Manual',
+            'fuel_type' => 'Bensin', 'seats' => 7, 'price_per_day' => 250000,
+        ]);
+        $booking = Booking::create([
+            'car_id' => $car->id, 'car_name' => $car->name, 'customer_name' => 'Ani',
+            'customer_email' => 'a@x.id', 'customer_phone' => '0811', 'start_date' => now()->addDay()->toDateString(),
+            'end_date' => now()->addDays(3)->toDateString(), 'days' => 2, 'price_per_day' => 250000, 'total_price' => 500000,
+            'status' => 'confirmed',
+        ]);
+
+        $this->actingAs($this->owner)
+            ->patch("/admin/bookings/{$booking->id}/driver", [
+                'driver_id' => $driver->id,
+                'destination' => 'Bandara APT Pranoto, Samarinda',
+            ])
+            ->assertRedirect();
+        $this->assertSame('Bandara APT Pranoto, Samarinda', $booking->fresh()->destination);
+
+        $res = $this->actingAs($driver)->get('/driver');
+        $res->assertOk()
+            ->assertSee('Bandara APT Pranoto, Samarinda')
+            ->assertSee('https://www.google.com/maps/dir/?api=1&amp;destination=Bandara+APT+Pranoto%2C+Samarinda', false);
+
+        // Tanpa tujuan: tombol Maps tidak dirender.
+        $booking->update(['destination' => null]);
+        $this->actingAs($driver)->get('/driver')->assertDontSee('maps/dir');
+    }
+
     public function test_driver_sees_only_their_assignments_on_dashboard(): void
     {
         $driver = $this->makeDriver();

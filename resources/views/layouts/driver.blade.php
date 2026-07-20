@@ -45,6 +45,7 @@
         .drv-row{display:flex;align-items:center;gap:7px;font-size:.88rem;color:var(--graphite);margin-top:3px}
         .drv-row svg{width:15px;height:15px;flex:none;color:var(--graphite-300)}
         .drv-side{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+        .drv-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
         .drv-empty{text-align:center;color:var(--graphite);background:var(--white);border:1px dashed var(--ivory-200);
             border-radius:var(--radius-lg);padding:38px 20px}
         .drv-empty svg{width:34px;height:34px;margin:0 auto 10px;color:var(--graphite-300)}
