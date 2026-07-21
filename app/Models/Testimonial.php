@@ -27,6 +27,7 @@ class Testimonial extends Model
         'avatar',
         'is_published',
         'sort_order',
+        'booking_id',
     ];
 
     /**
@@ -71,5 +72,13 @@ class Testimonial extends Model
     {
         return filled($this->avatar)
             && ! Str::startsWith($this->avatar, ['http://', 'https://']);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Booking, $this>
+     */
+    public function booking(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Booking::class);
     }
 }

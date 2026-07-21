@@ -45,7 +45,12 @@
                             </span>
                         </td>
                         <td style="max-width:320px;color:var(--graphite)">{{ \Illuminate\Support\Str::limit($t->quote, 80) }}</td>
-                        <td><span class="pill {{ $t->is_published ? 'pill-yes' : 'pill-no' }}">{{ $t->is_published ? 'Terbit' : 'Draft' }}</span></td>
+                        <td>
+                            @if ($t->booking_id)
+                                <span class="tag" style="margin-right:6px">Dari Customer</span>
+                            @endif
+                            <span class="pill {{ $t->is_published ? 'pill-yes' : 'pill-no' }}">{{ $t->is_published ? 'Terbit' : 'Draft' }}</span>
+                        </td>
                         <td>
                             <div class="row-actions">
                                 <a href="{{ route('admin.testimonials.edit', $t) }}" class="icon-btn" aria-label="Edit"><x-icon name="edit" /></a>
