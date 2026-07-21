@@ -59,6 +59,46 @@ class PublicDriverProfileTest extends TestCase
             ->assertDontSee('Sangat baik');
     }
 
+    public function test_admin_reply_label_says_lajur_for_demo_tenant(): void
+    {
+        $driver = $this->makeDriverWithReview('published');
+        $review = $driver->driverBookings()->first()->driverReview;
+        $review->update(['admin_reply' => 'Terima kasih atas ulasannya!']);
+
+        $this->get("/pengemudi/{$driver->id}")
+            ->assertOk()
+            ->assertSee('Balasan dari Lajur')
+            ->assertSee('Terima kasih atas ulasannya!');
+    }
+
+    public function test_admin_reply_label_uses_tenant_own_name(): void
+    {
+        $tenant = Tenant::create(['name' => 'Samarinda Rental', 'slug' => 'samarindaa-test', 'display_name' => 'Samarindaa']);
+        app(TenantManager::class)->set($tenant);
+
+        $driver = User::create(['tenant_id' => $tenant->id, 'name' => 'Rahmat Hidayat', 'email' => 'r-'.uniqid().'@x.id', 'password' => 'password', 'role' => User::ROLE_DRIVER, 'is_admin' => false]);
+        $car = Car::create(['name' => 'Xenia', 'brand' => 'Daihatsu', 'type' => 'MPV', 'transmission' => 'Manual', 'fuel_type' => 'Bensin', 'seats' => 7, 'price_per_day' => 250000]);
+        $booking = Booking::create([
+            'car_id' => $car->id, 'driver_id' => $driver->id, 'car_name' => $car->name,
+            'customer_name' => 'Budi Santoso', 'customer_email' => 'c@x.id', 'customer_phone' => '0811',
+            'start_date' => '2026-09-01', 'end_date' => '2026-09-03', 'days' => 2,
+            'price_per_day' => 250000, 'total_price' => 500000, 'status' => 'completed',
+            'booking_code' => Booking::generateBookingCode(),
+        ]);
+        DriverReview::create([
+            'booking_id' => $booking->id, 'driver_id' => $driver->id,
+            'rating_punctuality' => 5, 'rating_cleanliness' => 4, 'rating_friendliness' => 5,
+            'rating_safety' => 4, 'rating_overall' => 4.5, 'comment' => 'Mantap',
+            'status' => 'published', 'admin_reply' => 'Terima kasih!',
+        ]);
+
+        // Subdomain tenant (bukan default 'lajur') agar IdentifyTenant meresolusi tenant ini.
+        $this->get("http://samarindaa-test.example.test/pengemudi/{$driver->id}")
+            ->assertOk()
+            ->assertSee('Balasan dari Samarindaa')
+            ->assertDontSee('Balasan dari Lajur');
+    }
+
     public function test_non_driver_user_returns_404(): void
     {
         $tenant = Tenant::where('slug', 'lajur')->firstOrFail();

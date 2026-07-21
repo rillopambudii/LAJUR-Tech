@@ -57,8 +57,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Storefront branding: the public layout + home read tenant branding;
         // dashboards keep Lajur branding — layouts.admin & admin.site only get
-        // it for the "Lihat Situs" link (Branding::siteUrl).
-        View::composer(['layouts.public', 'home', 'layouts.admin', 'admin.site'], function ($view) {
+        // it for the "Lihat Situs" link (Branding::siteUrl). NOTE: composer nama
+        // view harus didaftarkan satu-satu — @extends('layouts.public') TIDAK
+        // otomatis mewariskan composer parent-nya ke view anak.
+        View::composer(['layouts.public', 'home', 'layouts.admin', 'admin.site', 'driver.public-profile'], function ($view) {
             $view->with('branding', new Branding(app(TenantManager::class)->current()));
         });
 

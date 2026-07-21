@@ -79,7 +79,10 @@
                     @endif
                     @if ($review->admin_reply)
                         <div class="drvp-reply">
-                            <div class="lbl">Balasan dari Lajur</div>
+                            {{-- $branding ikut terisi via composer di layouts.public (dipakai
+                                 seluruh child-nya, bukan cuma view yg namanya eksplisit terdaftar)
+                                 — utk tenant 'lajur' (demo) tetap "Lajur", tenant lain nama sendiri. --}}
+                            <div class="lbl">Balasan dari {{ $branding->name() }}</div>
                             <p style="margin:0">{{ $review->admin_reply }}</p>
                         </div>
                     @endif
