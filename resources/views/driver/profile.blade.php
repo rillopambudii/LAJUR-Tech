@@ -47,6 +47,12 @@
         </div>
     </div>
 
+    <p style="text-align:center;margin-top:16px">
+        <a href="{{ route('driver.public-profile', $driver) }}" class="tag" style="display:inline-flex;align-items:center;gap:5px">
+            <x-icon name="star" style="width:13px;height:13px" /> Lihat Ulasan Lengkap Saya
+        </a>
+    </p>
+
     <p style="text-align:center;color:var(--graphite);font-size:.86rem">
         Ingin ubah foto, email, atau nomor HP? Hubungi admin rental Anda.
     </p>
