@@ -65,6 +65,9 @@
             <a href="{{ route('admin.testimonials.index') }}" class="{{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}">
                 <x-icon name="star" /> Testimoni
             </a>
+            <a href="{{ route('admin.driver-reviews.index') }}" class="{{ request()->routeIs('admin.driver-reviews.*') ? 'active' : '' }}">
+                <x-icon name="star" /> Ulasan Driver
+            </a>
             <a href="{{ route('admin.messages.index') }}" class="{{ request()->routeIs('admin.messages.*') ? 'active' : '' }}">
                 <x-icon name="chat" /> Pesan
                 @if ($unread > 0)<span class="badge">{{ $unread }}</span>@endif

@@ -14,7 +14,7 @@
             <div class="prof-since">Bergabung sejak {{ $driver->created_at->translatedFormat('F Y') }}</div>
         </div>
 
-        <div class="prof-stats">
+        <div class="prof-stats" style="grid-template-columns:repeat(3,1fr)">
             <div class="prof-stat">
                 <span class="n">{{ $activeTrips }}</span>
                 <span class="l">Tugas Aktif</span>
@@ -22,6 +22,10 @@
             <div class="prof-stat">
                 <span class="n">{{ $completedTrips }}</span>
                 <span class="l">Perjalanan Selesai</span>
+            </div>
+            <div class="prof-stat">
+                <span class="n">{{ $avgRating !== null ? number_format($avgRating, 1) : '—' }}</span>
+                <span class="l">Rating</span>
             </div>
         </div>
 

@@ -24,6 +24,7 @@ class DriverDashboardController extends Controller
             ->get();
 
         $past = (clone $base)
+            ->with('driverReview')
             ->where(fn ($q) => $q->whereDate('end_date', '<', $today)
                 ->orWhereIn('status', ['completed', 'cancelled']))
             ->latest('start_date')

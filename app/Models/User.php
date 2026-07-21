@@ -144,4 +144,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Booking::class, 'driver_id');
     }
+
+    /**
+     * @return HasMany<DriverReview, $this>
+     */
+    public function driverReviews(): HasMany
+    {
+        return $this->hasMany(DriverReview::class, 'driver_id');
+    }
 }

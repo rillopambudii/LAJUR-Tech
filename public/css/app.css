@@ -402,6 +402,18 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weigh
     .testi-group[aria-hidden] { display: none; }
 }
 
+/* ---------- Star input (pemilih rating, CSS murni tanpa JS) ---------- */
+/* DOM 5→1 + row-reverse: trik standar agar :checked/hover men-highlight
+   bintang di sebelah kiri lewat selector ~ (hanya menjangkau sibling SETELAHNYA di DOM). */
+.star-input { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: 4px; }
+.star-input input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.star-input label { cursor: pointer; color: var(--ivory-200); transition: color .12s ease; }
+.star-input label svg { width: 28px; height: 28px; }
+.star-input input:checked ~ label { color: var(--amber); }
+.star-input input:not(:checked) ~ label:hover,
+.star-input input:not(:checked) ~ label:hover ~ label { color: var(--amber); }
+.star-input input:focus-visible + label { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 4px; }
+
 /* ---------- About ---------- */
 .about { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
 .about-points { display: grid; gap: 16px; margin-top: 24px; }

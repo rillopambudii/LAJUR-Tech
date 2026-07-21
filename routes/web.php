@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CarController as AdminCarController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\Admin\DriverReviewController as AdminDriverReviewController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FuelController;
 use App\Http\Controllers\Admin\ReportController;
@@ -23,9 +24,12 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DriverReviewController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PublicDriverProfileController;
+use App\Http\Controllers\PublicTestimonialController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\TrackingController as PublicTrackingController;
 use Illuminate\Support\Facades\Route;
@@ -59,6 +63,13 @@ Route::post('/lacak', [PublicTrackingController::class, 'find'])
     ->name('tracking.find');
 Route::get('/lacak/{bookingCode}', [PublicTrackingController::class, 'show'])->name('tracking.show');
 Route::get('/pantau/{bookingCode}', [PublicTrackingController::class, 'watch'])->name('tracking.watch');
+Route::post('/lacak/{bookingCode}/ulasan-driver', [DriverReviewController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('driver-review.store');
+Route::post('/lacak/{bookingCode}/ulasan-bisnis', [PublicTestimonialController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('testimonial.store');
+Route::get('/pengemudi/{driver}', [PublicDriverProfileController::class, 'show'])->name('driver.public-profile');
 
 /*
 |--------------------------------------------------------------------------
@@ -178,6 +189,12 @@ Route::prefix('admin')
 
         // Testimonials CRUD
         Route::resource('testimonials', TestimonialController::class)->except('show');
+
+        // Ulasan Driver (moderasi)
+        Route::get('ulasan-driver', [AdminDriverReviewController::class, 'index'])->name('driver-reviews.index');
+        Route::patch('ulasan-driver/{driverReview}/approve', [AdminDriverReviewController::class, 'approve'])->name('driver-reviews.approve');
+        Route::patch('ulasan-driver/{driverReview}/reject', [AdminDriverReviewController::class, 'reject'])->name('driver-reviews.reject');
+        Route::patch('ulasan-driver/{driverReview}/reply', [AdminDriverReviewController::class, 'reply'])->name('driver-reviews.reply');
 
         // Bookings
         Route::get('bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
