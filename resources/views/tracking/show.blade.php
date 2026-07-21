@@ -187,7 +187,10 @@
 
             @if ($booking->driver)
                 <div class="panel reveal" style="margin-bottom:20px">
-                    <div class="panel-head"><h2>Ulasan untuk {{ $booking->driver->name }}</h2></div>
+                    <div class="panel-head">
+                        <h2>Ulasan untuk {{ $booking->driver->name }}</h2>
+                        <a href="{{ route('driver.public-profile', $booking->driver_id) }}" class="tag">Lihat Profil Driver</a>
+                    </div>
                     <div class="panel-body">
                         @if ($driverReview)
                             <p style="color:var(--graphite)">

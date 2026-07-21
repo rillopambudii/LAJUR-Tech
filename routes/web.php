@@ -27,6 +27,7 @@ use App\Http\Controllers\DriverReviewController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PublicDriverProfileController;
 use App\Http\Controllers\PublicTestimonialController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\TrackingController as PublicTrackingController;
@@ -67,6 +68,7 @@ Route::post('/lacak/{bookingCode}/ulasan-driver', [DriverReviewController::class
 Route::post('/lacak/{bookingCode}/ulasan-bisnis', [PublicTestimonialController::class, 'store'])
     ->middleware('throttle:5,1')
     ->name('testimonial.store');
+Route::get('/pengemudi/{driver}', [PublicDriverProfileController::class, 'show'])->name('driver.public-profile');
 
 /*
 |--------------------------------------------------------------------------

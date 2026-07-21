@@ -67,7 +67,16 @@
             <div class="panel-body"><div class="detail-grid">
                 <div class="detail-item"><div class="k">Mobil</div><div class="v">{{ $booking->car_name }}</div></div>
                 <div class="detail-item"><div class="k">Plat</div><div class="v">{{ $booking->car?->plate_number ?? '—' }}</div></div>
-                <div class="detail-item"><div class="k">Pengemudi</div><div class="v">{{ $booking->driver?->name ?? 'Belum ditentukan' }}</div></div>
+                <div class="detail-item">
+                    <div class="k">Pengemudi</div>
+                    <div class="v">
+                        @if ($booking->driver)
+                            <a href="{{ route('driver.public-profile', $booking->driver_id) }}">{{ $booking->driver->name }}</a>
+                        @else
+                            Belum ditentukan
+                        @endif
+                    </div>
+                </div>
             </div></div>
         </div>
 
