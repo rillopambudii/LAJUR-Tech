@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CarController as AdminCarController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\DriverReviewController as AdminDriverReviewController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FuelController;
@@ -186,6 +187,10 @@ Route::prefix('admin')
 
         // Drivers CRUD
         Route::resource('drivers', DriverController::class)->except('show');
+
+        // Staf admin CRUD — hanya owner (bukan admin lain) yg boleh kelola.
+        Route::resource('staff', StaffController::class)->except('show')
+            ->middleware('role:owner');
 
         // Testimonials CRUD
         Route::resource('testimonials', TestimonialController::class)->except('show');

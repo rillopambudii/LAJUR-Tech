@@ -37,6 +37,11 @@
             <a href="{{ route('admin.drivers.index') }}" class="{{ request()->routeIs('admin.drivers.*') ? 'active' : '' }}">
                 <x-icon name="users" /> Driver
             </a>
+            @if (auth()->user()->isOwner())
+            <a href="{{ route('admin.staff.index') }}" class="{{ request()->routeIs('admin.staff.*') ? 'active' : '' }}">
+                <x-icon name="key" /> Staf Admin
+            </a>
+            @endif
             <a href="{{ route('admin.bookings.index') }}" class="{{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
                 <x-icon name="list" /> Booking
             </a>
