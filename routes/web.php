@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\CarController as AdminCarController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\Admin\DriverReviewController as AdminDriverReviewController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\FuelController;
 use App\Http\Controllers\Admin\ReportController;
@@ -188,6 +189,12 @@ Route::prefix('admin')
 
         // Testimonials CRUD
         Route::resource('testimonials', TestimonialController::class)->except('show');
+
+        // Ulasan Driver (moderasi)
+        Route::get('ulasan-driver', [AdminDriverReviewController::class, 'index'])->name('driver-reviews.index');
+        Route::patch('ulasan-driver/{driverReview}/approve', [AdminDriverReviewController::class, 'approve'])->name('driver-reviews.approve');
+        Route::patch('ulasan-driver/{driverReview}/reject', [AdminDriverReviewController::class, 'reject'])->name('driver-reviews.reject');
+        Route::patch('ulasan-driver/{driverReview}/reply', [AdminDriverReviewController::class, 'reply'])->name('driver-reviews.reply');
 
         // Bookings
         Route::get('bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
