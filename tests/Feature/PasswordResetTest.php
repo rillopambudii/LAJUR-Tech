@@ -55,6 +55,25 @@ class PasswordResetTest extends TestCase
         $this->assertFalse(Auth::attempt(['email' => 'ucup@co.id', 'password' => 'lama12345']));
     }
 
+    public function test_reset_email_is_branded_and_localized(): void
+    {
+        Notification::fake();
+        $user = $this->owner();
+
+        $this->post('/lupa-password', ['email' => 'ucup@co.id']);
+
+        // Override AppServiceProvider (ResetPassword::toMailUsing) dipakai, bukan
+        // template bawaan Laravel yg berbahasa Inggris & tak berbrand.
+        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
+            $mail = $notification->toMail($user);
+
+            return $mail->subject === 'Atur Ulang Kata Sandi — Lajur'
+                && $mail->actionText === 'Atur Ulang Kata Sandi'
+                && str_contains(implode(' ', $mail->introLines), 'kata sandi akun Lajur')
+                && ! str_contains(implode(' ', $mail->introLines), 'You are receiving');
+        });
+    }
+
     public function test_request_does_not_reveal_whether_email_exists(): void
     {
         Notification::fake();

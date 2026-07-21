@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Tenancy\Branding;
 use App\Tenancy\TenantManager;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -58,6 +60,26 @@ class AppServiceProvider extends ServiceProvider
         // it for the "Lihat Situs" link (Branding::siteUrl).
         View::composer(['layouts.public', 'home', 'layouts.admin', 'admin.site'], function ($view) {
             $view->with('branding', new Branding(app(TenantManager::class)->current()));
+        });
+
+        // Email lupa-password default Laravel berbahasa Inggris & tak berbrand.
+        // Titik kustomisasi resmi framework, berlaku utk semua Notifiable (owner/
+        // admin/driver/superadmin sama-sama lewat form login bersama).
+        ResetPassword::toMailUsing(function ($notifiable, string $token) {
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
+            $expire = config('auth.passwords.'.config('auth.defaults.passwords').'.expire');
+
+            return (new MailMessage)
+                ->subject('Atur Ulang Kata Sandi — Lajur')
+                ->greeting('Halo!')
+                ->line('Kami menerima permintaan untuk mengatur ulang kata sandi akun Lajur Anda.')
+                ->action('Atur Ulang Kata Sandi', $url)
+                ->line("Tautan ini berlaku selama {$expire} menit.")
+                ->line('Jika Anda tidak meminta ini, abaikan saja email ini — kata sandi Anda tidak akan berubah.')
+                ->salutation('Salam, Tim Lajur');
         });
     }
 }
