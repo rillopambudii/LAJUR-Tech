@@ -273,6 +273,16 @@
                     </div>
                 </div>
             @endforeach
+            <div class="form-row">
+                <div class="field">
+                    <label for="family_chat_caption">Keterangan ilustrasi chat</label>
+                    <input class="input" type="text" id="family_chat_caption" name="family_chat_caption" value="{{ $v('family_chat_caption') }}" placeholder="{{ $copy->familyChatCaption() }}">
+                </div>
+                <div class="field">
+                    <label for="family_track_caption">Keterangan ilustrasi halaman lacak</label>
+                    <input class="input" type="text" id="family_track_caption" name="family_track_caption" value="{{ $v('family_track_caption') }}" placeholder="{{ $copy->familyTrackCaption() }}">
+                </div>
+            </div>
         </div>
     </div>
 

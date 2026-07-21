@@ -62,6 +62,8 @@ class LandingCopy
             ['title' => 'Masukkan kode', 'text' => 'Buka halaman Lacak Pesanan, tanpa perlu akun.'],
             ['title' => 'Perjalanan terpantau', 'text' => 'Status dan detail perjalanan terlihat. Posisi live menyusul bersama GPS.'],
         ],
+        'family_chat_caption' => 'Ilustrasi: penyewa membagikan kode ke keluarga',
+        'family_track_caption' => 'Ilustrasi: halaman lacak yang dibuka keluarga',
         'spotlight_storefront_title' => 'Situs booking sendiri, bukan skin generik',
         'spotlight_storefront_text' => 'Setiap tenant dapat etalase online sendiri: logo, warna aksen, dan alamat domain sendiri (namatenant.lajur.id). Pelanggan booking langsung dari situs itu, bukan chat WhatsApp yang mudah terlewat.',
         'gps_badge' => 'Segera hadir',
@@ -199,6 +201,8 @@ class LandingCopy
     public function familyTitle(): string { return $this->get('family_title'); }
     public function familySubtitle(): string { return $this->get('family_subtitle'); }
     public function familySteps(): array { return $this->getGroups('family_steps'); }
+    public function familyChatCaption(): string { return $this->get('family_chat_caption'); }
+    public function familyTrackCaption(): string { return $this->get('family_track_caption'); }
 
     public function spotlightStorefrontTitle(): string { return $this->get('spotlight_storefront_title'); }
     public function spotlightStorefrontText(): string { return $this->get('spotlight_storefront_text'); }

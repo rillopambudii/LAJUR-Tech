@@ -253,6 +253,61 @@
                 @if (! $loop->last)<span class="flow-arr" aria-hidden="true"><x-icon name="arrow-right" /></span>@endif
             @endforeach
         </div>
+
+        {{-- Dua ilustrasi yang mengonkretkan langkah 2 (kode dibagikan) & 4 (perjalanan
+             terpantau). Sengaja mockup, bukan tangkapan layar: percakapan jelas fiktif,
+             dan mockup lacak hanya memuat yang SUDAH berjalan (tahap status + ETA yang
+             diisi admin). Peta live + ETA otomatis TIDAK ditampilkan di sini — masih
+             "segera hadir", sudah punya section berlabel sendiri di bawah. --}}
+        <div class="fam-demos reveal">
+            <div class="phone-frame-col">
+                <div class="phone-frame chat-demo" aria-hidden="true">
+                    <div class="chat-bar">
+                        <span class="chat-ava">IN</span>
+                        <span class="chat-who">Indra <small>anak</small></span>
+                    </div>
+                    <div class="chat-body">
+                        <div class="chat-msg out">Ndra, sudah berangkat? Ibu telepon tadi tidak diangkat.</div>
+                        <div class="chat-msg in">Sudah, Bu. Ini kode buat pantau perjalanannya:</div>
+                        <div class="chat-msg in code">LJR-QCMGSG</div>
+                        <div class="chat-msg in">Buka lajur.id/lacak, masukkan kodenya. Nanti kelihatan sampai mana.</div>
+                        <div class="chat-msg out">Oh bisa dilihat sendiri? Ibu pantau dari sini kalau begitu.</div>
+                    </div>
+                    <div class="chat-input"><span>Ketik pesan…</span></div>
+                </div>
+                <span class="phone-frame-cap">{{ $copy->familyChatCaption() }}</span>
+            </div>
+
+            <div class="phone-frame-col">
+                <div class="phone-frame trk-demo" aria-hidden="true">
+                    <div class="trk-demo-bar">Lacak Pesanan</div>
+                    <div class="trk-demo-body">
+                        <span class="trk-demo-code">LJR-QCMGSG</span>
+                        <div class="trk-demo-steps">
+                            @foreach (['Diproses', 'Disiapkan', 'Perjalanan', 'Tiba'] as $si => $stage)
+                                <div class="trk-demo-step {{ $si <= 2 ? 'done' : '' }}">
+                                    <i></i><span>{{ $stage }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="trk-demo-status">
+                            <span class="lbl">Status saat ini</span>
+                            <strong>Dalam Perjalanan</strong>
+                            <span class="eta"><x-icon name="clock" /> Estimasi tiba: 45 menit lagi</span>
+                        </div>
+                        <div class="trk-demo-rows">
+                            <div><span>Mobil</span><b>All New Xenia</b></div>
+                            <div><span>Sopir</span><b>Achmad S.</b></div>
+                            <div><span>Tujuan</span><b>Balikpapan</b></div>
+                            <div><span>Periode</span><b>23 – 25 Jul</b></div>
+                        </div>
+                        {{-- Tombol yang memang ada di halaman lacak asli (tracking/show). --}}
+                        <div class="trk-demo-cta"><x-icon name="pin" /> Bagikan ke keluarga</div>
+                    </div>
+                </div>
+                <span class="phone-frame-cap">{{ $copy->familyTrackCaption() }}</span>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -665,6 +720,73 @@
     .phone-solo img { display: block; width: 100%; height: auto; }
     .dot-new { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
         background: var(--ok); margin-right: 2px; vertical-align: middle; }
+
+    /* ---- Dua ilustrasi di section "keluarga memantau" ---- */
+    .fam-demos { display: flex; justify-content: center; align-items: flex-start; gap: 26px;
+        flex-wrap: wrap; margin-top: 46px; }
+    .fam-demos .phone-frame { width: min(250px, 78vw); }
+
+    /* Mockup percakapan — gaya chat umum (hijau/putih), sengaja TANPA logo atau
+       wordmark WhatsApp: ilustrasi, bukan tiruan aplikasi milik pihak lain. */
+    .chat-demo { background: #ECE5DD; }
+    .chat-bar { display: flex; align-items: center; gap: 9px; padding: 11px 13px;
+        background: #075E54; color: #fff; flex: none; }
+    .chat-ava { width: 27px; height: 27px; border-radius: 50%; background: rgba(255,255,255,.25);
+        display: grid; place-items: center; font-size: .68rem; font-weight: 700; }
+    .chat-who { font-size: .84rem; font-weight: 600; line-height: 1.15; }
+    .chat-who small { display: block; font-size: .64rem; font-weight: 400; opacity: .75; }
+    .chat-body { flex: 1; min-height: 0; padding: 12px 11px; display: flex; flex-direction: column;
+        gap: 7px; overflow: hidden; }
+    .chat-msg { max-width: 82%; padding: 7px 10px; border-radius: 10px; font-size: .74rem;
+        line-height: 1.45; color: #111B21; box-shadow: 0 1px 1px rgba(0,0,0,.12); }
+    .chat-msg.in { align-self: flex-start; background: #fff; border-top-left-radius: 3px; }
+    .chat-msg.out { align-self: flex-end; background: #D9FDD3; border-top-right-radius: 3px; }
+    .chat-msg.code { font-family: var(--font-mono); font-weight: 700; letter-spacing: .06em;
+        color: var(--petrol); }
+    .chat-input { flex: none; margin: 0 9px 10px; padding: 8px 12px; background: #fff;
+        border-radius: var(--radius-pill); font-size: .7rem; color: #8E9AA3; }
+
+    /* Mockup halaman lacak — hanya fitur yang sudah berjalan. */
+    .trk-demo { background: var(--ivory); }
+    .trk-demo-bar { flex: none; padding: 11px 14px; background: var(--petrol); color: var(--ivory);
+        font-family: var(--font-display); font-weight: 700; font-size: .82rem; }
+    .trk-demo-body { flex: 1; min-height: 0; padding: 14px 13px; display: flex; flex-direction: column;
+        gap: 12px; overflow: hidden; }
+    .trk-demo-code { align-self: center; font-family: var(--font-mono); font-size: .74rem;
+        font-weight: 700; letter-spacing: .08em; color: var(--graphite); }
+    .trk-demo-steps { display: flex; align-items: flex-start; gap: 2px; }
+    .trk-demo-step { flex: 1; text-align: center; position: relative; }
+    /* position:relative agar titik ter-cat DI ATAS garis penghubung (::before yang
+       absolut) — tanpa ini garisnya menutupi titik. */
+    .trk-demo-step i { display: block; position: relative; width: 11px; height: 11px; border-radius: 50%;
+        margin: 0 auto 5px; background: var(--ivory-200); border: 2px solid #D6DBE2; }
+    .trk-demo-step.done i { background: var(--amber); border-color: var(--amber); }
+    .trk-demo-step span { font-size: .58rem; color: var(--graphite); line-height: 1.2; }
+    .trk-demo-step.done span { color: var(--petrol); font-weight: 600; }
+    /* Garis penghubung antar titik tahap. */
+    .trk-demo-step::before { content: ""; position: absolute; top: 5px; left: -50%; width: 100%;
+        height: 2px; background: #D6DBE2; }
+    .trk-demo-step:first-child::before { display: none; }
+    .trk-demo-step.done::before { background: var(--amber); }
+    .trk-demo-status { text-align: center; background: var(--white); border-radius: var(--radius);
+        padding: 13px 10px; box-shadow: var(--shadow-sm); }
+    .trk-demo-status .lbl { display: block; font-family: var(--font-mono); font-size: .55rem;
+        letter-spacing: .12em; text-transform: uppercase; color: var(--amber-600); margin-bottom: 3px; }
+    .trk-demo-status strong { display: block; font-family: var(--font-display); font-size: 1.02rem;
+        color: var(--petrol); }
+    .trk-demo-status .eta { display: inline-flex; align-items: center; gap: 4px; margin-top: 5px;
+        font-size: .68rem; color: var(--petrol-600); }
+    .trk-demo-status .eta svg { width: 12px; height: 12px; }
+    .trk-demo-rows { display: flex; flex-direction: column; gap: 7px; background: var(--white);
+        border-radius: var(--radius); padding: 11px 12px; box-shadow: var(--shadow-sm); }
+    .trk-demo-rows div { display: flex; justify-content: space-between; align-items: baseline;
+        font-size: .68rem; gap: 8px; }
+    .trk-demo-rows span { color: var(--graphite); }
+    .trk-demo-rows b { color: var(--ink); }
+    .trk-demo-cta { display: flex; align-items: center; justify-content: center; gap: 6px;
+        background: var(--amber); color: #2a1c05; border-radius: var(--radius-pill);
+        padding: 9px 12px; font-size: .72rem; font-weight: 700; }
+    .trk-demo-cta svg { width: 13px; height: 13px; }
     .maps-demo .gps-bar { justify-content: center; }
     .maps-demo-map { flex: 1; min-height: 0; }
     .maps-demo-map svg { display: block; width: 100%; height: 100%; }

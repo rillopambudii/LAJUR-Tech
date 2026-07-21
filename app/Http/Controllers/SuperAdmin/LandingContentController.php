@@ -63,6 +63,8 @@ class LandingContentController extends Controller
             'family_steps' => ['nullable', 'array'],
             'family_steps.*.title' => ['nullable', 'string', 'max:80'],
             'family_steps.*.text' => ['nullable', 'string', 'max:200'],
+            'family_chat_caption' => ['nullable', 'string', 'max:100'],
+            'family_track_caption' => ['nullable', 'string', 'max:100'],
             'spotlight_storefront_title' => ['nullable', 'string', 'max:150'],
             'spotlight_storefront_text' => ['nullable', 'string', 'max:600'],
             'gps_badge' => ['nullable', 'string', 'max:40'],

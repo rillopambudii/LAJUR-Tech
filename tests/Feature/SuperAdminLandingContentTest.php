@@ -92,6 +92,34 @@ class SuperAdminLandingContentTest extends TestCase
             ->assertSee('Penyewa tahu siapa yang akan menjemput', false);
     }
 
+    public function test_landing_shows_family_chat_and_tracking_mockups(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            // Ilustrasi percakapan berbagi kode booking.
+            ->assertSee('Ini kode buat pantau perjalanannya', false)
+            ->assertSee('Ilustrasi: penyewa membagikan kode ke keluarga')
+            // Ilustrasi halaman lacak: hanya fitur yg sudah berjalan (tahap + ETA manual).
+            ->assertSee('Dalam Perjalanan')
+            ->assertSee('Estimasi tiba: 45 menit lagi')
+            ->assertSee('Ilustrasi: halaman lacak yang dibuka keluarga');
+    }
+
+    public function test_super_admin_can_edit_family_illustration_captions(): void
+    {
+        $this->actingAs($this->superAdmin())
+            ->patch('/superadmin/konten-landing', [
+                'family_chat_caption' => 'Caption chat kustom',
+                'family_track_caption' => 'Caption lacak kustom',
+            ])
+            ->assertRedirect();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Caption chat kustom')
+            ->assertSee('Caption lacak kustom');
+    }
+
     /**
      * Regresi: itemIcons di landing.blade.php di-hardcode per grup. Menambah item
      * ke LandingCopy::DEFAULTS['feature_groups'] sempat men-500-kan SELURUH landing
