@@ -16,6 +16,7 @@ use App\Http\Controllers\SuperAdmin\LandingContentController as SuperAdminLandin
 use App\Http\Controllers\SuperAdmin\PlanController as SuperAdminPlanController;
 use App\Http\Controllers\SuperAdmin\TenantController as SuperAdminTenantController;
 use App\Http\Controllers\Driver\DriverDashboardController;
+use App\Http\Controllers\Driver\DriverProfileController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Auth\LoginController;
@@ -236,4 +237,5 @@ Route::prefix('driver')
     ->middleware(['auth', 'role:driver'])
     ->group(function () {
         Route::get('/', [DriverDashboardController::class, 'index'])->name('dashboard');
+        Route::get('profil', [DriverProfileController::class, 'show'])->name('profile');
     });

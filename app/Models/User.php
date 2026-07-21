@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -34,6 +35,7 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
+        'avatar_path',
         'password',
         'role',
         'is_admin',
@@ -104,6 +106,21 @@ class User extends Authenticatable
         }
 
         return 'admin.dashboard';
+    }
+
+    /** URL foto profil, null bila belum diunggah. */
+    public function avatarUrl(): ?string
+    {
+        return $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null;
+    }
+
+    /** Inisial 1-2 huruf untuk avatar placeholder saat belum ada foto. */
+    public function initials(): string
+    {
+        $words = preg_split('/\s+/', trim($this->name));
+        $letters = array_map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)), array_slice($words, 0, 2));
+
+        return implode('', $letters) ?: '?';
     }
 
     /** Scope: users of a given role, ordered by name. */

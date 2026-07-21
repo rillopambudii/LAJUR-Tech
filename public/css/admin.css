@@ -203,6 +203,23 @@ table.data .mono { font-size: .9rem; }
 
 /* Fix stacking context Leaflet ada di app.css (dimuat semua layout). */
 
+/* ---------- Avatar (thumbnail tabel driver, upload di form) ---------- */
+.avatar { border-radius: 50%; object-fit: cover; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--amber-glow); color: var(--amber-600); font-family: var(--font-display); font-weight: 700; flex: none; }
+.avatar-sm { width: 38px; height: 38px; font-size: .82rem; }
+.avatar-md { width: 52px; height: 52px; font-size: 1rem; }
+.avatar-lg { width: 96px; height: 96px; font-size: 1.9rem; }
+.cell-driver { display: flex; align-items: center; gap: 12px; }
+
+.avatar-uploader { display: flex; align-items: center; gap: 18px; }
+.avatar-uploader .avatar-preview { width: 84px; height: 84px; font-size: 1.7rem; border: 3px solid var(--white); box-shadow: var(--shadow-sm); }
+.avatar-uploader .avatar-actions { display: flex; flex-direction: column; gap: 8px; }
+.avatar-uploader .avatar-actions small { color: var(--graphite); font-size: .8rem; }
+.avatar-file-input { display: none; }
+
+/* Sidebar admin: badge foto owner (kalau ada) menggantikan inisial polos */
+.sidebar-user-row { display: flex; align-items: center; gap: 10px; }
+
 @media (max-width: 980px) {
     .admin-shell { grid-template-columns: 1fr; }
     .admin-sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 264px; z-index: 200; transform: translateX(-100%); transition: transform .22s ease; }

@@ -9,6 +9,7 @@ use App\Tenancy\TenantManager;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DriverController extends Controller
 {
@@ -61,6 +62,7 @@ class DriverController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
+            'avatar_path' => $request->hasFile('avatar') ? $request->file('avatar')->store('avatars', 'public') : null,
             'password' => $data['password'], // hashed via cast
             'role' => User::ROLE_DRIVER,
             'is_admin' => false,
@@ -85,6 +87,14 @@ class DriverController extends Controller
         $driver->email = $data['email'];
         $driver->phone = $data['phone'] ?? null;
 
+        if ($request->boolean('remove_avatar')) {
+            $this->deleteFile($driver->avatar_path);
+            $driver->avatar_path = null;
+        } elseif ($request->hasFile('avatar')) {
+            $this->deleteFile($driver->avatar_path);
+            $driver->avatar_path = $request->file('avatar')->store('avatars', 'public');
+        }
+
         if (filled($data['password'] ?? null)) {
             $driver->password = $data['password']; // hashed via cast
         }
@@ -99,8 +109,16 @@ class DriverController extends Controller
         $this->guard($driver);
 
         // Bookings keep their history; driver_id is set null via FK (nullOnDelete).
+        $this->deleteFile($driver->avatar_path);
         $driver->delete();
 
         return redirect()->route('admin.drivers.index')->with('success', 'Driver berhasil dihapus.');
+    }
+
+    private function deleteFile(?string $path): void
+    {
+        if ($path) {
+            Storage::disk('public')->delete($path);
+        }
     }
 }

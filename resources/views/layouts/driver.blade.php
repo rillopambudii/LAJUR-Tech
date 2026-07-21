@@ -17,6 +17,9 @@
         .drv-brand svg{width:34px;height:34px;padding:7px;border-radius:10px;background:var(--petrol);color:var(--amber)}
         .drv-user{font-size:.9rem;color:var(--graphite)}
         .drv-user strong{color:inherit}
+        .drv-user-link{display:flex;align-items:center;gap:9px;padding:5px 10px 5px 5px;border-radius:var(--radius-pill);
+            transition:background .15s ease}
+        .drv-user-link:hover,.drv-user-link.active{background:rgba(15,27,51,.06)}
         .drv-section-title{font-family:'Sora',sans-serif;font-weight:700;margin:28px 0 12px;font-size:1.05rem}
 
         .drv-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;
@@ -53,6 +56,38 @@
             .drv-card{flex-wrap:wrap}
             .drv-side{flex-direction:row;width:100%;justify-content:space-between;align-items:center}
         }
+
+        /* ---------- Kartu profil driver ("premium") ---------- */
+        .prof-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);
+            overflow:hidden;margin-bottom:24px}
+        .prof-banner{position:relative;height:104px;
+            background:radial-gradient(120% 160% at 20% -20%,var(--petrol-600) 0%,var(--petrol) 60%,var(--petrol-700) 100%)}
+        .prof-banner::after{content:"";position:absolute;inset:0;
+            background:repeating-linear-gradient(90deg,rgba(231,178,76,.08) 0 26px,transparent 26px 52px);opacity:.5}
+        .prof-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px 26px;
+            margin-top:-52px;position:relative}
+        .prof-head .avatar-lg{border:4px solid var(--white);box-shadow:0 10px 26px -8px rgba(15,27,51,.35)}
+        .prof-name{font-family:var(--font-display);font-weight:800;font-size:1.4rem;margin-top:14px}
+        .prof-role{display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:var(--amber-glow);
+            color:var(--amber-600);font-family:var(--font-mono);font-size:.72rem;font-weight:700;
+            text-transform:uppercase;letter-spacing:.08em;padding:5px 14px;border-radius:var(--radius-pill)}
+        .prof-role svg{width:13px;height:13px}
+        .prof-since{margin-top:8px;font-size:.84rem;color:var(--graphite)}
+
+        .prof-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--ivory-200);
+            border-top:1px solid var(--ivory-200)}
+        .prof-stat{background:var(--white);padding:18px;text-align:center}
+        .prof-stat .n{display:block;font-family:var(--font-mono);font-weight:700;font-size:1.6rem;color:var(--petrol)}
+        .prof-stat .l{font-size:.8rem;color:var(--graphite);margin-top:2px}
+
+        .prof-info{padding:6px 24px 24px}
+        .prof-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--ivory-200)}
+        .prof-row:last-child{border-bottom:0}
+        .prof-row .ico{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+            background:var(--ivory);color:var(--graphite-300)}
+        .prof-row .ico svg{width:18px;height:18px}
+        .prof-row .lbl{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--graphite-300)}
+        .prof-row .val{font-weight:600;color:var(--ink);word-break:break-word}
     </style>
     @stack('head')
 </head>
@@ -60,8 +95,11 @@
 <div class="drv-shell">
     <header class="drv-top">
         <div class="drv-brand"><x-icon name="route" /> Lajur — Driver</div>
-        <div style="display:flex;align-items:center;gap:16px">
-            <span class="drv-user">Halo, <strong>{{ auth()->user()->name }}</strong></span>
+        <div style="display:flex;align-items:center;gap:14px">
+            <a href="{{ route('driver.profile') }}" class="drv-user-link {{ request()->routeIs('driver.profile') ? 'active' : '' }}">
+                <x-avatar :user="auth()->user()" size="sm" />
+                <span class="drv-user">Halo, <strong>{{ auth()->user()->name }}</strong></span>
+            </a>
             <form action="{{ route('logout') }}" method="POST">@csrf
                 <button type="submit" class="btn btn-ghost btn-sm"><x-icon name="logout" /> Keluar</button>
             </form>

@@ -38,7 +38,12 @@
                 <tbody>
                 @forelse ($drivers as $driver)
                     <tr>
-                        <td><div class="nm">{{ $driver->name }}</div></td>
+                        <td>
+                            <div class="cell-driver">
+                                <x-avatar :user="$driver" size="sm" />
+                                <div class="nm">{{ $driver->name }}</div>
+                            </div>
+                        </td>
                         <td><a href="mailto:{{ $driver->email }}">{{ $driver->email }}</a></td>
                         <td>{!! $driver->phone ? '<a href="tel:'.e($driver->phone).'">'.e($driver->phone).'</a>' : '<span class="tag">—</span>' !!}</td>
                         <td><span class="tag">{{ $driver->driver_bookings_count }} booking</span></td>

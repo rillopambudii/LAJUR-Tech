@@ -8,7 +8,9 @@ use App\Models\Tenant;
 use App\Models\User;
 use App\Tenancy\TenantManager;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DriverManagementTest extends TestCase
@@ -161,6 +163,68 @@ class DriverManagementTest extends TestCase
 
         $res = $this->actingAs($driver)->get('/driver');
         $res->assertOk()->assertSee('Mine')->assertDontSee('NotMine');
+    }
+
+    public function test_owner_can_create_driver_with_avatar_photo(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->owner)->post('/admin/drivers', [
+            'name' => 'Foto Driver', 'email' => 'foto@lajur.id', 'phone' => '0812345678',
+            'password' => 'secret123', 'avatar' => UploadedFile::fake()->image('driver.jpg'),
+        ])->assertRedirect('/admin/drivers');
+
+        $driver = User::where('email', 'foto@lajur.id')->firstOrFail();
+        $this->assertNotNull($driver->avatar_path);
+        Storage::disk('public')->assertExists($driver->avatar_path);
+        $this->assertNotNull($driver->avatarUrl());
+    }
+
+    public function test_owner_can_replace_and_remove_driver_avatar(): void
+    {
+        Storage::fake('public');
+        $driver = $this->makeDriver();
+        $driver->update(['avatar_path' => 'avatars/old.jpg']);
+        Storage::disk('public')->put('avatars/old.jpg', 'fake-bytes');
+
+        // Replace: old file deleted, new one stored.
+        $this->actingAs($this->owner)->put("/admin/drivers/{$driver->id}", [
+            'name' => $driver->name, 'email' => $driver->email,
+            'avatar' => UploadedFile::fake()->image('new.jpg'),
+        ])->assertRedirect();
+
+        $driver->refresh();
+        Storage::disk('public')->assertMissing('avatars/old.jpg');
+        Storage::disk('public')->assertExists($driver->avatar_path);
+
+        // Remove: checkbox clears it.
+        $this->actingAs($this->owner)->put("/admin/drivers/{$driver->id}", [
+            'name' => $driver->name, 'email' => $driver->email, 'remove_avatar' => '1',
+        ])->assertRedirect();
+
+        $this->assertNull($driver->refresh()->avatar_path);
+    }
+
+    public function test_driver_without_photo_gets_initials_placeholder(): void
+    {
+        $driver = $this->makeDriver();
+        $driver->name = 'Budi Santoso';
+        $driver->save();
+
+        $this->assertNull($driver->avatarUrl());
+        $this->assertSame('BS', $driver->initials());
+    }
+
+    public function test_driver_can_view_own_profile_page(): void
+    {
+        $driver = $this->makeDriver();
+        $driver->update(['phone' => '0812999888']);
+
+        $this->actingAs($driver)->get('/driver/profil')
+            ->assertOk()
+            ->assertSee('Driver Joni')
+            ->assertSee('0812999888')
+            ->assertSee($driver->email);
     }
 
     public function test_login_redirects_by_role(): void

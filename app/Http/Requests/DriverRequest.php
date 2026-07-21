@@ -28,6 +28,8 @@ class DriverRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($driver?->id),
             ],
             'phone' => ['nullable', 'string', 'max:30', 'regex:/^[0-9\+\-\s\(\)]{6,30}$/'],
+            'avatar' => ['nullable', 'image', 'max:2048'],
+            'remove_avatar' => ['nullable', 'boolean'],
             // Password required when creating; optional when editing (blank = keep current).
             'password' => [$isUpdate ? 'nullable' : 'required', 'string', 'min:8', 'max:255'],
         ];
@@ -42,6 +44,7 @@ class DriverRequest extends FormRequest
             'name' => 'nama',
             'email' => 'email',
             'phone' => 'nomor HP',
+            'avatar' => 'foto profil',
             'password' => 'kata sandi',
         ];
     }
@@ -57,6 +60,8 @@ class DriverRequest extends FormRequest
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email ini sudah digunakan.',
             'phone.regex' => 'Nomor HP hanya boleh berisi angka dan tanda + - ( ).',
+            'avatar.image' => 'Foto profil harus berupa gambar.',
+            'avatar.max' => 'Ukuran foto profil maksimal 2 MB.',
             'password.required' => 'Kata sandi wajib diisi.',
             'password.min' => 'Kata sandi minimal 8 karakter.',
         ];
