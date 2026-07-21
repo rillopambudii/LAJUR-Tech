@@ -75,7 +75,7 @@ class FuelService
             ->with([
                 // Seluruh riwayat log: segmen & flag butuh log sebelum rentang.
                 'fuelLogs' => fn ($q) => $q->orderBy('filled_at')->orderBy('id'),
-                'fuelLogs.creator:id,name',
+                'fuelLogs.creator:id,name,role',
                 'mileageDaily:id,car_id,date,km',
                 'bookings' => fn ($q) => $q->where('status', '!=', 'cancelled')
                     ->select('id', 'car_id', 'start_date', 'end_date', 'status'),

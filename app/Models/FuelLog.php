@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Tenancy\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class FuelLog extends Model
 {
@@ -21,6 +22,7 @@ class FuelLog extends Model
         'full_tank',
         'station',
         'notes',
+        'receipt_path',
         'created_by',
     ];
 
@@ -46,5 +48,10 @@ class FuelLog extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function receiptUrl(): ?string
+    {
+        return $this->receipt_path ? Storage::disk('public')->url($this->receipt_path) : null;
     }
 }

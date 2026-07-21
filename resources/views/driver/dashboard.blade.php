@@ -48,6 +48,9 @@
                     @if ($b->mapsUrl())
                         <a class="btn btn-ghost btn-sm" href="{{ $b->mapsUrl() }}" target="_blank" rel="noopener"><x-icon name="pin" /> Maps</a>
                     @endif
+                    @if ($now)
+                        <a class="btn btn-ghost btn-sm" href="{{ route('driver.fuel.create') }}"><x-icon name="fuel" /> Catat BBM</a>
+                    @endif
                 </div>
             </div>
         </article>

@@ -19,6 +19,7 @@ use App\Http\Controllers\SuperAdmin\PlanController as SuperAdminPlanController;
 use App\Http\Controllers\SuperAdmin\TenantController as SuperAdminTenantController;
 use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Driver\DriverProfileController;
+use App\Http\Controllers\Driver\FuelController as DriverFuelController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\TestimonialController;
@@ -267,4 +268,9 @@ Route::prefix('driver')
     ->group(function () {
         Route::get('/', [DriverDashboardController::class, 'index'])->name('dashboard');
         Route::get('profil', [DriverProfileController::class, 'show'])->name('profile');
+
+        // Catat BBM sendiri — hanya utk mobil yg sedang jadi tugas hari ini,
+        // tanpa akses hapus. Lihat App\Http\Controllers\Driver\FuelController.
+        Route::get('bbm', [DriverFuelController::class, 'create'])->name('fuel.create');
+        Route::post('bbm', [DriverFuelController::class, 'store'])->name('fuel.store');
     });

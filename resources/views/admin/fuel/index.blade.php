@@ -151,6 +151,8 @@
                         <th class="mono" style="text-align:right">km/L</th>
                         <th>SPBU</th>
                         <th>Anomali</th>
+                        <th>Pencatat</th>
+                        <th>Struk</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -172,6 +174,19 @@
                                 <span class="pill pill-completed">OK</span>
                             @endforelse
                         </td>
+                        <td>
+                            {{ $log->creator?->name ?? '—' }}
+                            @if ($log->creator?->role === \App\Models\User::ROLE_DRIVER)
+                                <span class="tag">driver</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if ($log->receiptUrl())
+                                <a href="{{ $log->receiptUrl() }}" target="_blank" rel="noopener" class="icon-btn" aria-label="Lihat struk"><x-icon name="eye" /></a>
+                            @else
+                                <span class="tag">—</span>
+                            @endif
+                        </td>
                         <td style="text-align:right">
                             <form action="{{ route('admin.fuel.destroy', $log) }}" method="POST" onsubmit="return confirm('Hapus catatan pengisian ini?')">
                                 @csrf @method('DELETE')
@@ -180,7 +195,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="10" class="empty-row">Belum ada catatan pengisian pada periode ini.</td></tr>
+                    <tr><td colspan="12" class="empty-row">Belum ada catatan pengisian pada periode ini.</td></tr>
                 @endforelse
                 </tbody>
             </table>
