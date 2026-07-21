@@ -170,6 +170,105 @@
             </div>
         </div>
 
+        {{-- ===== Ulasan (hanya kalau booking selesai) ===== --}}
+        @if ($booking->status === 'completed')
+            @if (session('review_success'))
+                <div class="alert alert-success" role="status"><x-icon name="check" /> <span>{{ session('review_success') }}</span></div>
+            @endif
+            @if (session('review_error'))
+                <div class="alert alert-error" role="alert"><x-icon name="alert" /> <span>{{ session('review_error') }}</span></div>
+            @endif
+            @if (session('testimonial_success'))
+                <div class="alert alert-success" role="status"><x-icon name="check" /> <span>{{ session('testimonial_success') }}</span></div>
+            @endif
+            @if (session('testimonial_error'))
+                <div class="alert alert-error" role="alert"><x-icon name="alert" /> <span>{{ session('testimonial_error') }}</span></div>
+            @endif
+
+            @if ($booking->driver)
+                <div class="panel reveal" style="margin-bottom:20px">
+                    <div class="panel-head"><h2>Ulasan untuk {{ $booking->driver->name }}</h2></div>
+                    <div class="panel-body">
+                        @if ($driverReview)
+                            <p style="color:var(--graphite)">
+                                @if ($driverReview->status === 'pending')
+                                    Ulasan Anda sedang ditinjau. Terima kasih sudah meluangkan waktu!
+                                @else
+                                    Terima kasih atas ulasan Anda untuk driver ini.
+                                @endif
+                            </p>
+                        @else
+                            <p style="margin-bottom:14px;color:var(--graphite)">Bagaimana pengalaman Anda dengan driver ini?</p>
+                            <form method="POST" action="{{ route('driver-review.store', $booking->booking_code) }}">
+                                @csrf
+                                <div class="form-row">
+                                    <div class="field">
+                                        <label>Ketepatan Waktu</label>
+                                        <x-star-input name="rating_punctuality" required />
+                                        @error('rating_punctuality')<span class="field-error">{{ $message }}</span>@enderror
+                                    </div>
+                                    <div class="field">
+                                        <label>Kebersihan & Kondisi Mobil</label>
+                                        <x-star-input name="rating_cleanliness" required />
+                                        @error('rating_cleanliness')<span class="field-error">{{ $message }}</span>@enderror
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="field">
+                                        <label>Keramahan & Sikap</label>
+                                        <x-star-input name="rating_friendliness" required />
+                                        @error('rating_friendliness')<span class="field-error">{{ $message }}</span>@enderror
+                                    </div>
+                                    <div class="field">
+                                        <label>Keamanan Berkendara</label>
+                                        <x-star-input name="rating_safety" required />
+                                        @error('rating_safety')<span class="field-error">{{ $message }}</span>@enderror
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label for="comment">Komentar (opsional)</label>
+                                    <textarea class="input" id="comment" name="comment" rows="3" maxlength="500"></textarea>
+                                    @error('comment')<span class="field-error">{{ $message }}</span>@enderror
+                                </div>
+                                <button type="submit" class="btn btn-primary"><x-icon name="star" /> Kirim Ulasan Driver</button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            <div class="panel reveal" style="margin-bottom:20px">
+                <div class="panel-head"><h2>Ulasan untuk {{ $booking->tenant?->name ?? 'Kami' }}</h2></div>
+                <div class="panel-body">
+                    @if ($businessReview)
+                        <p style="color:var(--graphite)">
+                            @if (! $businessReview->is_published)
+                                Ulasan Anda sedang ditinjau tim kami. Terima kasih!
+                            @else
+                                Terima kasih atas ulasan Anda.
+                            @endif
+                        </p>
+                    @else
+                        <p style="margin-bottom:14px;color:var(--graphite)">Ceritakan pengalaman sewa Anda secara keseluruhan.</p>
+                        <form method="POST" action="{{ route('testimonial.store', $booking->booking_code) }}">
+                            @csrf
+                            <div class="field">
+                                <label>Rating</label>
+                                <x-star-input name="rating" required />
+                                @error('rating')<span class="field-error">{{ $message }}</span>@enderror
+                            </div>
+                            <div class="field">
+                                <label for="quote">Ulasan Anda</label>
+                                <textarea class="input" id="quote" name="quote" rows="3" maxlength="2000" required></textarea>
+                                @error('quote')<span class="field-error">{{ $message }}</span>@enderror
+                            </div>
+                            <button type="submit" class="btn btn-primary"><x-icon name="star" /> Kirim Ulasan</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         {{-- ===== Bagikan ke keluarga ===== --}}
         <div style="text-align:center;margin-bottom:10px">
             <button type="button" class="btn btn-primary" data-share

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\DriverReview;
+use App\Models\Testimonial;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +19,7 @@ class TrackingController extends Controller
     public function show(string $bookingCode): View|RedirectResponse
     {
         $booking = Booking::query()
-            ->with('car.latestPosition')
+            ->with('car.latestPosition', 'driver')
             ->where('booking_code', strtoupper($bookingCode))
             ->first();
 
@@ -27,9 +29,16 @@ class TrackingController extends Controller
                 ->with('tracking_error', 'Kode booking tidak ditemukan. Coba cek kembali kodenya.');
         }
 
+        $driverReview = $booking->driver_id
+            ? DriverReview::where('booking_id', $booking->id)->first()
+            : null;
+        $businessReview = Testimonial::where('booking_id', $booking->id)->first();
+
         return view('tracking.show', [
             'booking' => $booking,
             'demo' => (bool) config('services.tracking.demo'),
+            'driverReview' => $driverReview,
+            'businessReview' => $businessReview,
         ]);
     }
 
