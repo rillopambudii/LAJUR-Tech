@@ -72,6 +72,11 @@
                 </div>
                 <div class="drv-side">
                     <span class="pill {{ $statusColors[$b->status] ?? '' }}">{{ $b->status_label }}</span>
+                    @if ($b->driverReview && $b->driverReview->status === 'published')
+                        <span class="pill" style="background:var(--amber-glow);color:var(--amber-600)">
+                            <x-icon name="star" style="width:13px;height:13px" /> {{ number_format($b->driverReview->rating_overall, 1) }}
+                        </span>
+                    @endif
                 </div>
             </article>
         @endforeach

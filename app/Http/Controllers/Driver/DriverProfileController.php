@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Driver;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\DriverReview;
 use Illuminate\Contracts\View\View;
 
 class DriverProfileController extends Controller
@@ -23,6 +24,15 @@ class DriverProfileController extends Controller
             ->whereDate('end_date', '>=', now()->toDateString())
             ->count();
 
-        return view('driver.profile', compact('driver', 'completedTrips', 'activeTrips'));
+        $avgRating = DriverReview::published()
+            ->where('driver_id', $driver->id)
+            ->avg('rating_overall');
+
+        return view('driver.profile', [
+            'driver' => $driver,
+            'completedTrips' => $completedTrips,
+            'activeTrips' => $activeTrips,
+            'avgRating' => $avgRating !== null ? round((float) $avgRating, 1) : null,
+        ]);
     }
 }
