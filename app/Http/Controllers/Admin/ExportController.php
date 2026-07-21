@@ -6,6 +6,8 @@ use App\Exports\OperationalDatasets;
 use App\Exports\XlsxWriter;
 use App\Http\Controllers\Concerns\ParsesDateRange;
 use App\Http\Controllers\Controller;
+use App\Tenancy\Branding;
+use App\Tenancy\TenantManager;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,15 +41,29 @@ class ExportController extends Controller
             )->deleteFileAfterSend();
         }
 
-        return Pdf::loadView('admin.exports.table-pdf', [
+        $pdf = Pdf::loadView('admin.exports.table-pdf', [
                 'title' => $data['title'],
                 'headings' => $data['headings'],
                 'rows' => $data['rows'],
                 'from' => $from,
                 'to' => $to,
                 'dated' => $data['dated'],
+                'branding' => new Branding(app(TenantManager::class)->current()),
             ])
-            ->setPaper('a4', count($data['headings']) > 6 ? 'landscape' : 'portrait')
-            ->download($filename);
+            ->setPaper('a4', count($data['headings']) > 6 ? 'landscape' : 'portrait');
+
+        // Nomor halaman: CSS counter(pages) tak reliabel di dompdf (selalu 0).
+        // API canvas native-nya yang benar-benar tahu total halaman setelah render.
+        $pdf->render();
+        $canvas = $pdf->getDomPDF()->getCanvas();
+        $canvas->page_text(
+            $canvas->get_width() - 130, $canvas->get_height() - 26,
+            'Halaman {PAGE_NUM} dari {PAGE_COUNT}', null, 7.5, [0.6, 0.63, 0.67]
+        );
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
     }
 }
