@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Tenancy\BelongsToTenant;
 
 class Booking extends Model
@@ -141,6 +142,14 @@ class Booking extends Model
     public function driver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'driver_id');
+    }
+
+    /**
+     * @return HasOne<DriverReview, $this>
+     */
+    public function driverReview(): HasOne
+    {
+        return $this->hasOne(DriverReview::class);
     }
 
     /** Scope: filter by status. */
