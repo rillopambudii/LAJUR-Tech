@@ -66,6 +66,44 @@ class SuperAdminLandingContentTest extends TestCase
             ->assertSee('baris kedua kustom.');
     }
 
+    public function test_landing_shows_driver_reputation_section(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Reputasi sopir jadi alasan orang memilih Anda')
+            ->assertSee('Ulasan masuk ke dashboard Anda dulu', false)
+            ->assertSee('product-driver-profile.jpg', false);
+    }
+
+    public function test_super_admin_can_edit_driver_reputation_section(): void
+    {
+        $this->actingAs($this->superAdmin())
+            ->patch('/superadmin/konten-landing', [
+                'reviews_title' => 'Judul Reputasi Kustom',
+                'reviews_items' => [1 => 'Poin kedua kustom.'],
+            ])
+            ->assertRedirect();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Judul Reputasi Kustom')
+            ->assertSee('Poin kedua kustom.')
+            // Poin lain tetap default (override per-item, bukan menimpa seluruh daftar).
+            ->assertSee('Penyewa tahu siapa yang akan menjemput', false);
+    }
+
+    /**
+     * Regresi: itemIcons di landing.blade.php di-hardcode per grup. Menambah item
+     * ke LandingCopy::DEFAULTS['feature_groups'] sempat men-500-kan SELURUH landing
+     * page ("Undefined array key"). Sekarang lookup ikon punya fallback.
+     */
+    public function test_extra_feature_group_item_does_not_break_landing(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Profil dan rating sopir yang bisa dilihat penyewa');
+    }
+
     public function test_partial_pain_item_edit_keeps_other_items_default(): void
     {
         $this->actingAs($this->superAdmin())

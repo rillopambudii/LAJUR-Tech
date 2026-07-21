@@ -39,12 +39,21 @@ class LandingCopy
             ['title' => 'Operasional', 'items' => ['Booking dan kode unik per pesanan', 'Kalender armada anti-tabrakan', 'Penugasan dan jadwal driver', 'Tujuan perjalanan per booking']],
             ['title' => 'Monitoring', 'items' => ['BBM anti-kebocoran, ditandai otomatis', 'Laporan pendapatan dan utilisasi', 'Export PDF / Excel', 'GPS live di peta']],
             ['title' => 'Produktivitas', 'items' => ['Asisten AI: tanya angka bisnis, dijawab dari data', 'Biaya per km dan konsumsi terhitung sendiri', 'Dashboard ringkas untuk keputusan cepat']],
-            ['title' => 'Pengalaman Pelanggan', 'items' => ['Etalase booking online milik Anda sendiri', 'Lacak pesanan dengan kode booking', 'Keluarga ikut memantau perjalanan']],
+            ['title' => 'Pengalaman Pelanggan', 'items' => ['Etalase booking online milik Anda sendiri', 'Lacak pesanan dengan kode booking', 'Keluarga ikut memantau perjalanan', 'Profil dan rating sopir yang bisa dilihat penyewa']],
         ],
         'spotlight_fuel_title' => 'BBM yang bocor, langsung ketahuan',
         'spotlight_fuel_text' => 'Sopir isi 60 liter ke tangki yang cuma muat 45? Konsumsi tiba-tiba boros dua kali lipat? Lajur hitung sendiri dari tiap catatan pengisian dan menandainya merah. Anda tak perlu memeriksa satu per satu.',
         'spotlight_driver_title' => 'Sopir tak perlu tanya alamat lagi',
         'spotlight_driver_text' => 'Isi lokasi tujuan sekali saat menugaskan driver, satu tombol Maps langsung muncul di HP sopir. Sekali tap, Google Maps terbuka dengan rute dari posisinya saat itu, tanpa telepon, tanpa dikte alamat lewat WhatsApp.',
+        'reviews_eyebrow' => 'Baru',
+        'reviews_title' => 'Reputasi sopir jadi alasan orang memilih Anda',
+        'reviews_text' => 'Tiap sopir punya halaman profil sendiri: foto, jumlah perjalanan, dan rating dari penyewa sungguhan. Selesai sewa, penyewa menilai ketepatan waktu, kebersihan mobil, keramahan, dan keamanan berkendara.',
+        'reviews_items' => [
+            'Penyewa tahu siapa yang akan menjemput, lengkap dengan rekam jejaknya. Rasa aman inilah yang sering menentukan pilihan.',
+            'Ulasan masuk ke dashboard Anda dulu, tidak langsung tayang. Anda yang memutuskan menayangkan, dan bisa membalas.',
+            'Sopir tahu dirinya dinilai, jadi pelayanan terjaga sendiri tanpa perlu Anda awasi terus-menerus.',
+        ],
+        'reviews_caption' => 'Halaman profil sopir yang dilihat penyewa',
         'family_title' => 'Keluarga juga bisa memantau perjalanan',
         'family_subtitle' => 'Setiap booking punya kode unik. Penyewa cukup membagikannya, dan keluarga di rumah ikut tenang.',
         'family_steps' => [
@@ -180,6 +189,12 @@ class LandingCopy
     public function spotlightFuelText(): string { return $this->get('spotlight_fuel_text'); }
     public function spotlightDriverTitle(): string { return $this->get('spotlight_driver_title'); }
     public function spotlightDriverText(): string { return $this->get('spotlight_driver_text'); }
+
+    public function reviewsEyebrow(): string { return $this->get('reviews_eyebrow'); }
+    public function reviewsTitle(): string { return $this->get('reviews_title'); }
+    public function reviewsText(): string { return $this->get('reviews_text'); }
+    public function reviewsItems(): array { return $this->getList('reviews_items'); }
+    public function reviewsCaption(): string { return $this->get('reviews_caption'); }
 
     public function familyTitle(): string { return $this->get('family_title'); }
     public function familySubtitle(): string { return $this->get('family_subtitle'); }

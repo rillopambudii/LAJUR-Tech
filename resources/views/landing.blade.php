@@ -112,7 +112,7 @@
                     ['ico' => 'calendar', 'class' => 'cell-wide', 'itemIcons' => ['check', 'check', 'check', 'check']],
                     ['ico' => 'fuel', 'class' => 'cell-wide cell-dark', 'itemIcons' => ['check', 'check', 'check', 'clock']],
                     ['ico' => 'sparkle', 'class' => 'cell-wide cell-tint', 'itemIcons' => ['check', 'check', 'check']],
-                    ['ico' => 'users', 'class' => 'cell-wide', 'itemIcons' => ['check', 'check', 'check']],
+                    ['ico' => 'users', 'class' => 'cell-wide', 'itemIcons' => ['check', 'check', 'check', 'check']],
                 ];
             @endphp
             @foreach ($copy->featureGroups() as $gi => $group)
@@ -122,7 +122,9 @@
                     <ul class="fg-list">
                         @foreach ($group['items'] as $ii => $item)
                             <li>
-                                <x-icon name="{{ $groupMeta[$gi]['itemIcons'][$ii] }}" /> {{ $item }}
+                                {{-- Fallback 'check': menambah item di LandingCopy::DEFAULTS
+                                     tak boleh sanggup men-500-kan seluruh landing page. --}}
+                                <x-icon name="{{ $groupMeta[$gi]['itemIcons'][$ii] ?? 'check' }}" /> {{ $item }}
                                 {{-- Item terakhir kelompok Monitoring (GPS) selalu berlabel "segera hadir" — fitur belum berjalan, bukan bagian teks yg diedit. --}}
                                 @if ($gi === 1 && $ii === 3)
                                     <span class="pill pill-pending" style="font-size:.64rem;vertical-align:middle">Segera hadir</span>
@@ -209,8 +211,36 @@
     </div>
 </section>
 
-{{-- ============ HIGHLIGHT: KELUARGA IKUT MEMANTAU ============ --}}
+{{-- ============ SOROTAN REPUTASI & ULASAN DRIVER ============ --}}
 <section class="section" style="background:var(--ivory-200)">
+    <div class="container">
+        <div class="spotlight">
+            <div class="phone-solo-wrap reveal">
+                <div class="phone-solo">
+                    <img src="{{ asset('img/product-driver-profile.jpg') }}" width="480" height="1283"
+                         alt="Profil publik sopir di Lajur: foto, rating 4,9 dari 5, rincian penilaian, dan ulasan penyewa beserta balasan pemilik rental" loading="lazy">
+                </div>
+                <span class="phone-frame-cap">{{ $copy->reviewsCaption() }}</span>
+            </div>
+            <div class="spotlight-text reveal">
+                <span class="eyebrow"><span class="dot-new" aria-hidden="true"></span> {{ $copy->reviewsEyebrow() }}</span>
+                <h2>{{ $copy->reviewsTitle() }}</h2>
+                <p>{{ $copy->reviewsText() }}</p>
+                <ul class="fg-list" style="margin-bottom:26px">
+                    @foreach ($copy->reviewsItems() as $item)
+                        <li><x-icon name="check" /> {{ $item }}</li>
+                    @endforeach
+                </ul>
+                <a href="{{ route('signup.trial.form') }}" class="btn btn-primary">{{ $copy->ctaLabel() }} <x-icon name="arrow-right" /></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{-- ============ HIGHLIGHT: KELUARGA IKUT MEMANTAU ============ --}}
+{{-- Sengaja putih: diapit dua section berlatar ivory-200 (reputasi sopir & etalase),
+     jadi tanpa ini ketiganya menyatu jadi satu blok abu panjang tanpa batas. --}}
+<section class="section">
     <div class="container">
         <div class="section-head reveal" style="max-width:680px;margin-inline:auto;text-align:center">
             <h2 class="section-title">{{ $copy->familyTitle() }}</h2>
@@ -626,6 +656,15 @@
         box-shadow: 0 40px 80px -20px rgba(0,0,0,.6); display: flex; flex-direction: column; }
     .phone-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
     .phone-frame-cap { font-size: .82rem; font-weight: 600; color: var(--graphite); text-align: center; }
+
+    /* Bingkai HP tunggal — tinggi mengikuti gambar (bukan aspect-ratio tetap
+       seperti .phone-frame) karena tangkapan profil sopir memang panjang. */
+    .phone-solo-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .phone-solo { width: min(290px, 78vw); border-radius: 30px; background: #0B1424; border: 8px solid #1E2B45;
+        overflow: hidden; box-shadow: 0 40px 80px -20px rgba(0,0,0,.55); }
+    .phone-solo img { display: block; width: 100%; height: auto; }
+    .dot-new { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+        background: var(--ok); margin-right: 2px; vertical-align: middle; }
     .maps-demo .gps-bar { justify-content: center; }
     .maps-demo-map { flex: 1; min-height: 0; }
     .maps-demo-map svg { display: block; width: 100%; height: 100%; }

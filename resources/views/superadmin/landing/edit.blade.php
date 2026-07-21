@@ -213,9 +213,40 @@
         </div>
     </div>
 
-    {{-- 9. HIGHLIGHT KELUARGA --}}
+    {{-- 9. SOROTAN REPUTASI & ULASAN DRIVER --}}
     <div class="panel">
-        <div class="panel-head"><h2>9. Highlight: Keluarga Memantau</h2></div>
+        <div class="panel-head"><h2>9. Sorotan: Reputasi &amp; Ulasan Sopir</h2></div>
+        <div class="panel-body">
+            <div class="form-row">
+                <div class="field">
+                    <label for="reviews_eyebrow">Label kecil (eyebrow)</label>
+                    <input class="input" type="text" id="reviews_eyebrow" name="reviews_eyebrow" value="{{ $v('reviews_eyebrow') }}" placeholder="{{ $copy->reviewsEyebrow() }}">
+                </div>
+                <div class="field">
+                    <label for="reviews_caption">Keterangan di bawah gambar</label>
+                    <input class="input" type="text" id="reviews_caption" name="reviews_caption" value="{{ $v('reviews_caption') }}" placeholder="{{ $copy->reviewsCaption() }}">
+                </div>
+            </div>
+            <div class="field">
+                <label for="reviews_title">Judul</label>
+                <input class="input" type="text" id="reviews_title" name="reviews_title" value="{{ $v('reviews_title') }}" placeholder="{{ $copy->reviewsTitle() }}">
+            </div>
+            <div class="field">
+                <label for="reviews_text">Teks</label>
+                <textarea class="input" id="reviews_text" name="reviews_text" rows="3" placeholder="{{ $copy->reviewsText() }}">{{ $v('reviews_text') }}</textarea>
+            </div>
+            @foreach ($copy->reviewsItems() as $i => $default)
+                <div class="field">
+                    <label for="reviews_items_{{ $i }}">Poin {{ $i + 1 }}</label>
+                    <input class="input" type="text" id="reviews_items_{{ $i }}" name="reviews_items[{{ $i }}]" value="{{ $v("reviews_items.$i") }}" placeholder="{{ $default }}">
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- 10. HIGHLIGHT KELUARGA --}}
+    <div class="panel">
+        <div class="panel-head"><h2>10. Highlight: Keluarga Memantau</h2></div>
         <div class="panel-body">
             <div class="form-row">
                 <div class="field">
@@ -247,7 +278,7 @@
 
     {{-- 10. SOROTAN ETALASE --}}
     <div class="panel">
-        <div class="panel-head"><h2>10. Sorotan: Etalase Tenant</h2></div>
+        <div class="panel-head"><h2>11. Sorotan: Etalase Tenant</h2></div>
         <div class="panel-body">
             <div class="field">
                 <label for="spotlight_storefront_title">Judul</label>
@@ -262,7 +293,7 @@
 
     {{-- 11. PREVIEW GPS --}}
     <div class="panel">
-        <div class="panel-head"><h2>11. Preview GPS</h2><p>Section ilustrasi berlabel "segera hadir" — jangan hapus label ini, fitur belum berjalan.</p></div>
+        <div class="panel-head"><h2>12. Preview GPS</h2><p>Section ilustrasi berlabel "segera hadir" — jangan hapus label ini, fitur belum berjalan.</p></div>
         <div class="panel-body">
             <div class="form-row">
                 <div class="field">
@@ -287,7 +318,7 @@
 
     {{-- 12. KENAPA LAJUR --}}
     <div class="panel">
-        <div class="panel-head"><h2>12. Kenapa Memilih Lajur</h2></div>
+        <div class="panel-head"><h2>13. Kenapa Memilih Lajur</h2></div>
         <div class="panel-body">
             <div class="field">
                 <label for="why_title">Judul</label>
@@ -313,7 +344,7 @@
 
     {{-- 13. WORKFLOW --}}
     <div class="panel">
-        <div class="panel-head"><h2>13. Alur Mulai (Workflow)</h2></div>
+        <div class="panel-head"><h2>14. Alur Mulai (Workflow)</h2></div>
         <div class="panel-body">
             <div class="field">
                 <label for="workflow_title">Judul</label>
@@ -339,7 +370,7 @@
 
     {{-- 14. ECOSYSTEM --}}
     <div class="panel">
-        <div class="panel-head"><h2>14. Platform Ecosystem</h2></div>
+        <div class="panel-head"><h2>15. Platform Ecosystem</h2></div>
         <div class="panel-body">
             <div class="form-row">
                 <div class="field">
@@ -372,7 +403,7 @@
 
     {{-- 15. HARGA --}}
     <div class="panel">
-        <div class="panel-head"><h2>15. Harga</h2></div>
+        <div class="panel-head"><h2>16. Harga</h2></div>
         <div class="panel-body">
             <div class="form-row">
                 <div class="field">
@@ -389,7 +420,7 @@
 
     {{-- 16. CTA AKHIR --}}
     <div class="panel">
-        <div class="panel-head"><h2>16. Ajakan Penutup</h2></div>
+        <div class="panel-head"><h2>17. Ajakan Penutup</h2></div>
         <div class="panel-body">
             <div class="field">
                 <label for="cta_title">Judul</label>
