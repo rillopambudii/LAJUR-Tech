@@ -20,6 +20,7 @@ use App\Http\Controllers\SuperAdmin\TenantController as SuperAdminTenantControll
 use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Driver\DriverProfileController;
 use App\Http\Controllers\Admin\MessageController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -191,6 +192,12 @@ Route::prefix('admin')
         // Staf admin CRUD — hanya owner (bukan admin lain) yg boleh kelola.
         Route::resource('staff', StaffController::class)->except('show')
             ->middleware('role:owner');
+
+        // Profil Saya — owner & admin sama-sama edit akun sendiri (tak ada
+        // atasan di dalam tenant utk diminta, beda dgn profil driver yg baca-saja).
+        Route::get('profil', [AdminProfileController::class, 'show'])->name('profile.show');
+        Route::put('profil', [AdminProfileController::class, 'update'])->name('profile.update');
+        Route::put('profil/password', [AdminProfileController::class, 'updatePassword'])->name('profile.password');
 
         // Testimonials CRUD
         Route::resource('testimonials', TestimonialController::class)->except('show');

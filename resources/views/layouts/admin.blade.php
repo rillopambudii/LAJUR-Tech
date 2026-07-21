@@ -85,10 +85,10 @@
             </a>
         </nav>
         <div class="sidebar-foot">
-            <div class="sidebar-user">
-                Masuk sebagai
-                <strong>{{ auth()->user()->name }}</strong>
-            </div>
+            <a href="{{ route('admin.profile.show') }}" class="sidebar-user sidebar-user-row" style="text-decoration:none">
+                <x-avatar :user="auth()->user()" size="sm" />
+                <span>Masuk sebagai<br><strong>{{ auth()->user()->name }}</strong></span>
+            </a>
             <div class="sidebar-actions">
                 <a href="{{ $branding->siteUrl() }}" class="sidebar-btn" target="_blank" rel="noopener">
                     <x-icon name="eye" /> <span>Lihat Situs</span>
