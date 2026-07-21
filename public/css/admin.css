@@ -187,8 +187,9 @@ table.data .mono { font-size: .9rem; }
 
 /* ---------- Detail view ---------- */
 .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
+.detail-item { min-width: 0; }
 .detail-item .k { font-size: .76rem; text-transform: uppercase; letter-spacing: .06em; color: var(--graphite); margin-bottom: 4px; }
-.detail-item .v { font-weight: 600; font-size: 1.02rem; }
+.detail-item .v { font-weight: 600; font-size: 1.02rem; overflow-wrap: anywhere; }
 
 /* ---------- Pagination ---------- */
 .pagination { display: flex; gap: 6px; list-style: none; padding: 18px 24px; flex-wrap: wrap; align-items: center; }
@@ -203,13 +204,12 @@ table.data .mono { font-size: .9rem; }
 
 /* Fix stacking context Leaflet ada di app.css (dimuat semua layout). */
 
-/* ---------- Avatar (thumbnail tabel driver, upload di form) ---------- */
-.avatar { border-radius: 50%; object-fit: cover; display: inline-flex; align-items: center; justify-content: center;
-    background: var(--amber-glow); color: var(--amber-600); font-family: var(--font-display); font-weight: 700; flex: none; }
-.avatar-sm { width: 38px; height: 38px; font-size: .82rem; }
-.avatar-md { width: 52px; height: 52px; font-size: 1rem; }
-.avatar-lg { width: 96px; height: 96px; font-size: 1.9rem; }
+/* ---------- Avatar: definisi dasar (.avatar/.avatar-sm/-md/-lg) ada di app.css, dimuat semua layout ---------- */
 .cell-driver { display: flex; align-items: center; gap: 12px; }
+
+/* Baris driver: transisi halus + avatar sedikit membesar saat di-hover. */
+table.data tbody tr { transition: background-color .15s ease; }
+table.data tbody tr:hover .cell-driver .avatar { transform: scale(1.08); }
 
 .avatar-uploader { display: flex; align-items: center; gap: 18px; }
 .avatar-uploader .avatar-preview { width: 84px; height: 84px; font-size: 1.7rem; border: 3px solid var(--white); box-shadow: var(--shadow-sm); }

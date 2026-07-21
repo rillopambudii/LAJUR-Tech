@@ -58,15 +58,22 @@
         }
 
         /* ---------- Kartu profil driver ("premium") ---------- */
+        @keyframes prof-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
         .prof-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);
-            overflow:hidden;margin-bottom:24px}
-        .prof-banner{position:relative;height:104px;
-            background:radial-gradient(120% 160% at 20% -20%,var(--petrol-600) 0%,var(--petrol) 60%,var(--petrol-700) 100%)}
+            overflow:hidden;margin-bottom:24px;animation:prof-in .5s ease both;
+            transition:box-shadow .25s ease,transform .25s ease}
+        .prof-card:hover{box-shadow:0 22px 44px -18px rgba(15,27,51,.28);transform:translateY(-3px)}
+        .prof-banner{position:relative;height:104px;overflow:hidden;
+            background:radial-gradient(120% 160% at 20% -20%,var(--petrol-600) 0%,var(--petrol) 60%,var(--petrol-700) 100%);
+            background-size:160% 160%;background-position:20% -20%;transition:background-position .6s ease}
+        .prof-card:hover .prof-banner{background-position:35% -10%}
         .prof-banner::after{content:"";position:absolute;inset:0;
             background:repeating-linear-gradient(90deg,rgba(231,178,76,.08) 0 26px,transparent 26px 52px);opacity:.5}
         .prof-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px 26px;
             margin-top:-52px;position:relative}
-        .prof-head .avatar-lg{border:4px solid var(--white);box-shadow:0 10px 26px -8px rgba(15,27,51,.35)}
+        .prof-head .avatar-lg{border:4px solid var(--white);box-shadow:0 10px 26px -8px rgba(15,27,51,.35);
+            transition:transform .25s ease}
+        .prof-card:hover .prof-head .avatar-lg{transform:scale(1.05)}
         .prof-name{font-family:var(--font-display);font-weight:800;font-size:1.4rem;margin-top:14px}
         .prof-role{display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:var(--amber-glow);
             color:var(--amber-600);font-family:var(--font-mono);font-size:.72rem;font-weight:700;

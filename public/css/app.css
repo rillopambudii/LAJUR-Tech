@@ -60,6 +60,14 @@ body {
 }
 img, svg { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
+
+/* ---------- Avatar (dipakai di admin, driver, dan halaman publik) ---------- */
+.avatar { border-radius: 50%; object-fit: cover; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--amber-glow); color: var(--amber-600); font-family: var(--font-display); font-weight: 700; flex: none;
+    transition: transform .2s ease; }
+.avatar-sm { width: 38px; height: 38px; font-size: .82rem; }
+.avatar-md { width: 52px; height: 52px; font-size: 1rem; }
+.avatar-lg { width: 96px; height: 96px; font-size: 1.9rem; }
 button { font-family: inherit; cursor: pointer; }
 h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
 

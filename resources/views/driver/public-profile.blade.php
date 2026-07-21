@@ -4,10 +4,19 @@
 
 @push('head')
 <style>
-    .drvp-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;margin-bottom:24px}
-    .drvp-banner{position:relative;height:104px;background:radial-gradient(120% 160% at 20% -20%,var(--petrol-600) 0%,var(--petrol) 60%,var(--petrol-700) 100%)}
-    .drvp-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px 26px;margin-top:-52px}
-    .drvp-head .avatar-lg{border:4px solid var(--white);box-shadow:0 10px 26px -8px rgba(15,27,51,.35)}
+    @keyframes drvp-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .drvp-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;margin-bottom:24px;
+        animation:drvp-in .5s ease both;transition:box-shadow .25s ease,transform .25s ease}
+    .drvp-card:hover{box-shadow:0 22px 44px -18px rgba(15,27,51,.28);transform:translateY(-3px)}
+    .drvp-banner{position:relative;height:104px;overflow:hidden;
+        background:radial-gradient(120% 160% at 20% -20%,var(--petrol-600) 0%,var(--petrol) 60%,var(--petrol-700) 100%);
+        background-size:160% 160%;background-position:20% -20%;transition:background-position .6s ease}
+    .drvp-card:hover .drvp-banner{background-position:35% -10%}
+    .drvp-head{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px 26px;
+        margin-top:-52px;position:relative}
+    .drvp-head .avatar-lg{border:4px solid var(--white);box-shadow:0 10px 26px -8px rgba(15,27,51,.35);transition:transform .25s ease}
+    .drvp-card:hover .drvp-head .avatar-lg{transform:scale(1.05)}
+    .drvp-back{display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;color:var(--petrol);font-weight:600;font-size:.92rem}
     .drvp-name{font-family:var(--font-display);font-weight:800;font-size:1.4rem;margin-top:14px}
     .drvp-overall{display:flex;align-items:center;gap:6px;margin-top:8px;color:var(--amber-600);font-weight:700}
     .drvp-overall svg{width:20px;height:20px}
@@ -31,6 +40,10 @@
 @section('content')
 <section class="section">
     <div class="container" style="max-width:640px">
+        <a href="{{ url()->previous('/') }}" class="drvp-back">
+            <x-icon name="arrow-right" style="display:inline-block;width:15px;height:15px;transform:rotate(180deg)" /> Kembali
+        </a>
+
         <div class="drvp-card">
             <div class="drvp-banner"></div>
             <div class="drvp-head">

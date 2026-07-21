@@ -92,7 +92,7 @@
                 </div>
                 @if ($booking->eta_manual_note)
                     <p style="margin:0;color:var(--petrol-600);font-size:1rem">
-                        <x-icon name="clock" style="width:16px;height:16px;vertical-align:-2px" /> Estimasi tiba: {{ $booking->eta_manual_note }}
+                        <x-icon name="clock" style="display:inline-block;width:16px;height:16px;vertical-align:-2px" /> Estimasi tiba: {{ $booking->eta_manual_note }}
                     </p>
                 @endif
             </div>
@@ -103,7 +103,7 @@
             <div class="panel-body">
                 @if ($demo)
                     <div data-eta style="text-align:center;margin-bottom:12px;font-weight:600;color:var(--petrol)">
-                        <x-icon name="clock" style="width:16px;height:16px;vertical-align:-2px" />
+                        <x-icon name="clock" style="display:inline-block;width:16px;height:16px;vertical-align:-2px" />
                         Estimasi tiba: <span data-eta-min>—</span> menit
                     </div>
                     <div id="tracking-map" style="height:280px;border-radius:var(--radius);overflow:hidden;background:var(--ivory-200)"></div>

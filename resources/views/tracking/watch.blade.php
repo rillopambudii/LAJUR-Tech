@@ -42,9 +42,9 @@
             <span class="eyebrow" style="justify-content:center">Status saat ini</span>
             <div style="font-family:var(--font-display);font-weight:800;font-size:1.7rem;color:var(--petrol);margin:6px 0 4px">{{ $booking->trip_status_label }}</div>
             @if ($demo)
-                <p data-eta style="margin:0;color:var(--petrol-600)"><x-icon name="clock" style="width:16px;height:16px;vertical-align:-2px" /> Estimasi tiba: <span data-eta-min>—</span> menit</p>
+                <p data-eta style="margin:0;color:var(--petrol-600)"><x-icon name="clock" style="display:inline-block;width:16px;height:16px;vertical-align:-2px" /> Estimasi tiba: <span data-eta-min>—</span> menit</p>
             @elseif ($booking->eta_manual_note)
-                <p style="margin:0;color:var(--petrol-600)"><x-icon name="clock" style="width:16px;height:16px;vertical-align:-2px" /> Estimasi tiba: {{ $booking->eta_manual_note }}</p>
+                <p style="margin:0;color:var(--petrol-600)"><x-icon name="clock" style="display:inline-block;width:16px;height:16px;vertical-align:-2px" /> Estimasi tiba: {{ $booking->eta_manual_note }}</p>
             @endif
         </div></div>
 
