@@ -103,4 +103,76 @@ class InAppSubscriptionUpgradeTest extends TestCase
             ->assertOk()
             ->assertSee('aktif');
     }
+
+    /**
+     * Halaman "selesai" perpanjangan dulu HANYA menampilkan view — tak pernah
+     * memverifikasi pembayaran. Akibatnya tenant yang sudah membayar tetap
+     * terkunci sampai webhook masuk, padahal di lokal webhook tak pernah sampai
+     * (Midtrans tak bisa menghubungi localhost). Alur PENDAFTARAN sudah punya
+     * pengaman ini sejak 2026-07-19; alur dashboard terlewat sampai 2026-07-22.
+     */
+    public function test_finish_page_activates_suspended_tenant_when_midtrans_says_paid(): void
+    {
+        $this->tenant->update([
+            'subscription_status' => 'suspended',
+            'pending_plan' => 'business',
+            'payment_ref' => 'LAJUR-SUB-1-999',
+        ]);
+
+        Http::fake(['*/v2/LAJUR-SUB-1-999/status' => Http::response([
+            'status_code' => '200', 'transaction_status' => 'settlement', 'fraud_status' => 'accept',
+        ])]);
+
+        $this->actingAs($this->owner())
+            ->get('/admin/langganan/selesai?order_id=LAJUR-SUB-1-999')
+            ->assertOk();
+
+        $this->tenant->refresh();
+        $this->assertSame('active', $this->tenant->subscription_status, 'tenant tidak diaktifkan padahal Midtrans bilang lunas');
+        $this->assertSame('business', $this->tenant->plan, 'pending_plan tidak diterapkan');
+        $this->assertNull($this->tenant->pending_plan);
+        $this->assertNotNull($this->tenant->subscription_ends_at);
+    }
+
+    public function test_finish_page_does_not_activate_when_payment_unpaid(): void
+    {
+        $this->tenant->update([
+            'subscription_status' => 'suspended',
+            'payment_ref' => 'LAJUR-SUB-1-888',
+        ]);
+
+        Http::fake(['*/v2/LAJUR-SUB-1-888/status' => Http::response([
+            'status_code' => '201', 'transaction_status' => 'pending', 'fraud_status' => 'accept',
+        ])]);
+
+        $this->actingAs($this->owner())->get('/admin/langganan/selesai?order_id=LAJUR-SUB-1-888')->assertOk();
+
+        $this->assertSame('suspended', $this->tenant->fresh()->subscription_status);
+    }
+
+    /** Refresh halaman selesai tak boleh menambah 30 hari berulang kali. */
+    public function test_refreshing_finish_page_does_not_extend_subscription_again(): void
+    {
+        $this->tenant->update([
+            'subscription_status' => 'suspended',
+            'payment_ref' => 'LAJUR-SUB-1-777',
+        ]);
+
+        Http::fake(['*/v2/LAJUR-SUB-1-777/status' => Http::response([
+            'status_code' => '200', 'transaction_status' => 'settlement', 'fraud_status' => 'accept',
+        ])]);
+
+        $owner = $this->owner();
+        $this->actingAs($owner)->get('/admin/langganan/selesai?order_id=LAJUR-SUB-1-777')->assertOk();
+        $firstEnds = $this->tenant->fresh()->subscription_ends_at;
+
+        $this->travel(1)->days();
+        $this->actingAs($owner)->get('/admin/langganan/selesai?order_id=LAJUR-SUB-1-777')->assertOk();
+
+        $this->assertEquals(
+            $firstEnds->toDateTimeString(),
+            $this->tenant->fresh()->subscription_ends_at->toDateTimeString(),
+            'masa langganan bertambah lagi hanya karena halaman di-refresh'
+        );
+    }
 }

@@ -51,9 +51,31 @@ class SubscriptionController extends Controller
         return redirect($url);
     }
 
-    public function finish(TenantManager $manager): View
+    public function finish(TenantManager $manager, SubscriptionCheckout $checkout): View
     {
         $tenant = $manager->current();
+
+        // Jaring pengaman yang sama dengan SignupController::finish: jangan
+        // menunggu webhook. Di lokal webhook tak pernah sampai (Midtrans tak
+        // bisa menghubungi localhost) dan di produksi bisa balapan dengan
+        // kembalinya pengguna ke halaman ini.
+        //
+        // Dulu hanya alur PENDAFTARAN yang punya pengaman ini; alur
+        // perpanjangan/upgrade dari dashboard terlewat — tenant yang sudah
+        // membayar tetap terkunci sampai webhook masuk. Terbukti nyata:
+        // pembayaran QRIS 19 Jul lunas 10:08, tenant baru aktif 13:56 setelah
+        // diperbaiki manual.
+        $queryOrder = (string) request()->query('order_id', '');
+        $orderId = $queryOrder !== '' ? $queryOrder : (string) ($tenant?->payment_ref ?? '');
+
+        if ($tenant && $orderId !== '' && $orderId === $tenant->payment_ref && $checkout->verifyPaid($orderId)) {
+            $checkout->activate($tenant);
+
+            // Kosongkan referensi agar me-refresh halaman ini tidak mengaktifkan
+            // ulang (yang berarti menambah 30 hari gratis tiap refresh).
+            $tenant->update(['payment_ref' => null]);
+            $tenant->refresh();
+        }
 
         return view('admin.subscription.finish', compact('tenant'));
     }
