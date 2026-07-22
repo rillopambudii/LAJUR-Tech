@@ -20,6 +20,17 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\IdentifyTenant::class,
         ]);
 
+        // WAJIB berjalan SEBELUM SubstituteBindings. `append` menaruhnya di akhir
+        // grup web — artinya SESUDAH route-model binding, sehingga saat {car},
+        // {booking}, {testimonial}, {message} di-resolve TenantManager masih
+        // kosong dan global scope BelongsToTenant tidak menyaring apa pun.
+        // Akibatnya owner tenant A bisa membaca/mengubah/MENGHAPUS data tenant B
+        // (ditemukan lewat soak 2026-07-22; lihat TenantIsolationTest).
+        $middleware->prependToPriorityList(
+            before: \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            prepend: \App\Http\Middleware\IdentifyTenant::class,
+        );
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
