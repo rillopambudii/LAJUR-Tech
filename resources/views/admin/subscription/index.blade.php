@@ -22,6 +22,8 @@
             <p>Masa trial Anda berakhir pada <strong>{{ $tenant->trial_ends_at?->format('d M Y') }}</strong>.</p>
         @elseif ($tenant->subscription_ends_at)
             <p>Langganan Anda aktif hingga <strong>{{ $tenant->subscription_ends_at->format('d M Y') }}</strong>.</p>
+        @elseif ($tenant->subscription_status === 'active')
+            <p>Langganan <strong>{{ ucfirst($tenant->plan) }}</strong> Anda sedang aktif.</p>
         @else
             <p>Anda saat ini menggunakan plan Basic (gratis).</p>
         @endif

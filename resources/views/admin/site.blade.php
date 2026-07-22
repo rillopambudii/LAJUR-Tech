@@ -102,7 +102,10 @@
                             </label>
                         </div>
                     @endif
-                    <input class="input" type="file" id="logo" name="logo" accept=".jpg,.jpeg,.png,.webp">
+                    <label for="logo" class="btn btn-ghost btn-sm" style="width:fit-content">
+                        <x-icon name="edit" /> {{ $tenant->logo_path ? 'Ganti Logo' : 'Pilih Logo' }}
+                    </label>
+                    <input class="file-input-hidden" type="file" id="logo" name="logo" accept=".jpg,.jpeg,.png,.webp">
                     <span class="hint">JPG/PNG/WEBP, maks 2 MB. Juga dipakai di splash screen.</span>
                     @error('logo')<span class="field-error">{{ $message }}</span>@enderror
                 </div>
@@ -124,7 +127,10 @@
                         </label>
                     </div>
                 @endif
-                <input class="input" type="file" id="hero_image" name="hero_image" accept=".jpg,.jpeg,.png,.webp">
+                <label for="hero_image" class="btn btn-ghost btn-sm" style="width:fit-content">
+                    <x-icon name="edit" /> {{ $tenant->hero_image_path ? 'Ganti Foto' : 'Pilih Foto' }}
+                </label>
+                <input class="file-input-hidden" type="file" id="hero_image" name="hero_image" accept=".jpg,.jpeg,.png,.webp">
                 <span class="hint">Gambar lebar (mis. mobil Anda), maks 4 MB. Kosong = pakai foto bawaan.</span>
                 @error('hero_image')<span class="field-error">{{ $message }}</span>@enderror
             </div>
