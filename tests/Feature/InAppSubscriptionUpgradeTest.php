@@ -97,11 +97,16 @@ class InAppSubscriptionUpgradeTest extends TestCase
 
     public function test_finish_page_shows_success_when_activated(): void
     {
-        $this->tenant->update(['plan' => 'pro', 'pending_plan' => null]);
+        $this->tenant->update([
+            'plan' => 'pro', 'pending_plan' => null,
+            'subscription_ends_at' => now()->addDays(30),
+        ]);
 
         $this->actingAs($this->owner())->get('/admin/langganan/selesai')
             ->assertOk()
-            ->assertSee('aktif');
+            ->assertSee('Langganan Aktif!')
+            ->assertSee('Pro')                                   // paket yang berlaku
+            ->assertSee($this->tenant->subscription_ends_at->translatedFormat('d F Y')); // masa berlaku
     }
 
     /**

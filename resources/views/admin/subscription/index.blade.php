@@ -55,7 +55,11 @@
                 @else
                     <form method="POST" action="{{ route('admin.subscription.store', $plan->key) }}">
                         @csrf
-                        <button type="submit" class="btn @if ($plan->key === 'pro') btn-primary @else btn-ghost @endif btn-block">
+                        {{-- Kartu Business berlatar navy (is-featured). Tombol ghost di situ
+                             berteks navy juga, jadi TAK TERLIHAT sama sekali — tombol "Pilih
+                             Business" seolah hilang. Dibuat amber seperti halaman /daftar,
+                             yang memang sudah memakai tombol utama untuk kartu unggulan. --}}
+                        <button type="submit" class="btn @if (in_array($plan->key, ['pro', 'business'], true)) btn-primary @else btn-ghost @endif btn-block">
                             Pilih {{ $plan->name }}
                         </button>
                     </form>
