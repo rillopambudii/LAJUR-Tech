@@ -35,12 +35,12 @@
                     <div class="form-row">
                         <div class="field">
                             <label for="disc-{{ $plan->id }}">Harga diskon (Rp/bulan)</label>
-                            <input class="input mono" type="number" id="disc-{{ $plan->id }}" name="discount_price" value="{{ $plan->discount_price }}" min="0" placeholder="kosong = tanpa diskon">
+                            <input class="input mono" type="number" id="disc-{{ $plan->id }}" name="discount_price" value="{{ $plan->discount_price }}" min="0" placeholder="tanpa diskon">
                             <small style="color:var(--graphite);font-size:.78rem">Harga normal tampil dicoret; harga ini yang ditagihkan.</small>
                         </div>
                         <div class="field">
                             <label for="disclbl-{{ $plan->id }}">Label promo</label>
-                            <input class="input" type="text" id="disclbl-{{ $plan->id }}" name="discount_label" value="{{ $plan->discount_label }}" maxlength="40" placeholder="mis. Promo Peluncuran">
+                            <input class="input" type="text" id="disclbl-{{ $plan->id }}" name="discount_label" value="{{ $plan->discount_label }}" maxlength="40" placeholder="mis. Promo Awal">
                         </div>
                     </div>
                     <button type="submit" class="btn btn-ghost btn-sm">Simpan Harga</button>
