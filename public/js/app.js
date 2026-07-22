@@ -60,14 +60,9 @@
         });
     }
 
-    /* ---------- Image fallback (branded placeholder) ---------- */
-    var PLACEHOLDER = '/img/placeholder-car.svg';
-    document.querySelectorAll('img[data-fallback]').forEach(function (img) {
-        img.addEventListener('error', function handle() {
-            img.removeEventListener('error', handle);
-            img.src = PLACEHOLDER;
-        });
-    });
+    /* ---------- Image fallback: pindah ke public/js/img-fallback.js ----------
+       Dipakai layout publik & admin; ditaruh terpisah agar tak lagi hanya
+       tersedia di bundel ini. --------------------------------------------- */
 
     /* ---------- Type filter chips ---------- */
     var chips = document.querySelectorAll('.chip[data-filter]');

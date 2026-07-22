@@ -140,7 +140,8 @@
     </div>
 </div>
 
-<script src="{{ asset('js/admin.js') }}" defer></script>
+<script src="{{ asset('js/img-fallback.js') }}?v={{ filemtime(public_path('js/img-fallback.js')) }}" defer></script>
+<script src="{{ asset('js/admin.js') }}?v={{ filemtime(public_path('js/admin.js')) }}" defer></script>
 @stack('scripts')
 </body>
 </html>
