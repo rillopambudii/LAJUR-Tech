@@ -152,23 +152,49 @@ class Preflight extends Command
             return;
         }
 
-        // Kunci sandbox Midtrans berawalan "SB-", kunci produksi tidak.
-        $serverIsSandboxKey = Str::startsWith($server, 'SB-');
-        $clientIsSandboxKey = Str::startsWith($client, 'SB-');
+        // JANGAN menebak lingkungan dari awalan kunci. Awalan "SB-" memang khas
+        // kunci sandbox lama, tapi akun Midtrans baru menerbitkan kunci sandbox
+        // TANPA awalan itu — heuristik ini pernah salah menuduh konfigurasi yang
+        // sudah benar (2026-07-22). Satu-satunya jawaban yang sahih datang dari
+        // Midtrans sendiri: minta status order yang pasti tak ada, lalu lihat
+        // apakah otentikasinya diterima.
+        $base = $isProduction ? 'https://api.midtrans.com' : 'https://api.sandbox.midtrans.com';
+        $mode = $isProduction ? 'produksi' : 'sandbox';
 
-        if ($serverIsSandboxKey !== $clientIsSandboxKey) {
-            $this->bad('Kunci Midtrans campur', 'MIDTRANS_SERVER_KEY dan MIDTRANS_CLIENT_KEY berasal dari lingkungan berbeda (satu sandbox, satu produksi). Ambil keduanya dari dasbor yang sama.');
+        try {
+            $response = \Illuminate\Support\Facades\Http::withBasicAuth($server, '')
+                ->acceptJson()
+                ->timeout(12)
+                ->get($base.'/v2/preflight-'.uniqid().'/status');
+        } catch (\Throwable $e) {
+            $this->warnAbout('Kunci Midtrans belum bisa diverifikasi', 'Tak bisa menghubungi '.$base.' dari server ini ('.Str::limit($e->getMessage(), 80).'). Pastikan server punya akses internet keluar, lalu ulangi.');
 
             return;
         }
 
-        if ($isProduction && $serverIsSandboxKey) {
-            $this->bad('Mode produksi memakai kunci sandbox', 'MIDTRANS_IS_PRODUCTION=true tapi kuncinya sandbox (awalan SB-). Pembayaran akan ditolak Midtrans.');
-        } elseif (! $isProduction && ! $serverIsSandboxKey) {
-            $this->bad('Mode sandbox memakai kunci produksi', 'MIDTRANS_IS_PRODUCTION=false tapi kuncinya kunci PRODUKSI (tanpa awalan SB-). Aplikasi menembak endpoint sandbox dengan kunci produksi — Midtrans menolaknya, jadi pelanggan tak bisa membayar. Samakan: pakai kunci sandbox untuk uji coba, atau set MIDTRANS_IS_PRODUCTION=true saat sudah siap menerima uang sungguhan.');
-        } else {
-            $this->ok('Midtrans', $isProduction ? 'mode produksi, kunci produksi' : 'mode sandbox, kunci sandbox');
+        // Midtrans membalas 401 (atau status_code 401 di body) bila kunci ditolak.
+        $bodyCode = (string) $response->json('status_code', '');
+        $rejected = $response->status() === 401 || $bodyCode === '401';
+
+        if ($rejected) {
+            $this->bad(
+                "Kunci Midtrans ditolak lingkungan {$mode}",
+                "MIDTRANS_IS_PRODUCTION=".($isProduction ? 'true' : 'false')." (mode {$mode}), tapi {$base} menolak MIDTRANS_SERVER_KEY: ".
+                trim((string) $response->json('status_message', 'Unknown Merchant server_key')).'. '.
+                'Artinya kunci dan mode berasal dari lingkungan berbeda — pelanggan tidak akan bisa membayar. '.
+                'Ambil ulang kedua kunci dari dashboard Midtrans pada lingkungan yang sesuai (pengalih Sandbox/Production ada di pojok kiri atas).'
+            );
+
+            return;
         }
+
+        if ($client === '' || ! Str::startsWith($client, 'Mid-client')) {
+            $this->warnAbout('Format MIDTRANS_CLIENT_KEY tak lazim', 'Server key sudah diterima Midtrans, tapi client key tidak berpola "Mid-client-...". Pastikan diambil dari dashboard & lingkungan yang sama dengan server key.');
+
+            return;
+        }
+
+        $this->ok('Midtrans', "mode {$mode}, kunci diterima Midtrans");
     }
 
     private function checkStorage(): void
