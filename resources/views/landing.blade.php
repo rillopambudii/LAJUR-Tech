@@ -618,7 +618,12 @@
     .gps-phone-wrap { display: flex; justify-content: center; }
     .gps-phone { width: min(320px, 82vw); border-radius: 30px; background: #0B1424; border: 8px solid #1E2B45;
         overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 40px 80px -20px rgba(0,0,0,.6); }
-    .gps-bar, .gps-foot { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; background: #101C31; }
+    /* Warna teks ditetapkan eksplisit, tidak diwariskan: latarnya SELALU navy,
+       jadi bar ini harus terbaca di section mana pun ia dipakai. Tanpa ini,
+       ketika dipakai di dalam .phone-frame pada section terang, teksnya
+       mewarisi warna gelap dan lenyap (kontras 1,02:1 — ketahuan sapuan
+       kontras 2026-07-22). */
+    .gps-bar, .gps-foot { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; background: #101C31; color: var(--ivory); }
     .gps-bar .car-lbl { font-family: var(--font-display); font-weight: 700; font-size: .95rem; }
     .gps-bar .live { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: .7rem;
         font-weight: 700; color: var(--ok); background: rgba(31,138,99,.16); padding: 4px 10px; border-radius: var(--radius-pill); }
