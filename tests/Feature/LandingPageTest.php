@@ -26,6 +26,14 @@ class LandingPageTest extends TestCase
             ->assertDontSee('Sewa Sekarang'); // itu tombol etalase, bukan page induk
     }
 
+    public function test_page_induk_has_floating_whatsapp_button(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('wa-float')
+            ->assertSee('wa.me/'.config('lajur.whatsapp'), false);
+    }
+
     public function test_landing_shows_struck_price_when_plan_discounted(): void
     {
         \App\Models\Plan::where('key', 'pro')->update(['discount_price' => 999000, 'discount_label' => 'Promo Peluncuran']);

@@ -92,6 +92,12 @@
         </div>
     </footer>
 
+    {{-- Tombol WA melayang, kelas .wa-float sama dgn etalase tenant (app.css). --}}
+    <a href="https://wa.me/{{ config('lajur.whatsapp') }}?text={{ rawurlencode('Halo Lajur, saya pemilik rental dan ingin tanya soal aplikasinya.') }}"
+       class="wa-float" target="_blank" rel="noopener" aria-label="Chat WhatsApp Lajur">
+        <x-icon name="whatsapp" />
+    </a>
+
     <script src="{{ asset('js/img-fallback.js') }}?v={{ filemtime(public_path('js/img-fallback.js')) }}" defer></script>
     <script src="{{ asset('js/app.js') }}?v={{ filemtime(public_path('js/app.js')) }}" defer></script>
     @stack('scripts')
