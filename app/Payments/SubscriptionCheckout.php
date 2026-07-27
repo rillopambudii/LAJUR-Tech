@@ -72,12 +72,17 @@ class SubscriptionCheckout
      * di lokal (Midtrans tak bisa menjangkau localhost) dan menutup balapan
      * redirect-vs-webhook di produksi. Aman: verifikasi di sisi server, bukan
      * percaya redirect dari browser.
+     *
+     * true = lunas, false = TERBUKTI belum lunas, null = tak bisa diverifikasi
+     * (kunci kosong / Midtrans tak terjangkau). Pemanggil yang mengambil
+     * keputusan merugikan (mis. membatalkan booking) wajib bedakan false vs null;
+     * pemanggil yang cuma memberi akses cukup pakai truthiness.
      */
-    public function verifyPaid(string $orderId): bool
+    public function verifyPaid(string $orderId): ?bool
     {
         $serverKey = (string) config('services.midtrans.server_key');
         if ($serverKey === '' || $orderId === '') {
-            return false;
+            return null;
         }
 
         try {
@@ -88,11 +93,11 @@ class SubscriptionCheckout
         } catch (\Throwable $e) {
             Log::warning('Midtrans status check unreachable', ['order' => $orderId, 'error' => $e->getMessage()]);
 
-            return false;
+            return null;
         }
 
         if ($response->failed()) {
-            return false;
+            return null;
         }
 
         $tx = (string) $response->json('transaction_status');
@@ -107,9 +112,15 @@ class SubscriptionCheckout
      */
     public function activate(Tenant $tenant): void
     {
+        // Perpanjang dari sisa masa aktif, bukan dari sekarang — kalau tidak,
+        // renew/upgrade lebih awal menghanguskan hari yang sudah dibayar.
+        $base = $tenant->subscription_ends_at?->isFuture()
+            ? $tenant->subscription_ends_at->copy()
+            : now();
+
         $data = [
             'subscription_status' => 'active',
-            'subscription_ends_at' => now()->addDays(30),
+            'subscription_ends_at' => $base->addDays(30),
         ];
 
         if ($tenant->pending_plan) {
