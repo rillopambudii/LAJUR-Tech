@@ -21,7 +21,10 @@ class DashboardController extends Controller
             'bookings_pending' => Booking::query()->where('status', 'pending')->count(),
             'testimonials' => Testimonial::query()->count(),
             'messages_unread' => ContactMessage::query()->where('is_read', false)->count(),
-            'revenue' => (int) Booking::query()->where('status', 'completed')->sum('total_price'),
+            // Pakai scope revenue() (confirmed+completed) — sumber tunggal yang
+            // sama dengan Laporan, Export & AI. Dulu dashboard hanya 'completed',
+            // jadi angkanya beda dgn halaman Laporan untuk data yang sama.
+            'revenue' => (int) Booking::query()->revenue()->sum('total_price'),
         ];
 
         // Booking counts for the last 6 months (FR-29) — rendered as a pure-CSS chart.

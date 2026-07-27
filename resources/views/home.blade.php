@@ -324,6 +324,10 @@
 
             <form action="{{ route('booking.store') }}" method="POST" novalidate>
                 @csrf
+                @if ($demo ?? false)
+                    {{-- Etalase contoh (/demo): jangan buat pesanan & pembayaran sungguhan. --}}
+                    <input type="hidden" name="demo" value="1">
+                @endif
                 <input type="hidden" name="car_id" value="{{ old('car_id') }}">
                 <input type="hidden" name="_cprice" value="{{ old('_cprice') }}" data-cprice>
                 <div class="hp-field" aria-hidden="true">

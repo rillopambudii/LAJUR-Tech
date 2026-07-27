@@ -264,7 +264,7 @@ Route::prefix('superadmin')
 */
 Route::prefix('driver')
     ->name('driver.')
-    ->middleware(['auth', 'role:driver'])
+    ->middleware(['auth', 'role:driver', 'subscription.active'])
     ->group(function () {
         Route::get('/', [DriverDashboardController::class, 'index'])->name('dashboard');
         Route::get('profil', [DriverProfileController::class, 'show'])->name('profile');

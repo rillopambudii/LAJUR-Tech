@@ -42,10 +42,24 @@ class MileageService
         return $meters > 0 ? $meters / 1000 : null;
     }
 
-    /** Recompute daily mileage buckets for one car from all its positions. */
+    /**
+     * Recompute daily mileage buckets for one car from its GPS positions.
+     * Hanya memproses sejak sinkron terakhir (mundur 1 hari untuk menutup ping
+     * telat), bukan seluruh riwayat tiap malam — kalau tidak, setelah setahun
+     * feed nyata (~3 juta baris/mobil) job ini OOM/berjam-jam.
+     * Ceiling: satu segmen lintas-tengah-malam di hari pertama yang diproses
+     * ulang bisa terlewat (≤8 km, biasanya noise GPS mobil parkir). Naikkan
+     * lookback bila presisi lintas-hari jadi penting.
+     */
     public function syncCar(Car $car): void
     {
+        // mileage_synced_at tak di-cast ke datetime di model Car → parse manual.
+        $since = $car->mileage_synced_at
+            ? Carbon::parse($car->mileage_synced_at)->subDay()->startOfDay()
+            : null;
+
         $positions = $car->positions()
+            ->when($since, fn ($q) => $q->where('device_time', '>=', $since))
             ->orderBy('device_time')
             ->get(['latitude', 'longitude', 'device_time']);
 

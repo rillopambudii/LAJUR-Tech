@@ -90,7 +90,8 @@
                 <div style="font-family:var(--font-display);font-weight:800;font-size:1.9rem;color:var(--petrol);margin:6px 0 4px">
                     {{ $booking->trip_status_label }}
                 </div>
-                @if ($booking->eta_manual_note)
+                {{-- ETA hanya relevan sebelum mobil tiba; trip yang sudah tiba/selesai (progress 100) tak punya ETA. --}}
+                @if ($booking->eta_manual_note && $booking->trip_progress < 100)
                     <p style="margin:0;color:var(--petrol-600);font-size:1rem">
                         <x-icon name="clock" style="display:inline-block;width:16px;height:16px;vertical-align:-2px" /> Estimasi tiba: {{ $booking->eta_manual_note }}
                     </p>
@@ -102,10 +103,12 @@
         <div class="panel reveal" style="margin-bottom:20px">
             <div class="panel-body">
                 @if ($demo)
-                    <div data-eta style="text-align:center;margin-bottom:12px;font-weight:600;color:var(--petrol)">
-                        <x-icon name="clock" style="display:inline-block;width:16px;height:16px;vertical-align:-2px" />
-                        Estimasi tiba: <span data-eta-min>—</span> menit
-                    </div>
+                    @if ($booking->trip_progress < 100)
+                        <div data-eta style="text-align:center;margin-bottom:12px;font-weight:600;color:var(--petrol)">
+                            <x-icon name="clock" style="display:inline-block;width:16px;height:16px;vertical-align:-2px" />
+                            Estimasi tiba: <span data-eta-min>—</span> menit
+                        </div>
+                    @endif
                     <div id="tracking-map" style="height:280px;border-radius:var(--radius);overflow:hidden;background:var(--ivory-200)"></div>
                 @elseif ($booking->has_live_gps)
                     {{-- Fase 2: render peta live di sini via public/js/tracking.js,
@@ -303,7 +306,9 @@
     window.TrackingDemo.trip('tracking-map', {
         routesUrl: @json(asset('js/demo-routes.json')),
         onEta: function (e) {
-            document.querySelector('[data-eta-min]').textContent = e.arrived ? '0 — Tiba' : e.minutes;
+            // Elemen ETA absen untuk trip yang sudah tiba/selesai — jangan error.
+            var el = document.querySelector('[data-eta-min]');
+            if (el) el.textContent = e.arrived ? '0 — Tiba' : e.minutes;
         }
     });
 </script>

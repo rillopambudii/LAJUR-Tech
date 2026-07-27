@@ -131,6 +131,20 @@ class BookingController extends Controller
             'driver_id.exists' => 'Driver yang dipilih tidak valid.',
         ]);
 
+        // Satu driver tak boleh ditugaskan ke dua perjalanan yang tanggalnya
+        // bertumpang-tindih (analog dgn ketersediaan mobil).
+        if (! empty($validated['driver_id'])
+            && Booking::query()
+                ->where('driver_id', $validated['driver_id'])
+                ->where('id', '!=', $booking->id)
+                ->active()
+                ->overlapping($booking->start_date->toDateString(), $booking->end_date->toDateString())
+                ->exists()) {
+            return back()->withErrors([
+                'driver_id' => 'Driver ini sudah ditugaskan ke perjalanan lain pada rentang tanggal yang sama.',
+            ]);
+        }
+
         $booking->update([
             'driver_id' => $validated['driver_id'] ?: null,
             'destination' => $validated['destination'] ?? null,
@@ -143,7 +157,25 @@ class BookingController extends Controller
 
     public function updateStatus(UpdateBookingStatusRequest $request, Booking $booking): RedirectResponse
     {
-        $booking->update(['status' => $request->validated()['status']]);
+        $new = $request->validated()['status'];
+
+        // Mengembalikan booking ke status yang mem-blokir (pending/confirmed)
+        // harus lolos cek ketersediaan lagi — kalau tidak, meng-"un-cancel"
+        // booking bisa menabrak booking lain yang sudah mengisi tanggalnya.
+        if (! in_array($booking->status, Booking::BLOCKING_STATUSES, true)
+            && in_array($new, Booking::BLOCKING_STATUSES, true)
+            && $booking->car
+            && ! $booking->car->isAvailableForRange(
+                $booking->start_date->toDateString(),
+                $booking->end_date->toDateString(),
+                $booking->id,
+            )) {
+            return back()->withErrors([
+                'status' => 'Tidak bisa mengaktifkan booking ini: mobil sudah dipesan pada rentang tanggal tersebut.',
+            ]);
+        }
+
+        $booking->update(['status' => $new]);
 
         return back()->with('success', 'Status booking berhasil diperbarui.');
     }
@@ -158,6 +190,14 @@ class BookingController extends Controller
             'trip_status.in'       => 'Status perjalanan tidak valid.',
             'eta_manual_note.max'  => 'Catatan ETA maksimal 100 karakter.',
         ]);
+
+        // Booking yang dibatalkan tak punya perjalanan — jangan biarkan halaman
+        // lacak pelanggan menampilkan progres "Selesai" untuk rental yang batal.
+        if ($booking->status === 'cancelled') {
+            return back()->withErrors([
+                'trip_status' => 'Booking ini sudah dibatalkan, status perjalanannya tidak bisa diubah.',
+            ]);
+        }
 
         $booking->update($validated);
 
@@ -175,7 +215,15 @@ class BookingController extends Controller
     {
         $booking->loadMissing('tenant');
 
-        Mail::to($booking->customer_email)->send(new BookingInvoiceMail($booking));
+        // SMTP bisa gagal (kredensial, rate-limit Gmail, timeout). Jangan
+        // lempar 500 ke admin — laporkan gagal agar bisa dicoba ulang.
+        try {
+            Mail::to($booking->customer_email)->send(new BookingInvoiceMail($booking));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim invoice', ['booking' => $booking->id, 'error' => $e->getMessage()]);
+
+            return back()->with('error', 'Invoice gagal dikirim (masalah server email). Silakan coba lagi nanti.');
+        }
 
         return back()->with('success', 'Invoice telah dikirim ke '.$booking->customer_email.'.');
     }

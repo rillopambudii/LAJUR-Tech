@@ -16,6 +16,16 @@ class ExportController extends Controller
 {
     use ParsesDateRange;
 
+    /**
+     * Dataset yang isinya adalah fitur berbayar tersendiri. Route hanya menjaga
+     * `feature:export`, jadi tanpa peta ini tenant Basic bisa mengunduh data
+     * BBM/GPS (yang dijual di paket Pro/Business) lewat URL langsung.
+     */
+    private const DATASET_FEATURE = [
+        'fuel' => 'fuel_tracking',
+        'mileage' => 'gps_tracking',
+    ];
+
     public function __construct(private OperationalDatasets $datasets)
     {
     }
@@ -23,6 +33,11 @@ class ExportController extends Controller
     public function download(Request $request, string $dataset, string $format): Response
     {
         abort_unless(in_array($format, ['xlsx', 'pdf'], true), 404);
+
+        $required = self::DATASET_FEATURE[$dataset] ?? null;
+        if ($required && ! app(TenantManager::class)->current()?->hasFeature($required)) {
+            abort(403, 'Fitur ini tidak tersedia pada paket langganan Anda.');
+        }
 
         [$from, $to] = $this->range($request);
 

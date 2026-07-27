@@ -23,6 +23,9 @@ class MileageSync extends Command
             $this->info("Tenant {$tenant->slug}: {$n} mobil disinkron.");
         }
 
+        // Jangan tinggalkan tenant terakhir ter-set untuk sisa proses.
+        $manager->set(null);
+
         return self::SUCCESS;
     }
 }

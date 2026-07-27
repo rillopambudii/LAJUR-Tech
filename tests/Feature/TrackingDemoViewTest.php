@@ -70,4 +70,29 @@ class TrackingDemoViewTest extends TestCase
         $res->assertSee('tracking-demo.js', false);
         $res->assertSee('data-eta', false);
     }
+
+    public function test_completed_booking_hides_eta_but_keeps_map(): void
+    {
+        config()->set('services.tracking.demo', true);
+
+        $car = Car::create([
+            'name' => 'Avanza', 'brand' => 'Toyota', 'type' => 'MPV',
+            'transmission' => 'Automatic', 'fuel_type' => 'Bensin',
+            'seats' => 7, 'price_per_day' => 300000, 'is_available' => true,
+        ]);
+        $booking = Booking::create([
+            'car_id' => $car->id, 'car_name' => $car->name,
+            'customer_name' => 'Budi', 'customer_email' => 'b@x.id', 'customer_phone' => '081234567',
+            'start_date' => '2026-08-10', 'end_date' => '2026-08-12', 'days' => 2,
+            'price_per_day' => 300000, 'total_price' => 600000, 'status' => 'completed',
+            'trip_status' => Booking::TRIP_COMPLETED, // progress 100 → tak ada ETA
+            'booking_code' => Booking::generateBookingCode(),
+        ]);
+
+        $res = $this->get('/lacak/'.$booking->booking_code);
+
+        $res->assertOk();
+        $res->assertSee('tracking-map', false);      // peta tetap ada (demo)
+        $res->assertDontSee('Estimasi tiba', false); // tapi ETA tak ditampilkan untuk trip selesai
+    }
 }

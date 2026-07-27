@@ -46,6 +46,13 @@ class PaymentController extends Controller
                     }
                 }
 
+                // Pembayaran gagal/kedaluwarsa: lepaskan mobil. Booking pending
+                // masih memblokir tanggalnya (BLOCKING_STATUSES) — kalau tak
+                // dibatalkan, tiap checkout yang ditinggal mengunci mobil selamanya.
+                if (in_array($status, ['failed', 'expired'], true) && $booking->status === 'pending') {
+                    $booking->status = 'cancelled';
+                }
+
                 $booking->save();
             }
         }

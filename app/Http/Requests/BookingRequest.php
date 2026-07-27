@@ -3,11 +3,16 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\Validator;
 
 class BookingRequest extends FormRequest
 {
     /** Keep booking errors in their own bag so only the modal shows them. */
     protected $errorBag = 'booking';
+
+    /** Sewa lebih panjang dari ini hampir pasti salah input / penyalahgunaan. */
+    public const MAX_RENTAL_DAYS = 90;
 
     public function authorize(): bool
     {
@@ -28,6 +33,23 @@ class BookingRequest extends FormRequest
             'end_date' => ['required', 'date', 'after:start_date'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];
+    }
+
+    /** Batasi durasi sewa agar satu booking tak bisa mengunci mobil bertahun-tahun. */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $v) {
+            if ($v->errors()->hasAny(['start_date', 'end_date'])) {
+                return;
+            }
+
+            $start = Carbon::parse($this->input('start_date'));
+            $end = Carbon::parse($this->input('end_date'));
+
+            if ($start->diffInDays($end) > self::MAX_RENTAL_DAYS) {
+                $v->errors()->add('end_date', 'Durasi sewa maksimal '.self::MAX_RENTAL_DAYS.' hari. Silakan hubungi kami untuk sewa lebih lama.');
+            }
+        });
     }
 
     /**

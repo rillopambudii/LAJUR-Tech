@@ -13,6 +13,8 @@
     .ai-chip:hover{border-color:var(--petrol,#0f5a5e);color:var(--petrol,#0f5a5e)}
     .ai-answer{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:20px 22px;margin-bottom:18px}
     .ai-q{font-weight:700;font-family:'Sora',sans-serif;margin:0 0 10px;display:flex;gap:8px;align-items:flex-start}
+    /* Tanpa ini ikon SVG (viewBox tanpa ukuran) melar memenuhi baris flex — jadi raksasa. */
+    .ai-q svg{width:18px;height:18px;flex:none;margin-top:3px;color:var(--amber-600,#c8892a)}
     .ai-a{white-space:pre-wrap;line-height:1.7}
     .ai-note{font-size:.82rem;color:rgba(0,0,0,.5);margin-top:14px}
     textarea.ai-input{width:100%;box-sizing:border-box;min-height:80px;padding:14px;border:1px solid rgba(0,0,0,.15);border-radius:12px;font:inherit;resize:vertical}
@@ -48,6 +50,11 @@
             <p class="ai-q"><x-icon name="chat" /> <span>{{ session('assistant_question') }}</span></p>
             <div class="ai-a">{{ session('assistant_answer') }}</div>
             <p class="ai-note">Jawaban dihasilkan AI dari data Anda. Selalu verifikasi angka penting di menu Laporan.</p>
+        </div>
+    @elseif (session('assistant_error'))
+        <div class="ai-answer">
+            <p class="ai-q"><x-icon name="chat" /> <span>{{ session('assistant_question') }}</span></p>
+            <div class="ai-a" style="color:#b91c1c">{{ session('assistant_error') }}</div>
         </div>
     @endif
 

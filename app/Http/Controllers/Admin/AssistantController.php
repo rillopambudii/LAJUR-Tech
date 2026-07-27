@@ -33,14 +33,20 @@ class AssistantController extends Controller
 
         try {
             $result = $this->assistant->ask($data['question']);
-            $answer = $result['answer'];
         } catch (\Throwable $e) {
-            $answer = $e->getMessage();
+            // Jangan bocorkan pesan exception internal (URL endpoint, body upstream,
+            // kunci config) ke layar tenant sebagai kalau itu jawaban AI.
+            \Illuminate\Support\Facades\Log::warning('AI assistant gagal', ['error' => $e->getMessage()]);
+
+            return back()->with([
+                'assistant_question' => $data['question'],
+                'assistant_error' => 'Asisten AI sedang tidak dapat menjawab. Coba lagi beberapa saat, atau hubungi admin bila terus berlanjut.',
+            ]);
         }
 
         return back()->with([
             'assistant_question' => $data['question'],
-            'assistant_answer' => $answer,
+            'assistant_answer' => $result['answer'],
         ]);
     }
 

@@ -82,7 +82,7 @@
         <div class="panel">
             <div class="panel-head"><h2>Booking per Status</h2><span class="tag">{{ $from->translatedFormat('d M') }} – {{ $to->translatedFormat('d M Y') }}</span></div>
             <div class="table-wrap">
-                <table class="data">
+                <table class="data compact">
                     <tbody>
                     @foreach ($summary['status_breakdown'] as $status => $count)
                         <tr>

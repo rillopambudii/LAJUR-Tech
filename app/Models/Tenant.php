@@ -61,6 +61,15 @@ class Tenant extends Model
 
     public const STATUSES = ['trial', 'active', 'suspended', 'cancelled', 'pending_payment'];
 
+    /** Status yang mengunci akses tenant (harus bayar dulu untuk aktif kembali). */
+    public const LOCKED_STATUSES = ['pending_payment', 'suspended', 'cancelled'];
+
+    /** Apakah langganan tenant ini sedang terkunci (bukan trial/active). */
+    public function isLocked(): bool
+    {
+        return in_array($this->subscription_status, self::LOCKED_STATUSES, true);
+    }
+
     protected ?Plan $currentPlanCache = null;
 
     protected bool $currentPlanResolved = false;

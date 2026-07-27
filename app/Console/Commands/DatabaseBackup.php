@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -99,7 +100,7 @@ class DatabaseBackup extends Command
     {
         $count = 0;
 
-        DB::table($table)->orderByRaw('1')->chunk(500, function ($rows) use ($handle, $table, &$count) {
+        $writer = function ($rows) use ($handle, $table, &$count) {
             $values = [];
 
             foreach ($rows as $row) {
@@ -115,7 +116,21 @@ class DatabaseBackup extends Command
                 $columns = implode('`,`', array_keys((array) $rows->first()));
                 fwrite($handle, "INSERT INTO `{$table}` (`{$columns}`) VALUES\n".implode(",\n", $values).";\n");
             }
-        });
+        };
+
+        // `chunk()` memakai LIMIT/OFFSET; tanpa urutan deterministik (dulu
+        // orderByRaw('1')) baris bisa terlewat / ganda saat ada tulisan
+        // bersamaan — merusak backup diam-diam. `chunkById` menelusuri lewat PK
+        // yang stabil. Tabel tanpa `id` (pivot/sesi) kecil & tak ditulis saat
+        // backup dini hari; urutkan by kolom pertama sudah cukup deterministik.
+        if (Schema::hasColumn($table, 'id')) {
+            DB::table($table)->orderBy('id')->chunkById(500, $writer);
+        } else {
+            $firstColumn = Schema::getColumnListing($table)[0] ?? null;
+            $query = DB::table($table);
+            $query = $firstColumn ? $query->orderBy($firstColumn) : $query;
+            $query->chunk(500, $writer);
+        }
 
         return $count;
     }

@@ -49,9 +49,15 @@ class TenantController extends Controller
         $tenant->update([
             'plan' => $data['plan'],
             'subscription_status' => 'active',
+            // Bersihkan sisa niat upgrade/downgrade — kalau tertinggal, pembayaran
+            // berikutnya akan menerapkannya diam-diam & salah mengubah plan.
+            'pending_plan' => null,
+            // Beri masa aktif eksplisit; tanpa ini TrialGuard & tenants:check-trial
+            // melewati tenant (subscription_ends_at null) → aktif selamanya, tak ditagih.
+            'subscription_ends_at' => now()->addDays(30),
         ]);
 
-        return back()->with('success', "Plan tenant {$tenant->name} diubah ke {$data['plan']}.");
+        return back()->with('success', "Plan tenant {$tenant->name} diubah ke {$data['plan']} (aktif 30 hari).");
     }
 
     public function updateStatus(Request $request, Tenant $tenant): RedirectResponse

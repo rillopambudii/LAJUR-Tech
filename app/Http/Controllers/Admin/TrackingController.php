@@ -73,12 +73,20 @@ class TrackingController extends Controller
             return response()->json(['car' => null, 'points' => []]);
         }
 
-        $from = $this->parseDate($request->query('from')) ?? now()->subDay();
         $to = $this->parseDate($request->query('to')) ?? now();
+        $from = $this->parseDate($request->query('from')) ?? now()->subDay();
+        // Batasi jendela ke maksimal 30 hari terakhir. Dgn feed nyata (~10 dtk/ping)
+        // rentang "1970..2099" bisa ~jutaan baris → habiskan memori & 500. Kunci
+        // batas bawahnya, dan cap jumlah titik.
+        $floor = now()->subDays(30);
+        if ($from->lt($floor)) {
+            $from = $floor;
+        }
 
         $points = $car->positions()
             ->whereBetween('device_time', [$from, $to])
             ->orderBy('device_time')
+            ->limit(5000)
             ->get(['latitude', 'longitude', 'device_time'])
             ->map(fn ($p) => [
                 'lat' => $p->latitude,

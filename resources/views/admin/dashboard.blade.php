@@ -54,7 +54,7 @@
         <div class="stat-card accent" style="grid-column: span 2">
             <div class="ico"><x-icon name="wallet" /></div>
             <div class="num">Rp {{ number_format($stats['revenue'], 0, ',', '.') }}</div>
-            <div class="lbl">Total Pendapatan (booking selesai)</div>
+            <div class="lbl">Total Pendapatan (dikonfirmasi + selesai)</div>
         </div>
     </div>
 
@@ -81,7 +81,7 @@
                 <a href="{{ route('admin.bookings.index') }}" class="btn btn-ghost btn-sm">Semua</a>
             </div>
             <div class="table-wrap">
-                <table class="data">
+                <table class="data compact">
                     <tbody>
                     @forelse ($recentBookings as $b)
                         <tr>

@@ -25,11 +25,10 @@ class EnsureUserIsAdmin
         // berbayar ditinggal → pending_payment, dibatalkan) dikunci dari back-office
         // TAPI diarahkan ke halaman langganan agar bisa membayar — bukan jalan buntu.
         // Halaman langganan sendiri harus lolos supaya tidak terjadi loop.
-        $locked = ['pending_payment', 'suspended', 'cancelled'];
         $payRoutes = ['admin.subscription.index', 'admin.subscription.store', 'admin.subscription.finish'];
 
         if ($user->tenant
-            && in_array($user->tenant->subscription_status, $locked, true)
+            && $user->tenant->isLocked()
             && ! in_array($request->route()?->getName(), $payRoutes, true)) {
             return redirect()->route('admin.subscription.index')
                 ->with('locked', 'Masa langganan Anda berakhir. Pilih paket dan selesaikan pembayaran untuk mengaktifkan kembali akun.');
