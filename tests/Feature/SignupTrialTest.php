@@ -27,6 +27,7 @@ class SignupTrialTest extends TestCase
         $response->assertSee('Pro');
         $response->assertSee('Business');
         $response->assertSee('Coba Gratis');
+        $response->assertSee('tanpa batas'); // semua paket tanpa kuota unit/booking
     }
 
     public function test_trial_signup_creates_tenant_and_logs_in(): void

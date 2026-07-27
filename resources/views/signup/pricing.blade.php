@@ -24,6 +24,7 @@
                 </div>
                 <ul class="about-points">
                     <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">BBM anti-kebocoran &amp; Asisten AI</span></li>
+                    <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Mobil, driver &amp; pemesanan tanpa batas</span></li>
                     <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Tanpa kartu kredit</span></li>
                     <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Pelacakan GPS <span style="display:inline-block;background:rgba(231,178,76,.18);color:var(--amber-600);font-size:.68rem;font-weight:700;padding:2px 9px;border-radius:6px;white-space:nowrap;vertical-align:1px">segera hadir</span><small class="pt-sub">bisa digunakan ketika alat GPS telah dipasang</small></span></li>
                 </ul>
@@ -63,6 +64,8 @@
                         <span class="per">/ bulan</span>
                     </div>
                     <ul class="about-points">
+                        {{-- Semua paket sengaja tanpa kuota: yang dijual fitur, bukan jumlah unit. --}}
+                        <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Mobil, driver &amp; pemesanan tanpa batas</span></li>
                         <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Booking &amp; kalender armada</span></li>
                         <li><span class="tick"><x-icon name="check" /></span> <span class="pt-txt">Kelola driver &amp; laporan</span></li>
                         @foreach ($plan->features as $feature)
